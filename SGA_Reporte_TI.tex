@@ -1,0 +1,553 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Configuración de página
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{SGA - Sistema de Gestión de Agendamiento}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configuración de títulos
+\titleformat{\section}{\Large\bfseries\color{blue}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{darkgray}}{\thesubsection}{1em}{}
+
+% Configuración de código
+\lstset{
+    language=JavaScript,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge\bfseries\color{blue} Sistema de Gestión de Agendamiento (SGA)}
+    
+    \vspace{1cm}
+    
+    {\Large\textbf{Reporte Técnico del Equipo de TI}}
+    
+    \vspace{2cm}
+    
+    {\large\textbf{Transformación a Plataforma SaaS}}
+    
+    \vspace{3cm}
+    
+    \begin{tabular}{ll}
+        \textbf{Fecha:} & \today \\
+        \textbf{Versión:} & 1.0 \\
+        \textbf{Equipo:} & Desarrollo TI \\
+        \textbf{Estado:} & Demo Funcional \\
+    \end{tabular}
+    
+    \vfill
+    
+    {\large\textit{Reporte interno para el equipo de desarrollo}}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Resumen Ejecutivo}
+
+El Sistema de Gestión de Agendamiento (SGA) es una solución tecnológica integral desarrollada para resolver los problemas de gestión administrativa que enfrentan las instituciones de reforzamiento académico. Basado en investigación directa en el campo, el sistema elimina la dependencia de métodos manuales obsoletos y proporciona una plataforma digital moderna, eficiente y escalable.
+
+\subsection{Objetivos del Proyecto}
+\begin{itemize}
+    \item Eliminar la gestión manual con múltiples libros de horarios
+    \item Centralizar la administración de cursos, profesores y reservas
+    \item Optimizar el uso de recursos y espacios
+    \item Proporcionar insights y reportes en tiempo real
+    \item Transformar la demo funcional en una plataforma SaaS rentable
+\end{itemize}
+
+\section{Arquitectura Técnica}
+
+\subsection{Stack Tecnológico}
+
+\subsubsection{Frontend}
+\begin{itemize}
+    \item \textbf{Framework:} React 18 con TypeScript
+    \item \textbf{Bundler:} Vite para desarrollo rápido
+    \item \textbf{UI Components:} React Big Calendar para calendarios
+    \item \textbf{Styling:} CSS Modules con diseño responsive
+    \item \textbf{State Management:} React Hooks y Context API
+    \item \textbf{HTTP Client:} Axios para comunicación con API
+\end{itemize}
+
+\subsubsection{Backend}
+\begin{itemize}
+    \item \textbf{Runtime:} Node.js con Express.js
+    \item \textbf{Language:} JavaScript ES6+
+    \item \textbf{Database:} PostgreSQL con conexión pooling
+    \item \textbf{Authentication:} JWT tokens
+    \item \textbf{Validation:} Express-validator
+    \item \textbf{CORS:} Configuración para desarrollo y producción
+\end{itemize}
+
+\subsubsection{Base de Datos}
+\begin{itemize}
+    \item \textbf{RDBMS:} PostgreSQL 14+
+    \item \textbf{Connection Pooling:} pg-pool
+    \item \textbf{Migrations:} SQL scripts manuales
+    \item \textbf{Backup Strategy:} Respaldo automático diario
+\end{itemize}
+
+\subsection{Estructura de Base de Datos}
+
+\subsubsection{Tablas Principales}
+\begin{lstlisting}[language=SQL]
+-- Gestión de cursos
+CREATE TABLE cursos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    nivel VARCHAR(50),
+    estado VARCHAR(20) DEFAULT 'activo',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Gestión de profesores
+CREATE TABLE profesores (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    telefono VARCHAR(20),
+    especialidades TEXT[],
+    estado VARCHAR(20) DEFAULT 'activo',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Gestión de temas
+CREATE TABLE temas (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    curso_id INTEGER REFERENCES cursos(id),
+    descripcion TEXT,
+    orden INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Reservas de clases
+CREATE TABLE reservas (
+    id SERIAL PRIMARY KEY,
+    curso_id INTEGER REFERENCES cursos(id),
+    tema_id INTEGER REFERENCES temas(id),
+    profesor_id INTEGER REFERENCES profesores(id),
+    estudiante_nombre VARCHAR(255) NOT NULL,
+    estudiante_telefono VARCHAR(20),
+    fecha_inicio TIMESTAMP NOT NULL,
+    fecha_fin TIMESTAMP NOT NULL,
+    duracion_minutos INTEGER NOT NULL,
+    estado VARCHAR(20) DEFAULT 'confirmada',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+\end{lstlisting}
+
+\section{Funcionalidades Implementadas}
+
+\subsection{Gestión de Cursos}
+\begin{itemize}
+    \item \textbf{CRUD completo} para cursos
+    \item \textbf{Categorización por niveles} (básico, intermedio, avanzado)
+    \item \textbf{Estados dinámicos} (activo/inactivo)
+    \item \textbf{Validación de datos} en frontend y backend
+\end{itemize}
+
+\subsection{Gestión de Profesores}
+\begin{itemize}
+    \item \textbf{Perfiles completos} con información de contacto
+    \item \textbf{Especialidades múltiples} por profesor
+    \item \textbf{Asignación flexible} a cursos y temas
+    \item \textbf{Estado de disponibilidad} en tiempo real
+\end{itemize}
+
+\subsection{Gestión de Temas}
+\begin{itemize}
+    \item \textbf{Organización jerárquica} por curso
+    \item \textbf{Ordenamiento personalizable} de temas
+    \item \textbf{Asignación múltiple} de profesores
+    \item \textbf{Descripciones detalladas} para cada tema
+\end{itemize}
+
+\subsection{Sistema de Reservas}
+\begin{itemize}
+    \item \textbf{Calendario interactivo} con vista día/semana/mes
+    \item \textbf{Reserva directa} haciendo clic en slots de tiempo
+    \item \textbf{Validación de conflictos} automática
+    \item \textbf{Duración flexible} (30 min - 3 horas)
+    \item \textbf{Estados de reserva} (confirmada, cancelada, completada)
+\end{itemize}
+
+\subsection{Dashboard y Estadísticas}
+\begin{itemize}
+    \item \textbf{Métricas en tiempo real} de ocupación
+    \item \textbf{Análisis de demanda} por curso y tema
+    \item \textbf{Rendimiento de profesores} (clases impartidas)
+    \item \textbf{Reportes exportables} en múltiples formatos
+\end{itemize}
+
+\section{Interfaz de Usuario}
+
+\subsection{Diseño Responsive}
+\begin{itemize}
+    \item \textbf{Mobile-first approach} con breakpoints optimizados
+    \item \textbf{Sidebar navigation} para desktop
+    \item \textbf{Hamburger menu} para dispositivos móviles
+    \item \textbf{Overlay system} para modales y navegación móvil
+\end{itemize}
+
+\subsection{Componentes Principales}
+\begin{itemize}
+    \item \textbf{Sidebar:} Navegación lateral con bordes redondeados
+    \item \textbf{Calendar:} Vista interactiva con React Big Calendar
+    \item \textbf{Modal System:} Formularios de reserva y gestión
+    \item \textbf{Data Tables:} Tablas con paginación y filtros
+    \item \textbf{Statistics Cards:} Métricas visuales con iconos
+\end{itemize}
+
+\subsection{Experiencia de Usuario}
+\begin{itemize}
+    \item \textbf{Navegación intuitiva} con iconos descriptivos
+    \item \textbf{Feedback visual} en todas las acciones
+    \item \textbf{Animaciones suaves} para transiciones
+    \item \textbf{Estados de carga} y manejo de errores
+    \item \textbf{Accesibilidad} con ARIA labels y navegación por teclado
+\end{itemize}
+
+\section{API REST}
+
+\subsection{Endpoints Implementados}
+
+\subsubsection{Cursos}
+\begin{lstlisting}[language=JavaScript]
+GET    /api/cursos          // Listar todos los cursos
+POST   /api/cursos          // Crear nuevo curso
+GET    /api/cursos/:id      // Obtener curso específico
+PUT    /api/cursos/:id      // Actualizar curso
+DELETE /api/cursos/:id      // Eliminar curso
+\end{lstlisting}
+
+\subsubsection{Profesores}
+\begin{lstlisting}[language=JavaScript]
+GET    /api/profesores      // Listar todos los profesores
+POST   /api/profesores      // Crear nuevo profesor
+GET    /api/profesores/:id  // Obtener profesor específico
+PUT    /api/profesores/:id  // Actualizar profesor
+DELETE /api/profesores/:id  // Eliminar profesor
+\end{lstlisting}
+
+\subsubsection{Temas}
+\begin{lstlisting}[language=JavaScript]
+GET    /api/temas           // Listar todos los temas
+POST   /api/temas           // Crear nuevo tema
+GET    /api/temas/:id       // Obtener tema específico
+PUT    /api/temas/:id       // Actualizar tema
+DELETE /api/temas/:id       // Eliminar tema
+GET    /api/temas/curso/:cursoId  // Temas por curso
+\end{lstlisting}
+
+\subsubsection{Reservas}
+\begin{lstlisting}[language=JavaScript]
+GET    /api/reservas        // Listar todas las reservas
+POST   /api/reservas        // Crear nueva reserva
+GET    /api/reservas/:id    // Obtener reserva específica
+PUT    /api/reservas/:id    // Actualizar reserva
+DELETE /api/reservas/:id    // Eliminar reserva
+GET    /api/reservas/fecha/:fecha  // Reservas por fecha
+\end{lstlisting}
+
+\subsection{Validaciones y Seguridad}
+\begin{itemize}
+    \item \textbf{Input validation} con express-validator
+    \item \textbf{SQL injection prevention} con parámetros preparados
+    \item \textbf{CORS configuration} para desarrollo y producción
+    \item \textbf{Error handling} centralizado
+    \item \textbf{Response formatting} consistente
+\end{itemize}
+
+\section{Estado Actual del Proyecto}
+
+\subsection{Completado (100\%)}
+\begin{itemize}
+    \item Arquitectura base del frontend y backend
+    \item Sistema de base de datos con todas las tablas
+    \item API REST completa con validaciones
+    \item Interfaz de usuario responsive
+    \item Sistema de navegación con sidebar
+    \item Gestión CRUD de cursos, profesores y temas
+    \item Sistema de reservas con calendario interactivo
+    \item Dashboard con estadísticas básicas
+    \item Manejo de errores y validaciones
+\end{itemize}
+
+\subsection{En Desarrollo (80\%)}
+\begin{itemize}
+    \item Optimización de performance
+    \item Mejoras en la experiencia móvil
+    \item Refinamiento de la UI/UX
+    \item Documentación técnica completa
+\end{itemize}
+
+\subsection{Pendiente (0\%)}
+\begin{itemize}
+    \item Implementación de multi-tenancy
+    \item Sistema de autenticación y autorización
+    \item Integración con sistemas de pago
+    \item Notificaciones por email/SMS
+    \item Reportes avanzados y exportación
+    \item API pública para integraciones
+\end{itemize}
+
+\section{Transformación a SaaS}
+
+\subsection{Arquitectura Multi-tenant}
+
+\subsubsection{Modelo de Base de Datos}
+\begin{lstlisting}[language=SQL]
+-- Tabla de tenants (instituciones)
+CREATE TABLE tenants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    domain VARCHAR(255) UNIQUE,
+    plan_type VARCHAR(50) DEFAULT 'alpha',
+    status VARCHAR(20) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Configuraciones por tenant
+CREATE TABLE tenant_configs (
+    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+    config_key VARCHAR(100) NOT NULL,
+    config_value TEXT,
+    PRIMARY KEY (tenant_id, config_key)
+);
+
+-- Modificación de tablas existentes
+ALTER TABLE cursos ADD COLUMN tenant_id UUID REFERENCES tenants(id);
+ALTER TABLE profesores ADD COLUMN tenant_id UUID REFERENCES tenants(id);
+ALTER TABLE temas ADD COLUMN tenant_id UUID REFERENCES tenants(id);
+ALTER TABLE reservas ADD COLUMN tenant_id UUID REFERENCES tenants(id);
+\end{lstlisting}
+
+\subsection{Modelo de Negocio}
+
+\subsubsection{Estrategia de Precios}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Plan} & \textbf{Precio} & \textbf{Duración} & \textbf{Características} \\
+\hline
+Alpha & S/49/mes & 6 meses & Acceso anticipado completo \\
+Básico & S/99/mes & Permanente & Hasta 200 estudiantes \\
+Profesional & S/199/mes & Permanente & Hasta 500 estudiantes \\
+Enterprise & S/399/mes & Permanente & Ilimitado \\
+\hline
+\end{tabular}
+\caption{Estructura de Precios SaaS}
+\end{table}
+
+\subsubsection{Proyecciones Financieras}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Año} & \textbf{Clientes} & \textbf{MRR Promedio} & \textbf{Ingresos Anuales} \\
+\hline
+1 & 85 & S/74 & S/65,340 \\
+2 & 300 & S/149 & S/536,400 \\
+3 & 800 & S/199 & S/1,910,400 \\
+\hline
+\end{tabular}
+\caption{Proyecciones de Ingresos (3 años)}
+\end{table}
+
+\section{Requerimientos Técnicos para SaaS}
+
+\subsection{Infraestructura Cloud}
+\begin{itemize}
+    \item \textbf{Proveedor:} AWS o DigitalOcean
+    \item \textbf{Contenedores:} Docker con Docker Compose
+    \item \textbf{Orquestación:} Kubernetes (escalabilidad)
+    \item \textbf{CDN:} Cloudflare para distribución global
+    \item \textbf{Load Balancer:} Nginx o AWS ALB
+\end{itemize}
+
+\subsection{Servicios Adicionales}
+\begin{itemize}
+    \item \textbf{Base de datos:} PostgreSQL con replicación
+    \item \textbf{Cache:} Redis para sesiones y datos frecuentes
+    \item \textbf{Storage:} AWS S3 para archivos y backups
+    \item \textbf{Email:} SendGrid o AWS SES
+    \item \textbf{Pagos:} Stripe o PayPal
+    \item \textbf{Monitoreo:} New Relic o Datadog
+\end{itemize}
+
+\subsection{Seguridad y Compliance}
+\begin{itemize}
+    \item \textbf{SSL/TLS:} Certificados automáticos con Let's Encrypt
+    \item \textbf{Encriptación:} AES-256 para datos en reposo
+    \item \textbf{Backup:} Respaldo automático diario
+    \item \textbf{GDPR:} Cumplimiento de protección de datos
+    \item \textbf{Auditoría:} Logs de todas las operaciones
+\end{itemize}
+
+\section{Roadmap de Desarrollo}
+
+\subsection{Fase 1: MVP SaaS (Mes 1-3)}
+\begin{itemize}
+    \item [\checkmark] Demo funcional completa
+    \item [ ] Implementación de multi-tenancy
+    \item [ ] Sistema de autenticación JWT
+    \item [ ] Integración con Stripe/PayPal
+    \item [ ] Proceso de onboarding
+    \item [ ] Documentación de usuario
+\end{itemize}
+
+\subsection{Fase 2: Plataforma Profesional (Mes 4-6)}
+\begin{itemize}
+    \item [ ] Analytics avanzados
+    \item [ ] API pública con documentación
+    \item [ ] Sistema de notificaciones
+    \item [ ] Reportes automáticos
+    \item [ ] Soporte en vivo
+    \item [ ] Optimización de performance
+\end{itemize}
+
+\subsection{Fase 3: Enterprise Features (Mes 7-12)}
+\begin{itemize}
+    \item [ ] White-label para clientes
+    \item [ ] SSO integration
+    \item [ ] API avanzada con webhooks
+    \item [ ] Workflows personalizables
+    \item [ ] Multi-language support
+    \item [ ] Mobile app nativa
+\end{itemize}
+
+\section{Riesgos y Mitigaciones}
+
+\subsection{Riesgos Técnicos}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Riesgo} & \textbf{Impacto} & \textbf{Mitigación} \\
+\hline
+Escalabilidad de BD & Alto & Implementar sharding y replicación \\
+Performance en móviles & Medio & Optimización y testing continuo \\
+Seguridad de datos & Alto & Auditorías regulares y encriptación \\
+Disponibilidad del servicio & Alto & Monitoreo 24/7 y backups \\
+\hline
+\end{tabular}
+\caption{Análisis de Riesgos Técnicos}
+\end{table}
+
+\subsection{Riesgos de Negocio}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Riesgo} & \textbf{Impacto} & \textbf{Mitigación} \\
+\hline
+Churn rate alto & Alto & Mejorar UX y soporte al cliente \\
+Competencia agresiva & Medio & Diferenciación por especialización \\
+Cambios regulatorios & Bajo & Monitoreo de compliance \\
+Falta de adopción & Alto & Beta testing y feedback continuo \\
+\hline
+\end{tabular}
+\caption{Análisis de Riesgos de Negocio}
+\end{table}
+
+\section{Recomendaciones del Equipo}
+
+\subsection{Inmediatas (Próximas 2 semanas)}
+\begin{enumerate}
+    \item \textbf{Implementar multi-tenancy} en la base de datos
+    \item \textbf{Configurar sistema de autenticación} JWT
+    \item \textbf{Integrar sistema de pagos} con Stripe
+    \item \textbf{Crear proceso de onboarding} para nuevos clientes
+    \item \textbf{Implementar monitoreo básico} de la aplicación
+\end{enumerate}
+
+\subsection{Corto Plazo (1-3 meses)}
+\begin{enumerate}
+    \item \textbf{Desarrollar API pública} con documentación
+    \item \textbf{Implementar sistema de notificaciones}
+    \item \textbf{Crear dashboard de analytics} avanzado
+    \item \textbf{Optimizar performance} para carga de usuarios
+    \item \textbf{Implementar backup automático} y disaster recovery
+\end{enumerate}
+
+\subsection{Mediano Plazo (3-6 meses)}
+\begin{enumerate}
+    \item \textbf{Desarrollar mobile app} nativa
+    \item \textbf{Implementar white-label} para clientes enterprise
+    \item \textbf{Crear marketplace} de integraciones
+    \item \textbf{Implementar AI/ML} para sugerencias inteligentes
+    \item \textbf{Expandir a nuevos mercados} geográficos
+\end{enumerate}
+
+\section{Conclusión}
+
+El Sistema de Gestión de Agendamiento (SGA) representa una oportunidad única de transformar la gestión administrativa de instituciones educativas mediante tecnología moderna y accesible. La demo funcional actual demuestra la viabilidad técnica del proyecto y proporciona una base sólida para la transformación a una plataforma SaaS escalable.
+
+\subsection{Próximos Pasos Críticos}
+\begin{enumerate}
+    \item \textbf{Validación de mercado} con instituciones piloto
+    \item \textbf{Desarrollo del MVP SaaS} con multi-tenancy
+    \item \textbf{Lanzamiento del plan Alpha} a S/49/mes
+    \item \textbf{Recolección de feedback} y iteración rápida
+    \item \textbf{Escalado gradual} basado en métricas de adopción
+\end{enumerate}
+
+\subsection{Métricas de Éxito}
+\begin{itemize}
+    \item \textbf{Técnicas:} Uptime >99.9\%, tiempo de respuesta <2s
+    \item \textbf{Producto:} Churn rate <5\%, NPS >50
+    \item \textbf{Negocio:} MRR creciente, CAC <LTV/3
+    \item \textbf{Usuario:} Feature adoption >70\%, satisfaction >90\%
+\end{itemize}
+
+El equipo de TI está preparado para ejecutar esta transformación y convertir el SGA en una plataforma SaaS líder en el mercado educativo latinoamericano.
+
+\vspace{2cm}
+
+\begin{center}
+\textbf{Equipo de Desarrollo TI} \\
+\textit{Sistema de Gestión de Agendamiento (SGA)} \\
+\today
+\end{center}
+
+\end{document}

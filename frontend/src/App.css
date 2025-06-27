@@ -37,7 +37,7 @@ body {
   left: 0;
   top: 0;
   height: 100vh;
-  z-index: 100;
+  z-index: 200;
   overflow-y: auto;
   transition: all 0.3s ease;
   border-radius: 0 24px 24px 0;
@@ -880,10 +880,15 @@ body {
   .sidebar {
     transform: translateX(-100%);
     width: 260px;
+    border-radius: 0 20px 20px 0;
   }
   
   .sidebar.open {
     transform: translateX(0);
+  }
+  
+  .sidebar-header {
+    border-radius: 0 20px 0 0;
   }
   
   .main-content {
@@ -943,6 +948,11 @@ body {
 @media (max-width: 480px) {
   .sidebar {
     width: 100%;
+    border-radius: 0;
+  }
+  
+  .sidebar-header {
+    border-radius: 0;
   }
   
   .content-header {
@@ -992,7 +1002,7 @@ body {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 200;
+  z-index: 250;
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   border: none;
@@ -1026,10 +1036,27 @@ body {
   background: rgba(0, 0, 0, 0.5);
   z-index: 150;
   backdrop-filter: blur(2px);
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
   .sidebar-overlay.open {
     display: block;
+    pointer-events: auto;
+  }
+}
+
+/* --- Ajuste para responsive viewer --- */
+@media (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+  }
+  
+  .sidebar {
+    transform: translateX(0) !important;
   }
 }
