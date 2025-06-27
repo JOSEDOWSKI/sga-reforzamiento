@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan'); // Importar morgan
 require('./config/database'); // Conecta a la BD e inicializa las tablas si es necesario
 
 const app = express();
@@ -8,6 +9,9 @@ const port = process.env.PORT || 3001;
 // Middleware para CORS
 // Esto permitirá peticiones desde cualquier origen. Para producción, deberías restringirlo.
 app.use(cors());
+
+// Middleware para logging de peticiones HTTP
+app.use(morgan('dev'));
 
 // Middleware para parsear JSON
 app.use(express.json());
