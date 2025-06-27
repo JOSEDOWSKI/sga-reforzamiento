@@ -1,10 +1,10 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // Obtener todos los temas de un curso específico
 exports.getTemasByCurso = async (req, res) => {
     const { curso_id } = req.params;
     try {
-        const { rows } = await db.query('SELECT * FROM temas WHERE curso_id = $1 ORDER BY id ASC', [curso_id]);
+        const { rows } = await pool.query('SELECT * FROM temas WHERE curso_id = $1 ORDER BY id ASC', [curso_id]);
         res.json({
             message: `Temas para el curso ${curso_id} obtenidos con éxito`,
             data: rows
@@ -24,7 +24,7 @@ exports.createTema = async (req, res) => {
 
     const sql = 'INSERT INTO temas (nombre, curso_id) VALUES ($1, $2) RETURNING *';
     try {
-        const { rows } = await db.query(sql, [nombre, curso_id]);
+        const { rows } = await pool.query(sql, [nombre, curso_id]);
         res.status(201).json({
             message: 'Tema creado con éxito',
             data: rows[0]
