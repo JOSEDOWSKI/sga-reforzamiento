@@ -21,7 +21,7 @@ function App() {
             <Route path="/temas" element={<GestionTemas />} />
             <Route path="/estadisticas" element={<EstadisticasPage />} />
           </Routes>
-        </div>
+      </div>
       </div>
     </Router>
   );

@@ -8,4 +8,7 @@ router.get('/', profesorController.getAllProfesores);
 // POST /api/profesores - Crear un nuevo profesor
 router.post('/', profesorController.createProfesor);
 
+// PUT /api/profesores/:id - Actualizar un profesor existente
+router.put('/:id', profesorController.updateProfesor);
+
 module.exports = router; 

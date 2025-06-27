@@ -154,8 +154,8 @@ const DashboardPage: React.FC = () => {
                 tema_id: parseInt(selectedTema),
                 profesor_id: parseInt(selectedProfesor),
                 nombre_alumno: nombreAlumno,
-                fecha_hora_inicio: fechaInicio.toISOString().slice(0, 16),
-                fecha_hora_fin: fechaFin.toISOString().slice(0, 16),
+                fecha_hora_inicio: fechaInicio.toISOString(),
+                fecha_hora_fin: fechaFin.toISOString(),
             };
             
             await apiClient.post('/reservas', bookingData);

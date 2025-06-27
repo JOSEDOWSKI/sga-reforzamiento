@@ -56,64 +56,64 @@ const Sidebar: React.FC = () => {
 
       {/* Sidebar */}
       <div className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <h1 className="sidebar-brand">SGA</h1>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li>
-              <Link 
-                to="/" 
-                className={isActive('/') ? 'active' : ''}
-                onClick={closeSidebar}
-              >
-                <span className="sidebar-nav-icon">📊</span>
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/cursos" 
-                className={isActive('/cursos') ? 'active' : ''}
-                onClick={closeSidebar}
-              >
-                <span className="sidebar-nav-icon">📚</span>
-                Gestión Cursos
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/profesores" 
-                className={isActive('/profesores') ? 'active' : ''}
-                onClick={closeSidebar}
-              >
-                <span className="sidebar-nav-icon">👨‍🏫</span>
-                Gestión Profesores
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/temas" 
-                className={isActive('/temas') ? 'active' : ''}
-                onClick={closeSidebar}
-              >
-                <span className="sidebar-nav-icon">📝</span>
-                Gestión Temas
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/estadisticas" 
-                className={isActive('/estadisticas') ? 'active' : ''}
-                onClick={closeSidebar}
-              >
-                <span className="sidebar-nav-icon">📈</span>
-                Estadísticas
-              </Link>
-            </li>
-          </ul>
-        </nav>
+      <div className="sidebar-header">
+        <h1 className="sidebar-brand">SGA</h1>
       </div>
+      <nav className="sidebar-nav">
+        <ul>
+          <li>
+            <Link 
+              to="/" 
+              className={isActive('/') ? 'active' : ''}
+                onClick={closeSidebar}
+            >
+              <span className="sidebar-nav-icon">📊</span>
+              Dashboard
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/cursos" 
+              className={isActive('/cursos') ? 'active' : ''}
+                onClick={closeSidebar}
+            >
+              <span className="sidebar-nav-icon">📚</span>
+              Gestión Cursos
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/profesores" 
+              className={isActive('/profesores') ? 'active' : ''}
+                onClick={closeSidebar}
+            >
+              <span className="sidebar-nav-icon">👨‍🏫</span>
+              Gestión Profesores
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/temas" 
+              className={isActive('/temas') ? 'active' : ''}
+                onClick={closeSidebar}
+            >
+              <span className="sidebar-nav-icon">📝</span>
+              Gestión Temas
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/estadisticas" 
+              className={isActive('/estadisticas') ? 'active' : ''}
+                onClick={closeSidebar}
+            >
+              <span className="sidebar-nav-icon">📈</span>
+              Estadísticas
+            </Link>
+          </li>
+        </ul>
+      </nav>
+    </div>
     </>
   );
 };
