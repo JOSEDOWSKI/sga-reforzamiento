@@ -40,12 +40,14 @@ body {
   z-index: 100;
   overflow-y: auto;
   transition: all 0.3s ease;
+  border-radius: 0 24px 24px 0;
 }
 
 .sidebar-header {
   padding: 2rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 0 24px 0 0;
 }
 
 .sidebar-brand {
@@ -57,7 +59,7 @@ body {
 }
 
 .sidebar-nav {
-  padding: 2rem 0;
+  padding: 2rem 1rem;
 }
 
 .sidebar-nav ul {
@@ -67,7 +69,7 @@ body {
 }
 
 .sidebar-nav li {
-  margin: 0;
+  margin: 0.5rem 0;
 }
 
 .sidebar-nav a {
@@ -81,6 +83,7 @@ body {
   font-size: 1.1rem;
   transition: all 0.3s ease;
   border-left: 4px solid transparent;
+  border-radius: 16px;
   margin: 0.25rem 0;
 }
 
@@ -89,6 +92,7 @@ body {
   color: #667eea;
   border-left-color: #667eea;
   transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .sidebar-nav a.active {
@@ -96,10 +100,12 @@ body {
   color: white;
   border-left-color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  border-radius: 16px;
 }
 
 .sidebar-nav a.active:hover {
   transform: translateX(5px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 .sidebar-nav-icon {
