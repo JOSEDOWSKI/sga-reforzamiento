@@ -1,24 +1,72 @@
 .theme-toggle-button {
-  background-color: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted-foreground);
-  padding: 0.5rem;
-  border-radius: var(--radius);
+  --thumb-size: 2.25rem;
+  --padding: 0.25rem;
+  --width: 5rem;
+  --height: calc(var(--thumb-size) + (var(--padding) * 2));
+  
+  appearance: none;
+  position: relative;
   cursor: pointer;
+  width: var(--width);
+  height: var(--height);
+  padding: var(--padding);
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background-color: var(--muted);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  width: 100%;
+  transition: all 0.3s ease;
 }
 
 .theme-toggle-button:hover {
-  background-color: var(--accent);
-  color: var(--accent-foreground);
-  border-color: var(--accent-foreground);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
-.theme-toggle-button svg {
-  width: 20px;
-  height: 20px;
+.theme-toggle-button__icon-wrapper {
+  z-index: 1;
+  color: var(--foreground);
+  transition: color 0.3s ease, transform 0.3s ease;
+  flex-basis: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.theme-toggle-button__icon-wrapper svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme-toggle-button__thumb {
+  position: absolute;
+  top: var(--padding);
+  left: var(--padding);
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  background: var(--primary);
+  border-radius: 50%;
+  z-index: 0;
+  box-shadow: 0 2px 8px -2px var(--primary);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Estado oscuro */
+.theme-toggle-button.theme-toggle-button--dark .theme-toggle-button__thumb {
+  transform: translateX(calc(var(--width) - var(--thumb-size) - (var(--padding) * 2)));
+}
+
+.theme-toggle-button .theme-toggle-button__icon-wrapper:first-child {
+  color: var(--primary-foreground);
+}
+.theme-toggle-button .theme-toggle-button__icon-wrapper:last-child {
+  color: var(--foreground);
+}
+
+.theme-toggle-button.theme-toggle-button--dark .theme-toggle-button__icon-wrapper:first-child {
+  color: var(--foreground);
+}
+.theme-toggle-button.theme-toggle-button--dark .theme-toggle-button__icon-wrapper:last-child {
+  color: var(--primary-foreground);
 } 

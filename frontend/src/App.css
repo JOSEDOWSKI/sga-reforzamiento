@@ -1,163 +1,90 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.App {
-  width: 100%;
-  max-width: 800px; /* Un ancho máximo para que no se estire demasiado */
-  margin: 0 auto;
-  text-align: left; /* Alineamos el texto a la izquierda dentro del contenedor */
-  border: 1px solid #ddd;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-form {
-  margin-bottom: 2rem;
-}
-
-form div {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-input {
-  width: 100%;
-  padding: 0.5rem;
-  box-sizing: border-box; /* Para que el padding no afecte el ancho total */
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  border-radius: 4px;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* --- Estilos para el Dashboard --- */
-.dashboard-container {
-  display: flex;
-  gap: 2rem;
-}
-
-.booking-form {
-  flex: 1; /* Ocupa 1 parte del espacio */
-}
-
-.calendar-view {
-  flex: 2; /* Ocupa 2 partes del espacio, será más grande */
-  border-left: 1px solid #ddd;
-  padding-left: 2rem;
-}
-
-select {
-  width: 100%;
-  padding: 0.5rem;
-  box-sizing: border-box;
-}
-
-/* --- Estilos para las páginas de gestión --- */
-.container {
-  padding: 0 2rem 2rem 2rem;
-}
-
-.form-and-list-container {
-  display: flex;
-  gap: 2rem;
-}
-
-.form-section {
-  flex: 1;
-}
-
-.list-section {
-  flex: 2;
-}
+/* 
+  Limpiamos este archivo para eliminar los estilos por defecto de Vite 
+  y establecer una estructura de layout principal más robusta y flexible.
+*/
 
 .app-container {
   display: flex;
   min-height: 100vh;
-  background-color: var(--muted);
-  transition: background-color 0.3s ease;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .content-container {
+  width: 100%;
   flex-grow: 1;
-  padding: 2rem;
-  overflow-y: auto;
-  transition: all 0.3s ease;
-  margin-left: 250px; /* Ancho del Navbar lateral */
+  padding: 3rem 4rem; /* Más padding para que el contenido respire */
+  margin-left: 260px; /* Corresponde al nuevo ancho del Navbar */
+  transition: margin-left 0.3s ease-in-out;
+  animation: contentFadeIn 0.6s ease-in-out;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.app-container.nav-open .overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Keyframes para la animación de entrada del contenido */
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Títulos Globales --- */
+h1 {
+  font-size: 2.5rem; /* Un poco más grande */
+  font-weight: 800;
+  letter-spacing: -0.04em; /* Ligeramente más junto */
+  color: var(--foreground);
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+/* --- Media Queries para Responsividad --- */
+@media (max-width: 1024px) {
+  .content-container {
+    padding: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
   .content-container {
-    margin-left: 0;
-    padding: 1rem;
+    margin-left: 0; /* Oculta el margen cuando el navbar no es visible */
+    padding: 1.5rem;
+    padding-top: 6rem; /* Deja espacio para el header fijo */
   }
-}
-
-h1 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--foreground);
-  margin-bottom: 1.5rem;
-}
-
-h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--foreground);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.5rem;
-  margin-bottom: 1.5rem;
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
 }

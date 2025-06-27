@@ -1,0 +1,86 @@
+.color-switcher-wrapper {
+    position: relative;
+}
+
+.settings-button {
+    appearance: none;
+    border: 1px solid var(--border);
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.settings-button:hover,
+.settings-button[aria-expanded='true'] {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: rotate(25deg);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.color-switcher {
+    position: absolute;
+    bottom: calc(100% + 0.75rem);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--card);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 4px 20px -5px rgba(0,0,0,0.15);
+    animation: popUp 0.2s ease-out;
+}
+
+@keyframes popUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Variables para los colores de las muestras */
+.color-switcher {
+    --theme-color-violet: hsl(262.1 83.3% 57.8%);
+    --theme-color-blue: hsl(217.2 91.2% 59.8%);
+    --theme-color-green: hsl(142.1 76.2% 36.3%);
+    --theme-color-orange: hsl(24.6 95% 53.1%);
+    --theme-color-rose: hsl(346.8 77.2% 49.8%);
+}
+
+.color-swatch {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.color-swatch.active {
+    border-color: var(--card);
+    box-shadow: 0 0 0 2px var(--primary);
+    transform: scale(1.1);
+} 

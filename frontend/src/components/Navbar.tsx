@@ -1,7 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import ThemeToggleButton from './ThemeToggleButton';
+import ColorThemeSwitcher from './ColorThemeSwitcher';
 import './Navbar.css';
+
+interface NavbarProps {
+    isNavOpen: boolean;
+}
 
 // --- Iconos SVG como componentes ---
 const DashboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>;
@@ -10,9 +15,9 @@ const ProfessorsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" 
 const TopicsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg>;
 const LogoPlaceholder = () => <div className="logo-placeholder"></div>
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
     return (
-        <nav className="navbar">
+        <nav className={`navbar ${isNavOpen ? 'is-open' : ''}`}>
             <div className="nav-header">
                 <LogoPlaceholder />
                 <NavLink to="/" className="nav-brand">SGA Reforzamiento</NavLink>
@@ -25,6 +30,7 @@ const Navbar: React.FC = () => {
             </div>
             <div className="nav-footer">
                 <ThemeToggleButton />
+                <ColorThemeSwitcher />
             </div>
         </nav>
     );

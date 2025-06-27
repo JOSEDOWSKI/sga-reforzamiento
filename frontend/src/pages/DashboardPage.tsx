@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import apiClient from '../config/api';
-import './DashboardPage.css'; // Importamos los nuevos estilos
+import './DashboardPage.css';
 
-// --- Imports para el Calendario (con sintaxis corregida) ---
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { es } from 'date-fns/locale';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-// --- Configuración del Localizer para el Calendario en Español ---
-const locales = { 'es': es };
-const localizer = dateFnsLocalizer({
-    format,
-    parse,
-    startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }), // Lunes
-    getDay,
-    locales,
-});
+// --- Imports para FullCalendar ---
+import FullCalendar from '@fullcalendar/react';
+import { ViewApi, DatesSetArg } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
+import interactionPlugin from '@fullcalendar/interaction';
+import esLocale from '@fullcalendar/core/locales/es';
 
 // --- Definición de Tipos ---
 interface Curso { id: number; nombre: string; }
@@ -31,14 +24,6 @@ interface Reserva {
     profesor_nombre: string;
     tema_nombre: string;
 }
-// Evento para el calendario
-interface CalendarEvent {
-    title: string;
-    start: Date;
-    end: Date;
-    resource?: any;
-}
-
 
 const DashboardPage: React.FC = () => {
     // --- Estados para los datos de los desplegables ---
@@ -52,13 +37,17 @@ const DashboardPage: React.FC = () => {
     const [selectedTema, setSelectedTema] = useState('');
     const [selectedProfesor, setSelectedProfesor] = useState('');
     const [nombreAlumno, setNombreAlumno] = useState('');
-    const [telefonoAlumno, setTelefonoAlumno] = useState(''); // No está en la BD, lo omitimos por ahora
+    const [telefonoAlumno, setTelefonoAlumno] = useState('');
     const [fechaHora, setFechaHora] = useState('');
 
     // --- Estados de Carga y Error ---
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const [calendarTitle, setCalendarTitle] = useState('');
+    const [currentView, setCurrentView] = useState('dayGridMonth');
+    const calendarRef = useRef<FullCalendar>(null);
 
     const fetchAllData = async () => {
         try {
@@ -90,7 +79,6 @@ const DashboardPage: React.FC = () => {
         if (selectedCurso) {
             const fetchTemas = async () => {
                 try {
-                    // No es necesario un loading global aquí para no bloquear toda la UI
                     const response = await apiClient.get(`/cursos/${selectedCurso}/temas`);
                     setTemas(response.data.data);
                 } catch (err) {
@@ -116,12 +104,10 @@ const DashboardPage: React.FC = () => {
                 nombre_alumno: nombreAlumno,
                 fecha_hora_inicio: fechaHora,
             };
-            const response = await apiClient.post('/reservas', bookingData);
+            await apiClient.post('/reservas', bookingData);
             
-            // Refrescamos todas las reservas para tener la data completa y actualizada del JOIN
             fetchAllData();
 
-            // Limpiar formulario
             setSelectedCurso('');
             setSelectedTema('');
             setSelectedProfesor('');
@@ -130,25 +116,62 @@ const DashboardPage: React.FC = () => {
             setFechaHora('');
             
             setSuccess('¡Reserva creada con éxito!');
-            // Ocultar el mensaje de éxito después de 3 segundos
             setTimeout(() => setSuccess(''), 3000);
 
         } catch (err: any) {
             const errorMessage = err.response?.data?.error || 'No se pudo crear la reserva.';
             setError(errorMessage);
-            console.error(err);
-             // Ocultar el mensaje de error después de 3 segundos
             setTimeout(() => setError(''), 5000);
         }
     };
     
-    // Mapear las reservas al formato que el calendario entiende
-    const events: CalendarEvent[] = reservas.map(r => ({
+    // Mapear las reservas al formato que FullCalendar entiende
+    const calendarEvents = reservas.map(r => ({
+        id: r.id.toString(),
         title: `${r.curso_nombre} - ${r.nombre_alumno}`,
-        start: new Date(r.fecha_hora_inicio),
-        end: new Date(r.fecha_hora_fin),
-        resource: r, // Guardamos la reserva original por si acaso
+        start: r.fecha_hora_inicio,
+        end: r.fecha_hora_fin,
+        extendedProps: {
+            profesor: r.profesor_nombre,
+            tema: r.tema_nombre
+        },
+        // Asignar colores basados en el curso para una mejor visualización
+        backgroundColor: `hsl(${r.curso_nombre.length * 25 % 360}, 45%, 55%)`,
+        borderColor: `hsl(${r.curso_nombre.length * 25 % 360}, 45%, 45%)`,
     }));
+    
+    // Componente personalizado para renderizar el contenido de los eventos
+    const renderEventContent = (eventInfo: any) => {
+        return (
+            <div className="custom-calendar-event">
+                <b>{eventInfo.timeText}</b>
+                <i>{eventInfo.event.title}</i>
+                <p>{eventInfo.event.extendedProps.tema}</p>
+            </div>
+        )
+    }
+
+    // --- Handlers para el Calendario Personalizado ---
+    const handleCalendarNav = (action: 'prev' | 'next' | 'today') => {
+        const calendarApi = calendarRef.current?.getApi();
+        if (calendarApi) {
+            calendarApi[action]();
+            setCalendarTitle(calendarApi.view.title);
+        }
+    };
+
+    const handleViewChange = (view: string) => {
+        const calendarApi = calendarRef.current?.getApi();
+        if (calendarApi) {
+            calendarApi.changeView(view);
+            setCurrentView(view);
+        }
+    };
+
+    const handleDatesSet = (dateInfo: DatesSetArg) => {
+        setCalendarTitle(dateInfo.view.title);
+        setCurrentView(dateInfo.view.type);
+    };
 
     return (
         <div>
@@ -164,7 +187,6 @@ const DashboardPage: React.FC = () => {
                                 {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                             </select>
                         </div>
-
                         <div className="form-group">
                             <label htmlFor="tema">Tema:</label>
                             <select id="tema" value={selectedTema} onChange={e => setSelectedTema(e.target.value)} required disabled={!selectedCurso || temas.length === 0}>
@@ -172,7 +194,6 @@ const DashboardPage: React.FC = () => {
                                 {temas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
                             </select>
                         </div>
-
                         <div className="form-group">
                             <label htmlFor="profesor">Profesor:</label>
                             <select id="profesor" value={selectedProfesor} onChange={e => setSelectedProfesor(e.target.value)} required>
@@ -180,44 +201,52 @@ const DashboardPage: React.FC = () => {
                                 {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                             </select>
                         </div>
-                        
                         <div className="form-group">
                             <label htmlFor="fecha-hora">Fecha y Hora de Inicio:</label>
                             <input id="fecha-hora" type="datetime-local" value={fechaHora} onChange={e => setFechaHora(e.target.value)} required />
                         </div>
-                        
                         <div className="form-group">
                             <label htmlFor="nombre-alumno">Nombre del Alumno:</label>
                             <input id="nombre-alumno" type="text" value={nombreAlumno} onChange={e => setNombreAlumno(e.target.value)} required />
                         </div>
-                        
                         <div className="form-group">
                             <label htmlFor="telefono-alumno">Teléfono del Alumno (Opcional):</label>
                             <input id="telefono-alumno" type="tel" value={telefonoAlumno} onChange={e => setTelefonoAlumno(e.target.value)} />
                         </div>
-
                         <button type="submit" className="form-button" disabled={loading}>Crear Reserva</button>
                     </form>
                     {error && <p className="form-message error">{error}</p>}
                     {success && <p className="form-message success">{success}</p>}
                 </div>
                 <div className="calendar-view">
-                    <h2>Calendario de Clases</h2>
-                    <Calendar
-                        localizer={localizer}
-                        events={events}
-                        startAccessor="start"
-                        endAccessor="end"
-                        style={{ height: 'calc(100vh - 150px)', minHeight: '500px' }}
-                        messages={{
-                            next: "Siguiente",
-                            previous: "Anterior",
-                            today: "Hoy",
-                            month: "Mes",
-                            week: "Semana",
-                            day: "Día",
-                            agenda: "Agenda",
-                        }}
+                    <div className="calendar-header">
+                        <div className="calendar-header-left">
+                            <button className="today-button" onClick={() => handleCalendarNav('today')}>Hoy</button>
+                            <div className="calendar-nav">
+                                <button onClick={() => handleCalendarNav('prev')}>&lt;</button>
+                                <button onClick={() => handleCalendarNav('next')}>&gt;</button>
+                            </div>
+                            <h2 className="calendar-title">{calendarTitle}</h2>
+                        </div>
+                        <div className="calendar-header-right">
+                             <button onClick={() => handleViewChange('dayGridMonth')} className={currentView === 'dayGridMonth' ? 'active-view' : ''}>Mes</button>
+                             <button onClick={() => handleViewChange('timeGridWeek')} className={currentView === 'timeGridWeek' ? 'active-view' : ''}>Semana</button>
+                             <button onClick={() => handleViewChange('timeGridDay')} className={currentView === 'timeGridDay' ? 'active-view' : ''}>Día</button>
+                             <button onClick={() => handleViewChange('listWeek')} className={currentView === 'listWeek' ? 'active-view' : ''}>Agenda</button>
+                        </div>
+                    </div>
+                    <FullCalendar
+                        ref={calendarRef}
+                        plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+                        headerToolbar={false}
+                        datesSet={handleDatesSet}
+                        initialView="dayGridMonth"
+                        locale={esLocale}
+                        events={calendarEvents}
+                        eventContent={renderEventContent}
+                        height="auto"
+                        editable={true}
+                        selectable={true}
                     />
                 </div>
             </div>
