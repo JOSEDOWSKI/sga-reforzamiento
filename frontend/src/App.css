@@ -123,3 +123,41 @@ select {
 .list-section {
   flex: 2;
 }
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--muted);
+  transition: background-color 0.3s ease;
+}
+
+.content-container {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  margin-left: 250px; /* Ancho del Navbar lateral */
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}

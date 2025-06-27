@@ -9,15 +9,17 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <Navbar />
-      <main className="container">
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/cursos" element={<GestionCursos />} />
-          <Route path="/profesores" element={<GestionProfesores />} />
-          <Route path="/temas" element={<GestionTemas />} />
-        </Routes>
-      </main>
+      <div className="app-container">
+        <Navbar />
+        <main className="content-container">
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/cursos" element={<GestionCursos />} />
+            <Route path="/profesores" element={<GestionProfesores />} />
+            <Route path="/temas" element={<GestionTemas />} />
+          </Routes>
+        </main>
+      </div>
     </Router>
   );
 }

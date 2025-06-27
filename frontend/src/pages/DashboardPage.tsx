@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import './DashboardPage.css'; // Importamos los nuevos estilos
 
 // --- Imports para el Calendario (con sintaxis corregida) ---
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -129,10 +130,15 @@ const DashboardPage: React.FC = () => {
             setFechaHora('');
             
             setSuccess('¡Reserva creada con éxito!');
+            // Ocultar el mensaje de éxito después de 3 segundos
+            setTimeout(() => setSuccess(''), 3000);
 
         } catch (err: any) {
-            setError(err.response?.data?.error || 'No se pudo crear la reserva.');
+            const errorMessage = err.response?.data?.error || 'No se pudo crear la reserva.';
+            setError(errorMessage);
             console.error(err);
+             // Ocultar el mensaje de error después de 3 segundos
+            setTimeout(() => setError(''), 5000);
         }
     };
     
@@ -151,40 +157,49 @@ const DashboardPage: React.FC = () => {
                 <div className="booking-form">
                     <h2>Nueva Reserva</h2>
                     <form onSubmit={handleBooking}>
-                        {/* Selector de Curso */}
-                        <label>Curso:</label>
-                        <select value={selectedCurso} onChange={e => setSelectedCurso(e.target.value)} required>
-                            <option value="">Seleccione un curso</option>
-                            {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                        </select>
+                        <div className="form-group">
+                            <label htmlFor="curso">Curso:</label>
+                            <select id="curso" value={selectedCurso} onChange={e => setSelectedCurso(e.target.value)} required>
+                                <option value="">Seleccione un curso</option>
+                                {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                            </select>
+                        </div>
 
-                        {/* Selector de Tema */}
-                        <label>Tema:</label>
-                        <select value={selectedTema} onChange={e => setSelectedTema(e.target.value)} required disabled={!selectedCurso || temas.length === 0}>
-                            <option value="">Seleccione un tema</option>
-                            {temas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                        </select>
+                        <div className="form-group">
+                            <label htmlFor="tema">Tema:</label>
+                            <select id="tema" value={selectedTema} onChange={e => setSelectedTema(e.target.value)} required disabled={!selectedCurso || temas.length === 0}>
+                                <option value="">Seleccione un tema</option>
+                                {temas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                            </select>
+                        </div>
 
-                        {/* Selector de Profesor */}
-                        <label>Profesor:</label>
-                        <select value={selectedProfesor} onChange={e => setSelectedProfesor(e.target.value)} required>
-                            <option value="">Seleccione un profesor</option>
-                            {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                        </select>
-
-                        <label>Fecha y Hora de Inicio:</label>
-                        <input type="datetime-local" value={fechaHora} onChange={e => setFechaHora(e.target.value)} required />
-
-                        <label>Nombre del Alumno:</label>
-                        <input type="text" value={nombreAlumno} onChange={e => setNombreAlumno(e.target.value)} required />
+                        <div className="form-group">
+                            <label htmlFor="profesor">Profesor:</label>
+                            <select id="profesor" value={selectedProfesor} onChange={e => setSelectedProfesor(e.target.value)} required>
+                                <option value="">Seleccione un profesor</option>
+                                {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                            </select>
+                        </div>
                         
-                        <label>Teléfono del Alumno (Opcional):</label>
-                        <input type="tel" value={telefonoAlumno} onChange={e => setTelefonoAlumno(e.target.value)} />
+                        <div className="form-group">
+                            <label htmlFor="fecha-hora">Fecha y Hora de Inicio:</label>
+                            <input id="fecha-hora" type="datetime-local" value={fechaHora} onChange={e => setFechaHora(e.target.value)} required />
+                        </div>
+                        
+                        <div className="form-group">
+                            <label htmlFor="nombre-alumno">Nombre del Alumno:</label>
+                            <input id="nombre-alumno" type="text" value={nombreAlumno} onChange={e => setNombreAlumno(e.target.value)} required />
+                        </div>
+                        
+                        <div className="form-group">
+                            <label htmlFor="telefono-alumno">Teléfono del Alumno (Opcional):</label>
+                            <input id="telefono-alumno" type="tel" value={telefonoAlumno} onChange={e => setTelefonoAlumno(e.target.value)} />
+                        </div>
 
-                        <button type="submit" disabled={loading}>Crear Reserva</button>
+                        <button type="submit" className="form-button" disabled={loading}>Crear Reserva</button>
                     </form>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    {success && <p style={{ color: 'green' }}>{success}</p>}
+                    {error && <p className="form-message error">{error}</p>}
+                    {success && <p className="form-message success">{success}</p>}
                 </div>
                 <div className="calendar-view">
                     <h2>Calendario de Clases</h2>
@@ -193,7 +208,7 @@ const DashboardPage: React.FC = () => {
                         events={events}
                         startAccessor="start"
                         endAccessor="end"
-                        style={{ height: 600 }}
+                        style={{ height: 'calc(100vh - 150px)', minHeight: '500px' }}
                         messages={{
                             next: "Siguiente",
                             previous: "Anterior",

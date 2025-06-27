@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import '../styles/GestionPage.css'; // Importar los estilos compartidos
 
 interface Profesor {
     id: number;
@@ -33,14 +34,18 @@ const GestionProfesores: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(''); // Limpiar errores previos
+
         try {
-            const response = await apiClient.post('/profesores', { nombre, email });
-            setProfesores([...profesores, response.data.data]);
+            await apiClient.post('/profesores', { nombre, email });
+            // Recargar la lista para asegurar consistencia
+            fetchProfesores();
             setNombre('');
             setEmail('');
-            setError('');
-        } catch (err) {
-            setError('No se pudo crear el profesor.');
+        } catch (err: any) {
+            console.error("Error al crear profesor:", err);
+            const errorMessage = err.response?.data?.error || 'No se pudo crear el profesor. Revisa la consola.';
+            setError(errorMessage);
         }
     };
 
@@ -51,28 +56,31 @@ const GestionProfesores: React.FC = () => {
                 <div className="form-section">
                     <h2>Agregar Nuevo Profesor</h2>
                     <form onSubmit={handleSubmit}>
-                        <div>
-                            <label>Nombre:</label>
-                            <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+                        <div className="form-group">
+                            <label htmlFor="nombre-profesor">Nombre:</label>
+                            <input id="nombre-profesor" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                         </div>
-                        <div>
-                            <label>Email:</label>
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                        <div className="form-group">
+                            <label htmlFor="email-profesor">Email:</label>
+                            <input id="email-profesor" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                         </div>
                         <button type="submit">Agregar Profesor</button>
                     </form>
+                    {error && <p className="page-message">{error}</p>}
                 </div>
                 <div className="list-section">
                     <h2>Lista de Profesores</h2>
-                    {loading && <p>Cargando...</p>}
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <ul>
-                        {profesores.map(p => (
-                            <li key={p.id}>
-                                <strong>{p.nombre}</strong> ({p.email})
-                            </li>
-                        ))}
-                    </ul>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <ul>
+                            {profesores.length > 0 ? profesores.map(p => (
+                                <li key={p.id}>
+                                    <strong>{p.nombre}</strong> ({p.email})
+                                </li>
+                            )) : <p>No hay profesores para mostrar.</p>}
+                        </ul>
+                    )}
                 </div>
             </div>
         </div>

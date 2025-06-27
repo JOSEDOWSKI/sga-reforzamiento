@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import '../styles/GestionPage.css'; // Importar los estilos compartidos
 
 interface Curso { id: number; nombre: string; }
 interface Tema { id: number; nombre: string; }
@@ -18,16 +19,20 @@ const GestionTemas: React.FC = () => {
             .catch(() => setError('No se pudieron cargar los cursos.'));
     }, []);
 
-    useEffect(() => {
-        if (selectedCurso) {
+    const fetchTemasByCurso = (cursoId: string) => {
+        if (cursoId) {
             setLoading(true);
-            apiClient.get(`/cursos/${selectedCurso}/temas`)
+            apiClient.get(`/cursos/${cursoId}/temas`)
                 .then(res => setTemas(res.data.data))
                 .catch(() => setError('Error al cargar temas.'))
                 .finally(() => setLoading(false));
         } else {
             setTemas([]);
         }
+    }
+
+    useEffect(() => {
+        fetchTemasByCurso(selectedCurso);
     }, [selectedCurso]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -36,50 +41,60 @@ const GestionTemas: React.FC = () => {
             setError('Debes seleccionar un curso primero.');
             return;
         }
+        setError(''); // Limpiar error
+        
         try {
-            const response = await apiClient.post(`/cursos/${selectedCurso}/temas`, { nombre: nombreTema });
-            setTemas([...temas, response.data.data]);
+            await apiClient.post(`/cursos/${selectedCurso}/temas`, { nombre: nombreTema });
+            // Recargar temas para el curso seleccionado
+            fetchTemasByCurso(selectedCurso);
             setNombreTema('');
-            setError('');
-        } catch (err) {
-            setError('No se pudo crear el tema.');
+        } catch (err: any) {
+            console.error("Error al crear tema:", err);
+            const errorMessage = err.response?.data?.error || 'No se pudo crear el tema. Revisa la consola.';
+            setError(errorMessage);
         }
     };
 
     return (
         <div className="page-container">
             <h1>Gestión de Temas por Curso</h1>
-            <label>Selecciona un curso para ver sus temas:</label>
-            <select value={selectedCurso} onChange={e => setSelectedCurso(e.target.value)}>
-                <option value="">-- Cursos --</option>
-                {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-            </select>
+            
+            <div className="form-section" style={{ maxWidth: '500px', marginBottom: '2rem' }}>
+                <div className="form-group">
+                    <label htmlFor="curso-select">Selecciona un curso para ver/agregar temas:</label>
+                    <select id="curso-select" value={selectedCurso} onChange={e => setSelectedCurso(e.target.value)}>
+                        <option value="">-- Cursos --</option>
+                        {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                    </select>
+                </div>
+            </div>
 
-            <hr style={{ margin: '2rem 0' }} />
+            {error && !selectedCurso && <p className="page-message">{error}</p>}
 
             {selectedCurso && (
                 <div className="form-and-list-container">
                     <div className="form-section">
-                        <h2>Agregar Nuevo Tema para "{cursos.find(c => c.id === parseInt(selectedCurso))?.nombre}"</h2>
+                        <h2>Agregar Tema para "{cursos.find(c => c.id === parseInt(selectedCurso))?.nombre}"</h2>
                         <form onSubmit={handleSubmit}>
-                            <div>
-                                <label>Nombre del Tema:</label>
-                                <input type="text" value={nombreTema} onChange={(e) => setNombreTema(e.target.value)} required />
+                            <div className="form-group">
+                                <label htmlFor="tema-nombre">Nombre del Tema:</label>
+                                <input id="tema-nombre" type="text" value={nombreTema} onChange={(e) => setNombreTema(e.target.value)} required />
                             </div>
                             <button type="submit">Agregar Tema</button>
                         </form>
                     </div>
                     <div className="list-section">
                         <h2>Lista de Temas</h2>
-                        {loading && <p>Cargando...</p>}
-                        {error && <p style={{ color: 'red' }}>{error}</p>}
-                        <ul>
-                            {temas.map(t => (
-                                <li key={t.id}>
-                                    {t.nombre}
-                                </li>
-                            ))}
-                        </ul>
+                        {loading ? (
+                            <p>Cargando...</p>
+                        ) : (
+                            <ul>
+                                {temas.length > 0 ? temas.map(t => (
+                                    <li key={t.id}>{t.nombre}</li>
+                                )) : <p>Este curso aún no tiene temas.</p>}
+                            </ul>
+                        )}
+                        {error && <p className="page-message">{error}</p>}
                     </div>
                 </div>
             )}
