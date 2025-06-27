@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../config/api';
-
-// --- Imports para el Calendario (con sintaxis corregida) ---
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import apiClient from '../config/api';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-// --- Configuración del Localizer para el Calendario en Español ---
-const locales = { 'es': es };
+// Configurar el localizador para español
 const localizer = dateFnsLocalizer({
     format,
     parse,
-    startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }), // Lunes
+    startOfWeek,
     getDay,
-    locales,
+    locales: {
+        'es': es,
+    },
 });
 
-// --- Definición de Tipos ---
-interface Curso { id: number; nombre: string; }
-interface Tema { id: number; nombre: string; }
-interface Profesor { id: number; nombre: string; }
 interface Reserva {
     id: number;
     fecha_hora_inicio: string;
@@ -30,52 +25,72 @@ interface Reserva {
     profesor_nombre: string;
     tema_nombre: string;
 }
-// Evento para el calendario
-interface CalendarEvent {
-    title: string;
-    start: Date;
-    end: Date;
-    resource?: any;
+
+interface Curso {
+    id: number;
+    nombre: string;
 }
 
+interface Tema {
+    id: number;
+    nombre: string;
+    curso_id: number;
+}
+
+interface Profesor {
+    id: number;
+    nombre: string;
+}
+
+interface ModalReserva {
+    isOpen: boolean;
+    selectedTime: Date | null;
+}
 
 const DashboardPage: React.FC = () => {
-    // --- Estados para los datos de los desplegables ---
+    // --- Estados para los datos ---
+    const [reservas, setReservas] = useState<Reserva[]>([]);
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [temas, setTemas] = useState<Tema[]>([]);
     const [profesores, setProfesores] = useState<Profesor[]>([]);
-    const [reservas, setReservas] = useState<Reserva[]>([]);
 
-    // --- Estados para el formulario ---
+    // --- Estados para el filtro ---
+    const [filtroCurso, setFiltroCurso] = useState('');
+
+    // --- Estados para el modal ---
+    const [modalReserva, setModalReserva] = useState<ModalReserva>({
+        isOpen: false,
+        selectedTime: null
+    });
+
+    // --- Estados para el formulario del modal ---
     const [selectedCurso, setSelectedCurso] = useState('');
     const [selectedTema, setSelectedTema] = useState('');
     const [selectedProfesor, setSelectedProfesor] = useState('');
     const [nombreAlumno, setNombreAlumno] = useState('');
-    const [telefonoAlumno, setTelefonoAlumno] = useState(''); // No está en la BD, lo omitimos por ahora
-    const [fechaHora, setFechaHora] = useState('');
+    const [telefonoAlumno, setTelefonoAlumno] = useState('');
+    const [duracionHoras, setDuracionHoras] = useState('1'); // Duración por defecto: 1 hora
 
     // --- Estados de Carga y Error ---
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     const fetchAllData = async () => {
         try {
-            setLoading(true);
-            const [cursosRes, profesRes, reservasRes] = await Promise.all([
+            const [cursosRes, profesRes, reservasRes, temasRes] = await Promise.all([
                 apiClient.get('/cursos'),
                 apiClient.get('/profesores'),
                 apiClient.get('/reservas'),
+                apiClient.get('/temas'),
             ]);
             setCursos(cursosRes.data.data);
             setProfesores(profesRes.data.data);
             setReservas(reservasRes.data.data);
+            setTemas(temasRes.data.data);
             setError('');
         } catch (err) {
             setError('Error al cargar datos iniciales.');
             console.error(err);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -84,51 +99,73 @@ const DashboardPage: React.FC = () => {
         fetchAllData();
     }, []);
 
-    // --- Cargar temas cuando se selecciona un curso ---
-    useEffect(() => {
-        if (selectedCurso) {
-            const fetchTemas = async () => {
-                try {
-                    // No es necesario un loading global aquí para no bloquear toda la UI
-                    const response = await apiClient.get(`/cursos/${selectedCurso}/temas`);
-                    setTemas(response.data.data);
-                } catch (err) {
-                    setError('Error al cargar los temas.');
-                    console.error(err);
-                }
-            };
-            fetchTemas();
-        } else {
-            setTemas([]);
-        }
-    }, [selectedCurso]);
+    // --- Filtrar temas según el curso seleccionado ---
+    const temasFiltrados = selectedCurso 
+        ? temas.filter(tema => tema.curso_id === parseInt(selectedCurso))
+        : [];
 
+    // --- Manejar clic en el calendario ---
+    const handleSelectSlot = (slotInfo: any) => {
+        setModalReserva({
+            isOpen: true,
+            selectedTime: slotInfo.start
+        });
+        // Limpiar formulario
+        setSelectedCurso('');
+        setSelectedTema('');
+        setSelectedProfesor('');
+        setNombreAlumno('');
+        setTelefonoAlumno('');
+        setDuracionHoras('1'); // Resetear duración a 1 hora
+    };
+
+    // --- Manejar clic en evento existente ---
+    const handleSelectEvent = (event: any) => {
+        alert(`Reserva: ${event.title}\nInicio: ${event.start.toLocaleString()}\nFin: ${event.end.toLocaleString()}`);
+    };
+
+    // --- Cerrar modal ---
+    const closeModal = () => {
+        setModalReserva({ isOpen: false, selectedTime: null });
+        setError('');
+        setSuccess('');
+    };
+
+    // --- Crear reserva desde el modal ---
     const handleBooking = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!modalReserva.selectedTime) return;
+
+        // Validar duración
+        const duracion = parseFloat(duracionHoras);
+        if (duracion <= 0 || duracion > 6) {
+            setError('La duración debe estar entre 30 minutos y 6 horas.');
+            return;
+        }
+
         setError('');
         setSuccess('');
         try {
+            const fechaInicio = new Date(modalReserva.selectedTime);
+            const fechaFin = new Date(fechaInicio.getTime() + duracion * 60 * 60 * 1000);
+
             const bookingData = {
                 curso_id: parseInt(selectedCurso),
                 tema_id: parseInt(selectedTema),
                 profesor_id: parseInt(selectedProfesor),
                 nombre_alumno: nombreAlumno,
-                fecha_hora_inicio: fechaHora,
+                fecha_hora_inicio: fechaInicio.toISOString().slice(0, 16),
+                fecha_hora_fin: fechaFin.toISOString().slice(0, 16),
             };
-            const response = await apiClient.post('/reservas', bookingData);
             
-            // Refrescamos todas las reservas para tener la data completa y actualizada del JOIN
+            await apiClient.post('/reservas', bookingData);
+            
+            // Refrescar datos
             fetchAllData();
-
-            // Limpiar formulario
-            setSelectedCurso('');
-            setSelectedTema('');
-            setSelectedProfesor('');
-            setNombreAlumno('');
-            setTelefonoAlumno('');
-            setFechaHora('');
             
-            setSuccess('¡Reserva creada con éxito!');
+            // Cerrar modal y limpiar formulario
+            closeModal();
+            setSuccess(`¡Reserva creada con éxito! Clase de ${duracion === 0.5 ? '30 minutos' : duracion === 1 ? '1 hora' : `${duracion} horas`}`);
 
         } catch (err: any) {
             setError(err.response?.data?.error || 'No se pudo crear la reserva.');
@@ -136,76 +173,229 @@ const DashboardPage: React.FC = () => {
         }
     };
     
-    // Mapear las reservas al formato que el calendario entiende
-    const events: CalendarEvent[] = reservas.map(r => ({
-        title: `${r.curso_nombre} - ${r.nombre_alumno}`,
-        start: new Date(r.fecha_hora_inicio),
-        end: new Date(r.fecha_hora_fin),
-        resource: r, // Guardamos la reserva original por si acaso
-    }));
+    // --- Filtrar reservas según el curso seleccionado para el calendario ---
+    const reservasFiltradas = filtroCurso 
+        ? reservas.filter(r => r.curso_nombre === cursos.find(c => c.id === parseInt(filtroCurso))?.nombre)
+        : reservas;
+    
+    // --- Formatear eventos para el calendario ---
+    const calendarEvents = reservasFiltradas.map(reserva => {
+        const start = new Date(reserva.fecha_hora_inicio);
+        const end = new Date(reserva.fecha_hora_fin);
+        const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        
+        // Determinar la clase CSS basada en la duración
+        let durationClass = 'reserva-event';
+        if (durationHours < 1) {
+            durationClass += ' short-duration';
+        } else if (durationHours > 1.5) {
+            durationClass += ' long-duration';
+        }
+        
+        // Formatear la duración para mostrar
+        const durationText = durationHours === 0.5 ? '30min' : 
+                           durationHours === 1 ? '1h' : 
+                           durationHours === 1.5 ? '1.5h' : 
+                           durationHours === 2 ? '2h' : 
+                           durationHours === 2.5 ? '2.5h' : 
+                           durationHours === 3 ? '3h' : 
+                           `${durationHours}h`;
+        
+        return {
+            id: reserva.id,
+            title: `${reserva.nombre_alumno} - ${reserva.curso_nombre} (${durationText})`,
+            start: start,
+            end: end,
+            resource: reserva,
+            className: durationClass
+        };
+    });
 
     return (
-        <div>
-            <h1>Dashboard de Reservas</h1>
-            <div className="dashboard-container">
-                <div className="booking-form">
-                    <h2>Nueva Reserva</h2>
-                    <form onSubmit={handleBooking}>
-                        {/* Selector de Curso */}
-                        <label>Curso:</label>
-                        <select value={selectedCurso} onChange={e => setSelectedCurso(e.target.value)} required>
-                            <option value="">Seleccione un curso</option>
-                            {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                        </select>
-
-                        {/* Selector de Tema */}
-                        <label>Tema:</label>
-                        <select value={selectedTema} onChange={e => setSelectedTema(e.target.value)} required disabled={!selectedCurso || temas.length === 0}>
-                            <option value="">Seleccione un tema</option>
-                            {temas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                        </select>
-
-                        {/* Selector de Profesor */}
-                        <label>Profesor:</label>
-                        <select value={selectedProfesor} onChange={e => setSelectedProfesor(e.target.value)} required>
-                            <option value="">Seleccione un profesor</option>
-                            {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                        </select>
-
-                        <label>Fecha y Hora de Inicio:</label>
-                        <input type="datetime-local" value={fechaHora} onChange={e => setFechaHora(e.target.value)} required />
-
-                        <label>Nombre del Alumno:</label>
-                        <input type="text" value={nombreAlumno} onChange={e => setNombreAlumno(e.target.value)} required />
-                        
-                        <label>Teléfono del Alumno (Opcional):</label>
-                        <input type="tel" value={telefonoAlumno} onChange={e => setTelefonoAlumno(e.target.value)} />
-
-                        <button type="submit" disabled={loading}>Crear Reserva</button>
-                    </form>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    {success && <p style={{ color: 'green' }}>{success}</p>}
+        <div className="container">
+            <div className="card fade-in">
+                <div className="card-header">
+                    <h2 className="card-title">🗓️ Dashboard - Calendario de Reforzamiento</h2>
                 </div>
-                <div className="calendar-view">
-                    <h2>Calendario de Clases</h2>
-                    <Calendar
-                        localizer={localizer}
-                        events={events}
-                        startAccessor="start"
-                        endAccessor="end"
-                        style={{ height: 600 }}
-                        messages={{
-                            next: "Siguiente",
-                            previous: "Anterior",
-                            today: "Hoy",
-                            month: "Mes",
-                            week: "Semana",
-                            day: "Día",
-                            agenda: "Agenda",
-                        }}
-                    />
+
+                {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
+
+                {/* Filtros */}
+                <div className="filters-section">
+                    <div className="filters-row">
+                        <div className="filter-group">
+                            <label htmlFor="filtroCurso">Filtrar por Curso:</label>
+                            <select
+                                id="filtroCurso"
+                                className="form-control"
+                                value={filtroCurso}
+                                onChange={(e) => setFiltroCurso(e.target.value)}
+                            >
+                                <option value="">Todos los cursos</option>
+                                {cursos.map(curso => (
+                                    <option key={curso.id} value={curso.id}>
+                                        {curso.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Calendario */}
+                <Calendar
+                    localizer={localizer}
+                    events={calendarEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: 600 }}
+                    views={['month', 'week', 'day']}
+                    defaultView="week"
+                    selectable
+                    onSelectSlot={handleSelectSlot}
+                    onSelectEvent={handleSelectEvent}
+                    messages={{
+                        next: "Siguiente",
+                        previous: "Anterior",
+                        today: "Hoy",
+                        month: "Mes",
+                        week: "Semana",
+                        day: "Día",
+                        noEventsInRange: "No hay eventos en este rango."
+                    }}
+                />
             </div>
+
+            {/* Modal de Reserva */}
+            {modalReserva.isOpen && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>📅 Nueva Reserva de Reforzamiento</h2>
+                            <button className="close-button" onClick={closeModal}>
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleBooking}>
+                            <div className="form-group">
+                                <label>Curso:</label>
+                                <select 
+                                    className="form-control"
+                                    value={selectedCurso} 
+                                    onChange={e => setSelectedCurso(e.target.value)} 
+                                    required
+                                >
+                                    <option value="">Selecciona un curso</option>
+                                    {cursos.map(curso => (
+                                        <option key={curso.id} value={curso.id}>
+                                            {curso.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Tema:</label>
+                                <select 
+                                    className="form-control"
+                                    value={selectedTema} 
+                                    onChange={e => setSelectedTema(e.target.value)} 
+                                    required
+                                    disabled={!selectedCurso}
+                                >
+                                    <option value="">Selecciona un tema</option>
+                                    {temasFiltrados.map(tema => (
+                                        <option key={tema.id} value={tema.id}>
+                                            {tema.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Profesor:</label>
+                                <select 
+                                    className="form-control"
+                                    value={selectedProfesor} 
+                                    onChange={e => setSelectedProfesor(e.target.value)} 
+                                    required
+                                >
+                                    <option value="">Selecciona un profesor</option>
+                                    {profesores.map(profesor => (
+                                        <option key={profesor.id} value={profesor.id}>
+                                            {profesor.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Nombre del Alumno:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    value={nombreAlumno} 
+                                    onChange={e => setNombreAlumno(e.target.value)} 
+                                    required 
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Duración de la Clase:</label>
+                                <select 
+                                    className="form-control"
+                                    value={duracionHoras} 
+                                    onChange={e => setDuracionHoras(e.target.value)} 
+                                    required
+                                >
+                                    <option value="0.5">30 minutos</option>
+                                    <option value="1">1 hora</option>
+                                    <option value="1.5">1 hora y 30 minutos</option>
+                                    <option value="2">2 horas</option>
+                                    <option value="2.5">2 horas y 30 minutos</option>
+                                    <option value="3">3 horas</option>
+                                </select>
+                                {modalReserva.selectedTime && (
+                                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                                        <strong>Horario:</strong> {new Date(modalReserva.selectedTime).toLocaleString('es-ES', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })} - {new Date(new Date(modalReserva.selectedTime).getTime() + parseFloat(duracionHoras) * 60 * 60 * 1000).toLocaleTimeString('es-ES', { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit' 
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Teléfono del Alumno (Opcional):</label>
+                                <input 
+                                    type="tel" 
+                                    className="form-control"
+                                    value={telefonoAlumno} 
+                                    onChange={e => setTelefonoAlumno(e.target.value)} 
+                                />
+                            </div>
+
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-primary">
+                                    ✅ Confirmar Reserva
+                                </button>
+                                <button type="button" className="btn btn-secondary" onClick={closeModal}>
+                                    ❌ Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

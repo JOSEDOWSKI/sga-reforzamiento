@@ -22,6 +22,9 @@ app.use('/api/profesores', profesorRoutes);
 const reservaRoutes = require('./routes/reservaRoutes');
 app.use('/api/reservas', reservaRoutes);
 
+const temaDirectRoutes = require('./routes/temaDirectRoutes');
+app.use('/api/temas', temaDirectRoutes);
+
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
 });

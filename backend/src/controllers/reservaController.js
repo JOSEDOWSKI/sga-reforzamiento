@@ -31,15 +31,19 @@ exports.getAllReservas = async (req, res) => {
 
 // Crear una nueva reserva
 exports.createReserva = async (req, res) => {
-    const { fecha_hora_inicio, profesor_id, curso_id, tema_id, nombre_alumno } = req.body;
+    const { fecha_hora_inicio, fecha_hora_fin, profesor_id, curso_id, tema_id, nombre_alumno } = req.body;
 
-    if (!fecha_hora_inicio || !profesor_id || !curso_id || !tema_id || !nombre_alumno) {
+    if (!fecha_hora_inicio || !fecha_hora_fin || !profesor_id || !curso_id || !tema_id || !nombre_alumno) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    // Calculo la fecha de fin (inicio + 1 hora)
+    // Validar que la fecha de fin sea posterior a la fecha de inicio
     const fechaInicio = new Date(fecha_hora_inicio);
-    const fechaFin = new Date(fechaInicio.getTime() + 60 * 60 * 1000);
+    const fechaFin = new Date(fecha_hora_fin);
+    
+    if (fechaFin <= fechaInicio) {
+        return res.status(400).json({ error: 'La fecha de fin debe ser posterior a la fecha de inicio' });
+    }
 
     const sql = `
         INSERT INTO reservas (fecha_hora_inicio, fecha_hora_fin, profesor_id, curso_id, tema_id, nombre_alumno) 

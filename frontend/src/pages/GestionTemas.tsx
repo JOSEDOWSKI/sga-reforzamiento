@@ -1,90 +1,248 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 
-interface Curso { id: number; nombre: string; }
-interface Tema { id: number; nombre: string; }
+interface Tema {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  curso_id: number;
+  curso_nombre?: string;
+}
+
+interface Curso {
+  id: number;
+  nombre: string;
+}
 
 const GestionTemas: React.FC = () => {
-    const [cursos, setCursos] = useState<Curso[]>([]);
-    const [selectedCurso, setSelectedCurso] = useState('');
-    const [temas, setTemas] = useState<Tema[]>([]);
-    const [nombreTema, setNombreTema] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [temas, setTemas] = useState<Tema[]>([]);
+  const [cursos, setCursos] = useState<Curso[]>([]);
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [cursoId, setCursoId] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-    useEffect(() => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [temasResponse, cursosResponse] = await Promise.all([
+        apiClient.get('/temas'),
         apiClient.get('/cursos')
-            .then(res => setCursos(res.data.data))
-            .catch(() => setError('No se pudieron cargar los cursos.'));
-    }, []);
+      ]);
+      
+      setTemas(temasResponse.data.data);
+      setCursos(cursosResponse.data.data);
+      setLoading(false);
+    } catch (err: any) {
+      setError('Error al cargar los datos');
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        if (selectedCurso) {
-            setLoading(true);
-            apiClient.get(`/cursos/${selectedCurso}/temas`)
-                .then(res => setTemas(res.data.data))
-                .catch(() => setError('Error al cargar temas.'))
-                .finally(() => setLoading(false));
-        } else {
-            setTemas([]);
-        }
-    }, [selectedCurso]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim() || !cursoId) {
+      setError('El nombre y curso son obligatorios');
+      return;
+    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedCurso) {
-            setError('Debes seleccionar un curso primero.');
-            return;
-        }
-        try {
-            const response = await apiClient.post(`/cursos/${selectedCurso}/temas`, { nombre: nombreTema });
-            setTemas([...temas, response.data.data]);
-            setNombreTema('');
-            setError('');
-        } catch (err) {
-            setError('No se pudo crear el tema.');
-        }
-    };
+    try {
+      if (editingId) {
+        await apiClient.put(`/temas/${editingId}`, { 
+          nombre, 
+          descripcion, 
+          curso_id: parseInt(cursoId) 
+        });
+        setSuccess('Tema actualizado con éxito');
+      } else {
+        await apiClient.post('/temas', { 
+          nombre, 
+          descripcion, 
+          curso_id: parseInt(cursoId) 
+        });
+        setSuccess('Tema creado con éxito');
+      }
+      
+      setNombre('');
+      setDescripcion('');
+      setCursoId('');
+      setEditingId(null);
+      fetchData();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Error al guardar el tema');
+    }
+  };
 
+  const handleEdit = (tema: Tema) => {
+    setNombre(tema.nombre);
+    setDescripcion(tema.descripcion);
+    setCursoId(tema.curso_id.toString());
+    setEditingId(tema.id);
+    setError('');
+    setSuccess('');
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este tema?')) {
+      try {
+        await apiClient.delete(`/temas/${id}`);
+        setSuccess('Tema eliminado con éxito');
+        fetchData();
+      } catch (err: any) {
+        setError('Error al eliminar el tema');
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    setNombre('');
+    setDescripcion('');
+    setCursoId('');
+    setEditingId(null);
+    setError('');
+    setSuccess('');
+  };
+
+  const getCursoNombre = (cursoId: number) => {
+    const curso = cursos.find(c => c.id === cursoId);
+    return curso ? curso.nombre : 'Curso no encontrado';
+  };
+
+  if (loading) {
     return (
-        <div className="page-container">
-            <h1>Gestión de Temas por Curso</h1>
-            <label>Selecciona un curso para ver sus temas:</label>
-            <select value={selectedCurso} onChange={e => setSelectedCurso(e.target.value)}>
-                <option value="">-- Cursos --</option>
-                {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-            </select>
-
-            <hr style={{ margin: '2rem 0' }} />
-
-            {selectedCurso && (
-                <div className="form-and-list-container">
-                    <div className="form-section">
-                        <h2>Agregar Nuevo Tema para "{cursos.find(c => c.id === parseInt(selectedCurso))?.nombre}"</h2>
-                        <form onSubmit={handleSubmit}>
-                            <div>
-                                <label>Nombre del Tema:</label>
-                                <input type="text" value={nombreTema} onChange={(e) => setNombreTema(e.target.value)} required />
-                            </div>
-                            <button type="submit">Agregar Tema</button>
-                        </form>
-                    </div>
-                    <div className="list-section">
-                        <h2>Lista de Temas</h2>
-                        {loading && <p>Cargando...</p>}
-                        {error && <p style={{ color: 'red' }}>{error}</p>}
-                        <ul>
-                            {temas.map(t => (
-                                <li key={t.id}>
-                                    {t.nombre}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            )}
+      <div className="container">
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Cargando temas...</h2>
+          </div>
         </div>
+      </div>
     );
+  }
+
+  return (
+    <div className="container">
+      <div className="card fade-in">
+        <div className="card-header">
+          <h2 className="card-title">
+            {editingId ? '✏️ Editar Tema' : '📝 Gestión de Temas'}
+          </h2>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="nombre">Nombre del Tema:</label>
+            <input
+              type="text"
+              id="nombre"
+              className="form-control"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ej: Derivadas e Integrales"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="curso">Curso:</label>
+            <select
+              id="curso"
+              className="form-control"
+              value={cursoId}
+              onChange={(e) => setCursoId(e.target.value)}
+              required
+            >
+              <option value="">Selecciona un curso</option>
+              {cursos.map((curso) => (
+                <option key={curso.id} value={curso.id}>
+                  {curso.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="descripcion">Descripción (Opcional):</label>
+            <textarea
+              id="descripcion"
+              className="form-control"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Descripción del tema..."
+              rows={3}
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">
+              {editingId ? '🔄 Actualizar' : '➕ Crear'}
+            </button>
+            {editingId && (
+              <button type="button" className="btn btn-secondary" onClick={handleCancel}>
+                ❌ Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <div className="card slide-up">
+        <div className="card-header">
+          <h3 className="card-title">📝 Lista de Temas</h3>
+        </div>
+
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Curso</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {temas.map((tema) => (
+                <tr key={tema.id}>
+                  <td>{tema.id}</td>
+                  <td>
+                    <strong>{tema.nombre}</strong>
+                  </td>
+                  <td>{getCursoNombre(tema.curso_id)}</td>
+                  <td>{tema.descripcion || 'Sin descripción'}</td>
+                  <td>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => handleEdit(tema)}
+                      style={{ marginRight: '0.5rem' }}
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDelete(tema.id)}
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default GestionTemas; 
