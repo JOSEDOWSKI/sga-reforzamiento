@@ -9,6 +9,8 @@ interface Reserva {
   curso_nombre: string;
   profesor_nombre: string;
   tema_nombre: string;
+  precio?: number;
+  estado_pago?: string;
 }
 
 interface Curso {
@@ -64,6 +66,21 @@ const EstadisticasPage: React.FC = () => {
     const ahora = new Date();
     const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
     const inicioSemana = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // Reservas pagadas por período
+    const pagadas = reservas.filter(r => r.estado_pago === 'Pagado');
+    const pagadasEsteMes = pagadas.filter(r => new Date(r.fecha_hora_inicio) >= inicioMes);
+    const pagadasEstaSemana = pagadas.filter(r => new Date(r.fecha_hora_inicio) >= inicioSemana);
+    const pagadasHoy = pagadas.filter(r => {
+      const fecha = new Date(r.fecha_hora_inicio);
+      return fecha.toDateString() === ahora.toDateString();
+    });
+
+    // Ingresos por período
+    const ingresosTotales = pagadas.reduce((sum, r) => sum + (r.precio || 0), 0);
+    const ingresosMes = pagadasEsteMes.reduce((sum, r) => sum + (r.precio || 0), 0);
+    const ingresosSemana = pagadasEstaSemana.reduce((sum, r) => sum + (r.precio || 0), 0);
+    const ingresosHoy = pagadasHoy.reduce((sum, r) => sum + (r.precio || 0), 0);
 
     // Reservas por período
     const reservasEsteMes = reservas.filter(r => new Date(r.fecha_hora_inicio) >= inicioMes);
@@ -132,7 +149,11 @@ const EstadisticasPage: React.FC = () => {
       topProfesores: profesorStats.slice(0, 5),
       cursosActivos: cursos.length,
       profesoresActivos: profesores.length,
-      temasDisponibles: temas.length
+      temasDisponibles: temas.length,
+      ingresosTotales,
+      ingresosMes,
+      ingresosSemana,
+      ingresosHoy
     };
   };
 
@@ -347,6 +368,43 @@ const EstadisticasPage: React.FC = () => {
               <div className="stat-content">
                 <h4>Total Reservas</h4>
                 <div className="stat-number">{stats.totalReservas}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Estadísticas Financieras Premium */}
+        <div className="card slide-up premium-overlay" data-premium-title="👑 💰 INGRESOS FINANCIEROS - DISPONIBLE EN PREMIUM">
+          <div className="card-header">
+            <h3 className="card-title">💰 Ingresos Financieros</h3>
+          </div>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon">💵</div>
+              <div className="stat-content">
+                <h4>Ingresos Totales</h4>
+                <div className="stat-number">S/ {stats.ingresosTotales.toFixed(2)}</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">📅</div>
+              <div className="stat-content">
+                <h4>Este Mes</h4>
+                <div className="stat-number">S/ {stats.ingresosMes.toFixed(2)}</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">📅</div>
+              <div className="stat-content">
+                <h4>Esta Semana</h4>
+                <div className="stat-number">S/ {stats.ingresosSemana.toFixed(2)}</div>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon">📅</div>
+              <div className="stat-content">
+                <h4>Hoy</h4>
+                <div className="stat-number">S/ {stats.ingresosHoy.toFixed(2)}</div>
               </div>
             </div>
           </div>

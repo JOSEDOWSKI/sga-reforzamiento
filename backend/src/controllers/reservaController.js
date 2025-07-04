@@ -11,7 +11,9 @@ exports.getAllReservas = async (req, res) => {
             r.nombre_alumno,
             c.nombre as curso_nombre,
             p.nombre as profesor_nombre,
-            t.nombre as tema_nombre
+            t.nombre as tema_nombre,
+            r.precio,
+            r.estado_pago
         FROM reservas r
         JOIN cursos c ON r.curso_id = c.id
         JOIN profesores p ON r.profesor_id = p.id
@@ -31,7 +33,7 @@ exports.getAllReservas = async (req, res) => {
 
 // Crear una nueva reserva
 exports.createReserva = async (req, res) => {
-    const { fecha_hora_inicio, fecha_hora_fin, profesor_id, curso_id, tema_id, nombre_alumno } = req.body;
+    const { fecha_hora_inicio, fecha_hora_fin, profesor_id, curso_id, tema_id, nombre_alumno, precio, estado_pago } = req.body;
 
     if (!fecha_hora_inicio || !fecha_hora_fin || !profesor_id || !curso_id || !tema_id || !nombre_alumno) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
@@ -46,11 +48,11 @@ exports.createReserva = async (req, res) => {
     }
 
     const sql = `
-        INSERT INTO reservas (fecha_hora_inicio, fecha_hora_fin, profesor_id, curso_id, tema_id, nombre_alumno) 
-        VALUES ($1, $2, $3, $4, $5, $6) 
+        INSERT INTO reservas (fecha_hora_inicio, fecha_hora_fin, profesor_id, curso_id, tema_id, nombre_alumno, precio, estado_pago) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
         RETURNING *
     `;
-    const params = [fechaInicio, fechaFin, profesor_id, curso_id, tema_id, nombre_alumno];
+    const params = [fechaInicio, fechaFin, profesor_id, curso_id, tema_id, nombre_alumno, precio || 0, estado_pago || 'Falta pagar'];
 
     try {
         const { rows } = await pool.query(sql, params);

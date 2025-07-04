@@ -77,6 +77,8 @@ const DashboardPage: React.FC = () => {
     const [nombreAlumno, setNombreAlumno] = useState('');
     const [telefonoAlumno, setTelefonoAlumno] = useState('');
     const [duracionHoras, setDuracionHoras] = useState('1'); // Duración por defecto: 1 hora
+    const [precio, setPrecio] = useState('0');
+    const [estadoPago, setEstadoPago] = useState('Falta pagar');
 
     // --- Estados de Carga y Error ---
     const [error, setError] = useState('');
@@ -124,6 +126,8 @@ const DashboardPage: React.FC = () => {
         setNombreAlumno('');
         setTelefonoAlumno('');
         setDuracionHoras('1'); // Resetear duración a 1 hora
+        setPrecio('0');
+        setEstadoPago('Falta pagar');
     };
 
     // --- Manejar clic en evento existente ---
@@ -196,6 +200,7 @@ const DashboardPage: React.FC = () => {
         try {
             const fechaFin = new Date(fechaInicio.getTime() + duracion * 60 * 60 * 1000);
 
+            const precioFinal = precio && parseFloat(precio) > 0 ? parseFloat(precio) : duracion * 20; // 20 es un ejemplo de precio por hora
             const bookingData = {
                 curso_id: parseInt(selectedCurso),
                 tema_id: parseInt(selectedTema),
@@ -203,6 +208,8 @@ const DashboardPage: React.FC = () => {
                 nombre_alumno: nombreAlumno.trim(),
                 fecha_hora_inicio: fechaInicio.toISOString(),
                 fecha_hora_fin: fechaFin.toISOString(),
+                precio: precioFinal,
+                estado_pago: estadoPago
             };
             
             await apiClient.post('/reservas', bookingData);
@@ -507,6 +514,32 @@ const DashboardPage: React.FC = () => {
                                     value={telefonoAlumno} 
                                     onChange={e => setTelefonoAlumno(e.target.value)} 
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Precio de la Clase (S/):</label>
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    min="0"
+                                    step="0.01"
+                                    value={precio}
+                                    onChange={e => setPrecio(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Estado de Pago:</label>
+                                <select
+                                    className="form-control"
+                                    value={estadoPago}
+                                    onChange={e => setEstadoPago(e.target.value)}
+                                    required
+                                >
+                                    <option value="Falta pagar">Falta pagar</option>
+                                    <option value="Pagado">Pagado</option>
+                                </select>
                             </div>
 
                             <div className="form-actions">
