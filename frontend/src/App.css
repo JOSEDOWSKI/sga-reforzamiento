@@ -330,32 +330,181 @@ body {
   background: linear-gradient(135deg, #667eea, #764ba2);
   padding: 2rem;
   border-radius: 24px 24px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.rbc-toolbar button {
-  background: rgba(255, 255, 255, 0.2);
+.rbc-toolbar .rbc-toolbar-label {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.75rem 1.5rem;
-  border-radius: 16px;
-  margin: 0 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  font-size: 1rem;
+  margin: 0;
 }
 
-.rbc-toolbar button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
+.rbc-toolbar .rbc-btn-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.rbc-toolbar button.rbc-active {
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
+.rbc-toolbar .rbc-btn-group button[type="button"],
+.rbc-toolbar .rbc-btn-group button[type="submit"],
+.rbc-toolbar .rbc-btn-group button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 16px !important;
+  margin: 0 0.5rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+  font-size: 1rem !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+  z-index: 1 !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2) !important;
+}
+
+.rbc-toolbar .rbc-btn-group button.rbc-active {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #667eea !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3) !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  pointer-events: none !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:disabled:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Asegurar que los botones de navegación sean clickeables */
+.rbc-toolbar .rbc-btn-group button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5) !important;
+  outline-offset: 2px !important;
+  z-index: 2 !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+/* Mejorar la apariencia de las celdas del calendario */
+.rbc-month-view,
+.rbc-time-view {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.rbc-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1rem;
   font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
 }
 
+.rbc-time-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.rbc-time-content {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.rbc-time-slot {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.rbc-time-slot:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* Mejorar la selección de slots */
+.rbc-slot-selecting {
+  background: rgba(102, 126, 234, 0.2) !important;
+  border: 2px dashed #667eea !important;
+}
+
+.rbc-slot-selecting:hover {
+  background: rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Responsive para el calendario */
+@media (max-width: 768px) {
+  .rbc-toolbar {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .rbc-toolbar .rbc-toolbar-label {
+    font-size: 1.2rem;
+  }
+  
+  .rbc-toolbar .rbc-btn-group {
+    justify-content: center;
+  }
+  
+  .rbc-toolbar button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    margin: 0.25rem;
+    min-width: 80px;
+  }
+  
+  .rbc-calendar {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rbc-toolbar {
+    padding: 0.75rem;
+  }
+  
+  .rbc-toolbar .rbc-toolbar-label {
+    font-size: 1rem;
+  }
+  
+  .rbc-toolbar button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0.2rem;
+    min-width: 70px;
+  }
+  
+  .rbc-toolbar .rbc-btn-group {
+    gap: 0.25rem;
+  }
+}
+
+/* Estilos para eventos del calendario */
 .rbc-event {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
@@ -1058,5 +1207,376 @@ body {
   
   .sidebar {
     transform: translateX(0) !important;
+  }
+}
+
+/* --- Overlay de Censura Premium --- */
+.premium-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0.9) 0%, 
+    rgba(118, 75, 162, 0.9) 100%);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  border-radius: 20px;
+}
+
+.premium-overlay::after {
+  content: attr(data-premium-title);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  z-index: 11;
+  white-space: normal;
+  max-width: 90%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  animation: premiumPulse 2s ease-in-out infinite;
+}
+
+@keyframes premiumPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.premium-overlay .card-header,
+.premium-overlay .stats-grid,
+.premium-overlay .table-container {
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+/* Responsive para el overlay premium */
+@media (max-width: 768px) {
+  .premium-overlay::after {
+    font-size: 0.85rem;
+    padding: 0.75rem 1.5rem;
+    white-space: normal;
+    text-align: center;
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .premium-overlay::after {
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    max-width: 98%;
+  }
+}
+
+/* Estilos adicionales para mejorar la funcionalidad de los botones */
+.rbc-toolbar button[type="button"] {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: 16px;
+  margin: 0 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 1rem;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.rbc-toolbar button[type="button"]:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.rbc-toolbar button[type="button"]:hover:before {
+  left: 100%;
+}
+
+.rbc-toolbar button[type="button"]:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.rbc-toolbar button[type="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.rbc-toolbar button[type="button"].rbc-active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+/* Asegurar que los botones de navegación funcionen */
+.rbc-toolbar .rbc-btn-group button {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+  z-index: 2;
+}
+
+.rbc-toolbar .rbc-btn-group button:not(:disabled) {
+  cursor: pointer !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+.rbc-toolbar .rbc-btn-group button:not(:disabled):active {
+  transform: translateY(0) !important;
+}
+
+/* Mejorar la accesibilidad */
+.rbc-toolbar button[aria-label] {
+  position: relative;
+}
+
+.rbc-toolbar button[aria-label]:after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+.rbc-toolbar button[aria-label]:hover:after {
+  opacity: 1;
+}
+
+/* Tarjeta de visualización de reserva */
+.reserva-card {
+  background: linear-gradient(135deg, #f8fafc 80%, #e0e7ff 100%);
+  border: 2px solid #667eea;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  max-width: 450px;
+  margin: 2rem auto;
+  animation: fadeIn 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.reserva-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.reserva-card-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0;
+}
+
+.reserva-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.reserva-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e7ff;
+}
+
+.reserva-card-label {
+  font-weight: 600;
+  color: #667eea;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reserva-card-value {
+  color: #333;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+  margin-left: 1rem;
+}
+
+@media (max-width: 600px) {
+  .reserva-card {
+    padding: 1.2rem 0.5rem;
+    max-width: 98vw;
+  }
+  .reserva-card-row {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .reserva-card-label {
+    min-width: unset;
+  }
+  .reserva-card-value {
+    margin-left: 0;
+    text-align: left;
+  }
+}
+
+/* Overlay para la sidebar de reserva */
+.reserva-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.15);
+  z-index: 1200;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  animation: fadeIn 0.2s;
+}
+
+/* Sidebar de reserva */
+.reserva-sidebar {
+  background: linear-gradient(135deg, #f8fafc 80%, #e0e7ff 100%);
+  border-left: 2px solid #667eea;
+  box-shadow: -8px 0 32px rgba(102, 126, 234, 0.15);
+  border-radius: 24px 0 0 24px;
+  padding: 2.5rem 2rem;
+  width: 400px;
+  max-width: 95vw;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideInRight 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.reserva-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.reserva-sidebar-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0;
+}
+
+.reserva-sidebar-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.reserva-sidebar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e7ff;
+}
+
+.reserva-sidebar-label {
+  font-weight: 600;
+  color: #667eea;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reserva-sidebar-value {
+  color: #333;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+  margin-left: 1rem;
+}
+
+@media (max-width: 600px) {
+  .reserva-sidebar {
+    padding: 1.2rem 0.5rem;
+    width: 98vw;
+    border-radius: 0;
+  }
+  .reserva-sidebar-row {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .reserva-sidebar-label {
+    min-width: unset;
+  }
+  .reserva-sidebar-value {
+    margin-left: 0;
+    text-align: left;
   }
 }

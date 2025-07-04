@@ -195,7 +195,7 @@ const EstadisticasPage: React.FC = () => {
         </div>
 
         {/* Estadísticas por Período */}
-        <div className="card slide-up">
+        <div className="card slide-up premium-overlay" data-premium-title="👑 📈 ACTIVIDAD RECIENTE - DISPONIBLE EN PREMIUM">
           <div className="card-header">
             <h3 className="card-title">📈 Actividad Reciente</h3>
           </div>
@@ -240,7 +240,7 @@ const EstadisticasPage: React.FC = () => {
         </div>
 
         {/* Top Cursos */}
-        <div className="card slide-up">
+        <div className="card slide-up premium-overlay" data-premium-title="👑 🏆 TOP 5 CURSOS MÁS POPULARES - DISPONIBLE EN PREMIUM">
           <div className="card-header">
             <h3 className="card-title">🏆 Top 5 Cursos Más Populares</h3>
           </div>
@@ -276,7 +276,7 @@ const EstadisticasPage: React.FC = () => {
         </div>
 
         {/* Top Profesores */}
-        <div className="card slide-up">
+        <div className="card slide-up premium-overlay" data-premium-title="👑 👨‍🏫 TOP 5 PROFESORES MÁS ACTIVOS - DISPONIBLE EN PREMIUM">
           <div className="card-header">
             <h3 className="card-title">👨‍🏫 Top 5 Profesores Más Activos</h3>
           </div>
@@ -312,7 +312,7 @@ const EstadisticasPage: React.FC = () => {
         </div>
 
         {/* Resumen del Sistema */}
-        <div className="card slide-up">
+        <div className="card slide-up premium-overlay" data-premium-title="👑 📋 RESUMEN COMPLETO DEL SISTEMA - DISPONIBLE EN PREMIUM">
           <div className="card-header">
             <h3 className="card-title">📋 Resumen del Sistema</h3>
           </div>

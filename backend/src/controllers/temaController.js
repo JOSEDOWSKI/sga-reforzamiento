@@ -27,16 +27,15 @@ exports.getTemasByCurso = async (req, res) => {
     }
 };
 
-// Crear un nuevo tema
+// Crear un nuevo tema para un curso
 exports.createTema = async (req, res) => {
-    const { nombre, descripcion, curso_id } = req.body;
+    const { nombre, curso_id } = req.body;
     if (!nombre || !curso_id) {
         return res.status(400).json({ error: 'Los campos nombre y curso_id son obligatorios' });
     }
-
-    const sql = 'INSERT INTO temas (nombre, descripcion, curso_id) VALUES ($1, $2, $3) RETURNING *';
+    const sql = 'INSERT INTO temas (nombre, curso_id) VALUES ($1, $2) RETURNING *';
     try {
-        const { rows } = await pool.query(sql, [nombre, descripcion || null, curso_id]);
+        const { rows } = await pool.query(sql, [nombre, curso_id]);
         res.status(201).json({
             message: 'Tema creado con éxito',
             data: rows[0]
@@ -46,18 +45,16 @@ exports.createTema = async (req, res) => {
     }
 };
 
-// Actualizar un tema existente
+// Editar un tema existente
 exports.updateTema = async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, curso_id } = req.body;
-    
+    const { nombre, curso_id } = req.body;
     if (!nombre || !curso_id) {
         return res.status(400).json({ error: 'Los campos nombre y curso_id son obligatorios' });
     }
-
-    const sql = 'UPDATE temas SET nombre = $1, descripcion = $2, curso_id = $3 WHERE id = $4 RETURNING *';
+    const sql = 'UPDATE temas SET nombre = $1, curso_id = $2 WHERE id = $3 RETURNING *';
     try {
-        const { rows } = await pool.query(sql, [nombre, descripcion || null, curso_id, id]);
+        const { rows } = await pool.query(sql, [nombre, curso_id, id]);
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Tema no encontrado' });
         }

@@ -57,6 +57,13 @@ const DashboardPage: React.FC = () => {
     // --- Estados para el filtro ---
     const [filtroCurso, setFiltroCurso] = useState('');
 
+    // --- Estados para el calendario ---
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentView, setCurrentView] = useState('week');
+
+    // --- Estado para la reserva seleccionada ---
+    const [reservaSeleccionada, setReservaSeleccionada] = useState<Reserva | null>(null);
+
     // --- Estados para el modal ---
     const [modalReserva, setModalReserva] = useState<ModalReserva>({
         isOpen: false,
@@ -121,7 +128,7 @@ const DashboardPage: React.FC = () => {
 
     // --- Manejar clic en evento existente ---
     const handleSelectEvent = (event: any) => {
-        alert(`Reserva: ${event.title}\nInicio: ${event.start.toLocaleString()}\nFin: ${event.end.toLocaleString()}`);
+        setReservaSeleccionada(event.resource);
     };
 
     // --- Cerrar modal ---
@@ -131,10 +138,42 @@ const DashboardPage: React.FC = () => {
         setSuccess('');
     };
 
+    // --- Manejar navegación del calendario ---
+    const handleNavigate = (newDate: Date) => {
+        setCurrentDate(newDate);
+        console.log('Navegando a:', newDate);
+        // Mostrar feedback temporal
+        setSuccess(`Navegando a ${newDate.toLocaleDateString('es-ES')}`);
+        setTimeout(() => setSuccess(''), 2000);
+    };
+
+    // --- Manejar cambio de vista del calendario ---
+    const handleViewChange = (newView: string) => {
+        setCurrentView(newView);
+        console.log('Cambiando vista a:', newView);
+        // Mostrar feedback temporal
+        const viewNames = {
+            'month': 'Mes',
+            'week': 'Semana',
+            'day': 'Día'
+        };
+        setSuccess(`Vista cambiada a ${viewNames[newView as keyof typeof viewNames]}`);
+        setTimeout(() => setSuccess(''), 2000);
+    };
+
     // --- Crear reserva desde el modal ---
     const handleBooking = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!modalReserva.selectedTime) return;
+        if (!modalReserva.selectedTime) {
+            setError('No se ha seleccionado una fecha y hora.');
+            return;
+        }
+
+        // Validaciones del formulario
+        if (!selectedCurso || !selectedTema || !selectedProfesor || !nombreAlumno.trim()) {
+            setError('Por favor completa todos los campos obligatorios.');
+            return;
+        }
 
         // Validar duración
         const duracion = parseFloat(duracionHoras);
@@ -143,17 +182,25 @@ const DashboardPage: React.FC = () => {
             return;
         }
 
+        // Validar que la fecha no sea en el pasado
+        const fechaInicio = new Date(modalReserva.selectedTime);
+        const ahora = new Date();
+        if (fechaInicio < ahora) {
+            setError('No puedes crear reservas en el pasado.');
+            return;
+        }
+
         setError('');
         setSuccess('');
+        
         try {
-            const fechaInicio = new Date(modalReserva.selectedTime);
             const fechaFin = new Date(fechaInicio.getTime() + duracion * 60 * 60 * 1000);
 
             const bookingData = {
                 curso_id: parseInt(selectedCurso),
                 tema_id: parseInt(selectedTema),
                 profesor_id: parseInt(selectedProfesor),
-                nombre_alumno: nombreAlumno,
+                nombre_alumno: nombreAlumno.trim(),
                 fecha_hora_inicio: fechaInicio.toISOString(),
                 fecha_hora_fin: fechaFin.toISOString(),
             };
@@ -168,7 +215,7 @@ const DashboardPage: React.FC = () => {
             setSuccess(`¡Reserva creada con éxito! Clase de ${duracion === 0.5 ? '30 minutos' : duracion === 1 ? '1 hora' : `${duracion} horas`}`);
 
         } catch (err: any) {
-            setError(err.response?.data?.error || 'No se pudo crear la reserva.');
+            setError(err.response?.data?.error || 'No se pudo crear la reserva. Verifica que el horario esté disponible.');
             console.error(err);
         }
     };
@@ -251,10 +298,18 @@ const DashboardPage: React.FC = () => {
                     endAccessor="end"
                     style={{ height: 600 }}
                     views={['month', 'week', 'day']}
-                    defaultView="week"
+                    view={currentView as any}
+                    date={currentDate}
+                    onNavigate={handleNavigate}
+                    onView={handleViewChange}
                     selectable
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
+                    step={30}
+                    timeslots={2}
+                    min={new Date(0, 0, 0, 7, 0, 0)} // 7:00 AM
+                    max={new Date(0, 0, 0, 22, 0, 0)} // 10:00 PM
+                    popup
                     messages={{
                         next: "Siguiente",
                         previous: "Anterior",
@@ -262,10 +317,80 @@ const DashboardPage: React.FC = () => {
                         month: "Mes",
                         week: "Semana",
                         day: "Día",
-                        noEventsInRange: "No hay eventos en este rango."
+                        noEventsInRange: "No hay eventos en este rango.",
+                        showMore: total => `+ Ver ${total} más`,
+                        date: "Fecha",
+                        time: "Hora",
+                        event: "Evento"
+                    }}
+                    components={{
+                        event: (props: any) => (
+                            <div 
+                                className={props.className || ''}
+                                title={`${props.title}\nHaz clic para ver detalles`}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {props.title}
+                            </div>
+                        )
                     }}
                 />
             </div>
+
+            {/* Sidebar de visualización de reserva */}
+            {reservaSeleccionada && (
+                <div className="reserva-sidebar-overlay" onClick={() => setReservaSeleccionada(null)}>
+                    <div className="reserva-sidebar" onClick={e => e.stopPropagation()}>
+                        <div className="reserva-sidebar-header">
+                            <h2>📄 Detalles de la Reserva</h2>
+                            <button className="close-button" onClick={() => setReservaSeleccionada(null)}>
+                                ×
+                            </button>
+                        </div>
+                        <div className="reserva-sidebar-details">
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">👤 Alumno:</span>
+                                <span className="reserva-sidebar-value">{reservaSeleccionada.nombre_alumno}</span>
+                            </div>
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">📚 Curso:</span>
+                                <span className="reserva-sidebar-value">{reservaSeleccionada.curso_nombre}</span>
+                            </div>
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">📝 Tema:</span>
+                                <span className="reserva-sidebar-value">{reservaSeleccionada.tema_nombre}</span>
+                            </div>
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">👨‍🏫 Profesor:</span>
+                                <span className="reserva-sidebar-value">{reservaSeleccionada.profesor_nombre}</span>
+                            </div>
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">⏰ Inicio:</span>
+                                <span className="reserva-sidebar-value">{new Date(reservaSeleccionada.fecha_hora_inicio).toLocaleString('es-ES')}</span>
+                            </div>
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">⏰ Fin:</span>
+                                <span className="reserva-sidebar-value">{new Date(reservaSeleccionada.fecha_hora_fin).toLocaleString('es-ES')}</span>
+                            </div>
+                            <div className="reserva-sidebar-row">
+                                <span className="reserva-sidebar-label">⏱️ Duración:</span>
+                                <span className="reserva-sidebar-value">{
+                                    (() => {
+                                        const start = new Date(reservaSeleccionada.fecha_hora_inicio);
+                                        const end = new Date(reservaSeleccionada.fecha_hora_fin);
+                                        const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                                        if (duration === 0.5) return '30 minutos';
+                                        if (duration === 1) return '1 hora';
+                                        if (duration === 1.5) return '1 hora y 30 minutos';
+                                        if (duration % 1 === 0) return `${duration} horas`;
+                                        return `${duration} horas`;
+                                    })()
+                                }</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal de Reserva */}
             {modalReserva.isOpen && (

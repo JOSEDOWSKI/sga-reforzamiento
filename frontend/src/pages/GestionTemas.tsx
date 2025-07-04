@@ -4,9 +4,7 @@ import apiClient from '../config/api';
 interface Tema {
   id: number;
   nombre: string;
-  descripcion: string;
   curso_id: number;
-  curso_nombre?: string;
 }
 
 interface Curso {
@@ -18,7 +16,6 @@ const GestionTemas: React.FC = () => {
   const [temas, setTemas] = useState<Tema[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
   const [cursoId, setCursoId] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,21 +53,18 @@ const GestionTemas: React.FC = () => {
       if (editingId) {
         await apiClient.put(`/temas/${editingId}`, { 
           nombre, 
-          descripcion, 
           curso_id: parseInt(cursoId) 
         });
         setSuccess('Tema actualizado con éxito');
       } else {
         await apiClient.post('/temas', { 
           nombre, 
-          descripcion, 
           curso_id: parseInt(cursoId) 
         });
         setSuccess('Tema creado con éxito');
       }
       
       setNombre('');
-      setDescripcion('');
       setCursoId('');
       setEditingId(null);
       fetchData();
@@ -81,7 +75,6 @@ const GestionTemas: React.FC = () => {
 
   const handleEdit = (tema: Tema) => {
     setNombre(tema.nombre);
-    setDescripcion(tema.descripcion);
     setCursoId(tema.curso_id.toString());
     setEditingId(tema.id);
     setError('');
@@ -102,7 +95,6 @@ const GestionTemas: React.FC = () => {
 
   const handleCancel = () => {
     setNombre('');
-    setDescripcion('');
     setCursoId('');
     setEditingId(null);
     setError('');
@@ -170,18 +162,6 @@ const GestionTemas: React.FC = () => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="descripcion">Descripción (Opcional):</label>
-            <textarea
-              id="descripcion"
-              className="form-control"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Descripción del tema..."
-              rows={3}
-            />
-          </div>
-
           <div className="form-actions">
             <button type="submit" className="btn btn-primary">
               {editingId ? '🔄 Actualizar' : '➕ Crear'}
@@ -207,7 +187,6 @@ const GestionTemas: React.FC = () => {
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Curso</th>
-                <th>Descripción</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -219,7 +198,6 @@ const GestionTemas: React.FC = () => {
                     <strong>{tema.nombre}</strong>
                   </td>
                   <td>{getCursoNombre(tema.curso_id)}</td>
-                  <td>{tema.descripcion || 'Sin descripción'}</td>
                   <td>
                     <button
                       className="btn btn-secondary"
