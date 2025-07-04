@@ -56,6 +56,7 @@ const DashboardPage: React.FC = () => {
 
     // --- Estados para el filtro ---
     const [filtroCurso, setFiltroCurso] = useState('');
+    const [filtroProfesor, setFiltroProfesor] = useState('');
 
     // --- Estados para el calendario ---
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -227,10 +228,12 @@ const DashboardPage: React.FC = () => {
         }
     };
     
-    // --- Filtrar reservas según el curso seleccionado para el calendario ---
-    const reservasFiltradas = filtroCurso 
-        ? reservas.filter(r => r.curso_nombre === cursos.find(c => c.id === parseInt(filtroCurso))?.nombre)
-        : reservas;
+    // --- Filtrar reservas según el curso y profesor seleccionado para el calendario ---
+    const reservasFiltradas = reservas.filter(r => {
+        const cursoOk = !filtroCurso || r.curso_nombre === cursos.find(c => c.id === parseInt(filtroCurso))?.nombre;
+        const profesorOk = !filtroProfesor || r.profesor_nombre === profesores.find(p => p.id === parseInt(filtroProfesor))?.nombre;
+        return cursoOk && profesorOk;
+    });
     
     // --- Formatear eventos para el calendario ---
     const calendarEvents = reservasFiltradas.map(reserva => {
@@ -290,6 +293,22 @@ const DashboardPage: React.FC = () => {
                                 {cursos.map(curso => (
                                     <option key={curso.id} value={curso.id}>
                                         {curso.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="filter-group" style={{ marginLeft: 24 }}>
+                            <label htmlFor="filtroProfesor">Filtrar por Profesor:</label>
+                            <select
+                                id="filtroProfesor"
+                                className="form-control"
+                                value={filtroProfesor}
+                                onChange={(e) => setFiltroProfesor(e.target.value)}
+                            >
+                                <option value="">Todos los profesores</option>
+                                {profesores.map(profesor => (
+                                    <option key={profesor.id} value={profesor.id}>
+                                        {profesor.nombre}
                                     </option>
                                 ))}
                             </select>

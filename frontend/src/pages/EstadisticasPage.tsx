@@ -67,8 +67,10 @@ const EstadisticasPage: React.FC = () => {
     const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
     const inicioSemana = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
 
+    const reservasFiltradas = reservas;
+
     // Reservas pagadas por período
-    const pagadas = reservas.filter(r => r.estado_pago === 'Pagado');
+    const pagadas = reservasFiltradas.filter(r => r.estado_pago === 'Pagado');
     const pagadasEsteMes = pagadas.filter(r => new Date(r.fecha_hora_inicio) >= inicioMes);
     const pagadasEstaSemana = pagadas.filter(r => new Date(r.fecha_hora_inicio) >= inicioSemana);
     const pagadasHoy = pagadas.filter(r => {
@@ -101,23 +103,23 @@ const EstadisticasPage: React.FC = () => {
 
     // Top cursos
     const cursoStats = cursos.map(curso => {
-      const reservasCurso = reservas.filter(r => r.curso_nombre === curso.nombre);
+      const reservasCurso = reservasFiltradas.filter(r => r.curso_nombre === curso.nombre);
       return {
         nombre: curso.nombre,
         totalReservas: reservasCurso.length,
         horasTotales: calcularHoras(reservasCurso),
-        porcentaje: reservas.length > 0 ? (reservasCurso.length / reservas.length * 100).toFixed(1) : '0'
+        porcentaje: reservasFiltradas.length > 0 ? (reservasCurso.length / reservasFiltradas.length * 100).toFixed(1) : '0'
       };
     }).sort((a, b) => b.totalReservas - a.totalReservas);
 
     // Top profesores
     const profesorStats = profesores.map(profesor => {
-      const reservasProfesor = reservas.filter(r => r.profesor_nombre === profesor.nombre);
+      const reservasProfesor = reservasFiltradas.filter(r => r.profesor_nombre === profesor.nombre);
       return {
         nombre: profesor.nombre,
         totalReservas: reservasProfesor.length,
         horasTotales: calcularHoras(reservasProfesor),
-        porcentaje: reservas.length > 0 ? (reservasProfesor.length / reservas.length * 100).toFixed(1) : '0'
+        porcentaje: reservasFiltradas.length > 0 ? (reservasProfesor.length / reservasFiltradas.length * 100).toFixed(1) : '0'
       };
     }).sort((a, b) => b.totalReservas - a.totalReservas);
 
@@ -281,9 +283,7 @@ const EstadisticasPage: React.FC = () => {
                 {stats.topCursos.map((curso, index) => (
                   <tr key={index}>
                     <td>
-                      <span className={`position-badge position-${index + 1}`}>
-                        #{index + 1}
-                      </span>
+                      <span className={`position-badge position-${index + 1}`}>#{index + 1}</span>
                     </td>
                     <td><strong>{curso.nombre}</strong></td>
                     <td>{curso.totalReservas}</td>
@@ -301,7 +301,6 @@ const EstadisticasPage: React.FC = () => {
           <div className="card-header">
             <h3 className="card-title">👨‍🏫 Top 5 Profesores Más Activos</h3>
           </div>
-          
           <div className="table-container">
             <table className="table">
               <thead>
@@ -317,9 +316,7 @@ const EstadisticasPage: React.FC = () => {
                 {stats.topProfesores.map((profesor, index) => (
                   <tr key={index}>
                     <td>
-                      <span className={`position-badge position-${index + 1}`}>
-                        #{index + 1}
-                      </span>
+                      <span className={`position-badge position-${index + 1}`}>#{index + 1}</span>
                     </td>
                     <td><strong>{profesor.nombre}</strong></td>
                     <td>{profesor.totalReservas}</td>
@@ -331,87 +328,9 @@ const EstadisticasPage: React.FC = () => {
             </table>
           </div>
         </div>
-
-        {/* Resumen del Sistema */}
-        <div className="card slide-up premium-overlay" data-premium-title="👑 📋 RESUMEN COMPLETO DEL SISTEMA - DISPONIBLE EN PREMIUM">
-          <div className="card-header">
-            <h3 className="card-title">📋 Resumen del Sistema</h3>
-          </div>
-          
-          <div className="stats-grid">
-            <div className="stat-card summary">
-              <div className="stat-icon">📚</div>
-              <div className="stat-content">
-                <h4>Cursos Registrados</h4>
-                <div className="stat-number">{stats.cursosActivos}</div>
-              </div>
-            </div>
-
-            <div className="stat-card summary">
-              <div className="stat-icon">👨‍🏫</div>
-              <div className="stat-content">
-                <h4>Profesores Activos</h4>
-                <div className="stat-number">{stats.profesoresActivos}</div>
-              </div>
-            </div>
-
-            <div className="stat-card summary">
-              <div className="stat-icon">📝</div>
-              <div className="stat-content">
-                <h4>Temas Disponibles</h4>
-                <div className="stat-number">{stats.temasDisponibles}</div>
-              </div>
-            </div>
-
-            <div className="stat-card summary">
-              <div className="stat-icon">📊</div>
-              <div className="stat-content">
-                <h4>Total Reservas</h4>
-                <div className="stat-number">{stats.totalReservas}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Estadísticas Financieras Premium */}
-        <div className="card slide-up premium-overlay" data-premium-title="👑 💰 INGRESOS FINANCIEROS - DISPONIBLE EN PREMIUM">
-          <div className="card-header">
-            <h3 className="card-title">💰 Ingresos Financieros</h3>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon">💵</div>
-              <div className="stat-content">
-                <h4>Ingresos Totales</h4>
-                <div className="stat-number">S/ {stats.ingresosTotales.toFixed(2)}</div>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">📅</div>
-              <div className="stat-content">
-                <h4>Este Mes</h4>
-                <div className="stat-number">S/ {stats.ingresosMes.toFixed(2)}</div>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">📅</div>
-              <div className="stat-content">
-                <h4>Esta Semana</h4>
-                <div className="stat-number">S/ {stats.ingresosSemana.toFixed(2)}</div>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">📅</div>
-              <div className="stat-content">
-                <h4>Hoy</h4>
-                <div className="stat-number">S/ {stats.ingresosHoy.toFixed(2)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
 
-export default EstadisticasPage; 
+export default EstadisticasPage;
