@@ -23,10 +23,18 @@ const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
                 <NavLink to="/" className="nav-brand">SGA Reforzamiento</NavLink>
             </div>
             <div className="nav-links">
-                <NavLink to="/"><DashboardIcon /> Dashboard</NavLink>
-                <NavLink to="/cursos"><CoursesIcon /> Gestionar Cursos</NavLink>
-                <NavLink to="/profesores"><ProfessorsIcon /> Gestionar Profesores</NavLink>
-                <NavLink to="/temas"><TopicsIcon /> Gestionar Temas</NavLink>
+                <NavLink to="/" data-tooltip="Página principal">
+                    <DashboardIcon /> Dashboard
+                </NavLink>
+                <NavLink to="/cursos" data-tooltip="Administrar cursos">
+                    <CoursesIcon /> Cursos
+                </NavLink>
+                <NavLink to="/profesores" data-tooltip="Administrar profesores">
+                    <ProfessorsIcon /> Profesores
+                </NavLink>
+                <NavLink to="/temas" data-tooltip="Administrar temas">
+                    <TopicsIcon /> Temas
+                </NavLink>
             </div>
             <div className="nav-footer">
                 <ThemeToggleButton />

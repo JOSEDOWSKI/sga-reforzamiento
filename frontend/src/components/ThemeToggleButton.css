@@ -16,12 +16,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .theme-toggle-button:hover {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+  transform: scale(1.05);
+}
+
+.theme-toggle-button:active {
+  transform: scale(0.95);
 }
 
 .theme-toggle-button__icon-wrapper {
@@ -32,11 +38,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 50%;
+  height: 100%;
+  border-radius: 50%;
 }
 
 .theme-toggle-button__icon-wrapper svg {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
 }
 
 .theme-toggle-button__thumb {
@@ -69,4 +79,70 @@
 }
 .theme-toggle-button.theme-toggle-button--dark .theme-toggle-button__icon-wrapper:last-child {
   color: var(--primary-foreground);
+}
+
+/* --- Media Queries para Responsividad --- */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .theme-toggle-button {
+    --thumb-size: 2rem;
+    --width: 4.5rem;
+  }
+  
+  .theme-toggle-button__icon-wrapper svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .theme-toggle-button {
+    --thumb-size: 1.75rem;
+    --width: 4rem;
+    --padding: 0.2rem;
+  }
+  
+  .theme-toggle-button__icon-wrapper svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .theme-toggle-button:hover {
+    transform: none; /* Eliminar escalado en móviles */
+  }
+  
+  .theme-toggle-button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 320px) {
+  .theme-toggle-button {
+    --thumb-size: 1.5rem;
+    --width: 3.5rem;
+    --padding: 0.15rem;
+  }
+  
+  .theme-toggle-button__icon-wrapper svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Mejoras para accesibilidad en móviles */
+@media (max-width: 768px) {
+  .theme-toggle-button {
+    min-height: 44px; /* Tamaño mínimo de toque recomendado */
+    min-width: 44px;
+  }
+}
+
+/* Optimización para pantallas de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .theme-toggle-button__thumb {
+    box-shadow: 0 1px 4px -1px var(--primary);
+  }
 } 

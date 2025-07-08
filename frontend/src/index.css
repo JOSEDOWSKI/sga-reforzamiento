@@ -75,6 +75,11 @@
   padding: 0;
 }
 
+html {
+  /* Prevent horizontal scroll on the entire page */
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background-color: var(--background);
@@ -85,52 +90,56 @@ body {
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
+  line-height: 1.5;
+  /* Optimize font rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Fondo Aurora controlado por JS */
 body::before, body::after {
-    content: '';
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 200vw;
-    height: 200vh;
-    z-index: -1;
-    filter: blur(120px);
-    will-change: transform;
-    transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1), 
-                opacity 0.5s ease-in-out;
+  content: '';
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200vw;
+  height: 200vh;
+  z-index: -1;
+  filter: blur(120px);
+  will-change: transform;
+  transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1), 
+              opacity 0.5s ease-in-out;
 }
 
 body::before {
-    top: -50vh;
-    left: -50vw;
-    background: radial-gradient(circle at 40% 40%, var(--primary) 0%, transparent 20%),
-                radial-gradient(circle at 60% 60%, hsl(190, 80%, 60%) 0%, transparent 25%);
-    opacity: 0.5;
-    transform: translate(var(--aurora1-x, 0), var(--aurora1-y, 0)) rotate(var(--aurora1-r, 0deg)) scale(1);
+  top: -50vh;
+  left: -50vw;
+  background: radial-gradient(circle at 40% 40%, var(--primary) 0%, transparent 20%),
+              radial-gradient(circle at 60% 60%, hsl(190, 80%, 60%) 0%, transparent 25%);
+  opacity: 0.5;
+  transform: translate(var(--aurora1-x, 0), var(--aurora1-y, 0)) rotate(var(--aurora1-r, 0deg)) scale(1);
 }
 
 body::after {
-    top: -50vh;
-    left: -50vw;
-    background: radial-gradient(circle at 60% 40%, hsl(24, 95%, 53%) 0%, transparent 20%),
-                radial-gradient(circle at 40% 60%, hsl(347, 77%, 49%) 0%, transparent 25%);
-    opacity: 0.3;
-    transform: translate(var(--aurora2-x, 0), var(--aurora2-y, 0)) rotate(var(--aurora2-r, 0deg)) scale(1.2);
+  top: -50vh;
+  left: -50vw;
+  background: radial-gradient(circle at 60% 40%, hsl(24, 95%, 53%) 0%, transparent 20%),
+              radial-gradient(circle at 40% 60%, hsl(347, 77%, 49%) 0%, transparent 25%);
+  opacity: 0.3;
+  transform: translate(var(--aurora2-x, 0), var(--aurora2-y, 0)) rotate(var(--aurora2-r, 0deg)) scale(1.2);
 }
 
 [data-theme='dark'] body::before {
-    opacity: 0.2;
+  opacity: 0.2;
 }
 [data-theme='dark'] body::after {
-    opacity: 0.15;
+  opacity: 0.15;
 }
 
 /* Animación 'boost' al cambiar de ruta */
 body.route-changing::before,
 body.route-changing::after {
-    animation-duration: 4s; /* Acelera la animación temporalmente */
+  animation-duration: 4s; /* Acelera la animación temporalmente */
 }
 
 /* Scrollbar personalizado */
@@ -148,4 +157,82 @@ body.route-changing::after {
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--primary);
+}
+
+/* --- Mejoras de Responsividad Global --- */
+
+/* Prevenir zoom en inputs en iOS */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="search"],
+input[type="datetime-local"],
+select,
+textarea {
+  font-size: 16px; /* Previene zoom automático en iOS */
+}
+
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="search"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    font-size: 16px; /* Asegurar consistencia */
+  }
+}
+
+/* Mejoras para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  /* Estilos específicos para dispositivos táctiles */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  
+  /* Reducir animaciones en dispositivos táctiles para mejor rendimiento */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mejoras para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  body::before,
+  body::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Optimizaciones para pantallas de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Soporte para modo paisaje en móviles */
+@media (orientation: landscape) and (max-height: 500px) {
+  body::before,
+  body::after {
+    opacity: 0.2; /* Reducir efecto aurora en modo paisaje */
+  }
 }

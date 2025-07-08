@@ -1,6 +1,6 @@
 /* 
-  Limpiamos este archivo para eliminar los estilos por defecto de Vite 
-  y establecer una estructura de layout principal más robusta y flexible.
+  Archivo CSS principal mejorado para mejor responsividad 
+  y compatibilidad con el navbar optimizado.
 */
 
 .app-container {
@@ -13,10 +13,12 @@
 .content-container {
   width: 100%;
   flex-grow: 1;
-  padding: 3rem 4rem; /* Más padding para que el contenido respire */
-  margin-left: 260px; /* Corresponde al nuevo ancho del Navbar */
-  transition: margin-left 0.3s ease-in-out;
+  padding: 3rem 4rem;
+  margin-left: 260px; /* Corresponde al ancho del Navbar en desktop */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: contentFadeIn 0.6s ease-in-out;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .overlay {
@@ -30,6 +32,8 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .app-container.nav-open .overlay {
@@ -39,21 +43,21 @@
 
 /* Keyframes para la animación de entrada del contenido */
 @keyframes contentFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --- Títulos Globales --- */
 h1 {
-  font-size: 2.5rem; /* Un poco más grande */
+  font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: -0.04em; /* Ligeramente más junto */
+  letter-spacing: -0.04em;
   color: var(--foreground);
   margin-bottom: 2rem;
   line-height: 1.2;
@@ -68,23 +72,95 @@ h2 {
   margin-bottom: 1.75rem;
 }
 
-/* --- Media Queries para Responsividad --- */
-@media (max-width: 1024px) {
+/* --- Media Queries Mejoradas para Responsividad --- */
+
+/* Pantallas muy grandes */
+@media (min-width: 1440px) {
   .content-container {
-    padding: 2rem;
+    margin-left: 280px; /* Ajuste para navbar más ancho */
+    padding: 3.5rem 5rem;
   }
 }
 
+/* Pantallas grandes a medianas */
+@media (max-width: 1024px) {
+  .content-container {
+    margin-left: 240px; /* Ajuste para navbar más estrecho */
+    padding: 2.5rem 3rem;
+  }
+  
+  h1 {
+    font-size: 2.25rem;
+  }
+  
+  h2 {
+    font-size: 1.6rem;
+  }
+}
+
+/* Tablets */
 @media (max-width: 768px) {
   .content-container {
-    margin-left: 0; /* Oculta el margen cuando el navbar no es visible */
-    padding: 1.5rem;
-    padding-top: 6rem; /* Deja espacio para el header fijo */
+    margin-left: 0; /* Sin margen cuando el navbar está oculto */
+    padding: 1.5rem 2rem;
+    padding-top: 6rem; /* Espacio para el header móvil */
   }
+  
   h1 {
     font-size: 2rem;
   }
+  
   h2 {
     font-size: 1.5rem;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .content-container {
+    padding: 1rem 1.5rem;
+    padding-top: 5.5rem; /* Ajuste para header móvil */
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.35rem;
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 320px) {
+  .content-container {
+    padding: 1rem;
+    padding-top: 5rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Mejoras para prevenir overflow y scroll horizontal */
+.app-container,
+.content-container {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Transición suave cuando se abre/cierra el navbar en móvil */
+@media (max-width: 768px) {
+  .app-container.nav-open .content-container {
+    pointer-events: none; /* Evita interacción con el contenido cuando el nav está abierto */
   }
 }
