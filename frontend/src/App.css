@@ -58,9 +58,13 @@ h1 {
   font-size: 2.5rem;
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: var(--foreground);
   margin-bottom: 2rem;
   line-height: 1.2;
+  background: linear-gradient(135deg, var(--primary) 0%, hsl(210, 100%, 70%) 50%, hsl(190, 90%, 60%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 h2 {

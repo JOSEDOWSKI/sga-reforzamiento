@@ -45,6 +45,8 @@ const DashboardPage: React.FC = () => {
     // --- Estados para filtros ---
     const [filtroCurso, setFiltroCurso] = useState('');
     const [filtroProfesor, setFiltroProfesor] = useState('');
+    const [showCursoDropdown, setShowCursoDropdown] = useState(false);
+    const [showProfesorDropdown, setShowProfesorDropdown] = useState(false);
 
     // --- Estados para el formulario ---
     const [selectedCurso, setSelectedCurso] = useState('');
@@ -100,6 +102,22 @@ const DashboardPage: React.FC = () => {
         fetchAllData();
     }, []);
 
+    // --- Cerrar dropdowns al hacer click fuera ---
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (!target.closest('.dropdown-container')) {
+                setShowCursoDropdown(false);
+                setShowProfesorDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     // --- Filtrar temas según el curso seleccionado ---
     const temasFiltrados = selectedCurso 
         ? temas.filter(tema => tema.curso_id === parseInt(selectedCurso))
@@ -108,10 +126,18 @@ const DashboardPage: React.FC = () => {
     // --- Filtrar reservas según filtros seleccionados ---
     const reservasFiltradas = reservas.filter(reserva => {
         const cumpleFiltro = 
-            (!filtroCurso || reserva.curso_nombre.toLowerCase().includes(filtroCurso.toLowerCase())) &&
-            (!filtroProfesor || reserva.profesor_nombre.toLowerCase().includes(filtroProfesor.toLowerCase()));
+            (!filtroCurso || reserva.curso_nombre === filtroCurso) &&
+            (!filtroProfesor || reserva.profesor_nombre === filtroProfesor);
         return cumpleFiltro;
     });
+
+    // --- Limpiar filtros ---
+    const clearFilters = () => {
+        setFiltroCurso('');
+        setFiltroProfesor('');
+        setShowCursoDropdown(false);
+        setShowProfesorDropdown(false);
+    };
 
     // --- Manejar clic en slot del calendario (crear nueva reserva) ---
     const handleDateSelect = (selectInfo: any) => {
@@ -307,38 +333,104 @@ const DashboardPage: React.FC = () => {
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
 
-            {/* Filtros */}
+            {/* Filtros mejorados */}
             <div className="filters-container">
-                <h3>Filtros</h3>
-                <div className="filters-row">
-                    <div className="filter-group">
-                        <label htmlFor="filtro-curso">Filtrar por curso:</label>
-                        <input 
-                            id="filtro-curso"
-                            type="text" 
-                            placeholder="Escriba nombre del curso..."
-                            value={filtroCurso}
-                            onChange={(e) => setFiltroCurso(e.target.value)}
-                        />
-                    </div>
-                    <div className="filter-group">
-                        <label htmlFor="filtro-profesor">Filtrar por profesor:</label>
-                        <input 
-                            id="filtro-profesor"
-                            type="text" 
-                            placeholder="Escriba nombre del profesor..."
-                            value={filtroProfesor}
-                            onChange={(e) => setFiltroProfesor(e.target.value)}
-                        />
-                    </div>
-                    <div className="filter-stats">
+                <div className="filters-header">
+                    <h3>Filtros</h3>
+                    <div className="filters-stats">
                         <span>Mostrando {reservasFiltradas.length} de {reservas.length} reservas</span>
+                        {(filtroCurso || filtroProfesor) && (
+                            <button className="clear-filters-btn" onClick={clearFilters}>
+                                Limpiar filtros
+                            </button>
+                        )}
+                    </div>
+                </div>
+                <div className="filters-row">
+                    <div className="filter-dropdown">
+                        <label>Filtrar por curso:</label>
+                        <div className="dropdown-container">
+                            <button 
+                                className={`dropdown-trigger ${showCursoDropdown ? 'active' : ''}`}
+                                onClick={() => setShowCursoDropdown(!showCursoDropdown)}
+                            >
+                                {filtroCurso || 'Todos los cursos'}
+                                <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            {showCursoDropdown && (
+                                <div className="dropdown-menu">
+                                    <button 
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFiltroCurso('');
+                                            setShowCursoDropdown(false);
+                                        }}
+                                    >
+                                        Todos los cursos
+                                    </button>
+                                    {cursos.map(curso => (
+                                        <button
+                                            key={curso.id}
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFiltroCurso(curso.nombre);
+                                                setShowCursoDropdown(false);
+                                            }}
+                                        >
+                                            {curso.nombre}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="filter-dropdown">
+                        <label>Filtrar por profesor:</label>
+                        <div className="dropdown-container">
+                            <button 
+                                className={`dropdown-trigger ${showProfesorDropdown ? 'active' : ''}`}
+                                onClick={() => setShowProfesorDropdown(!showProfesorDropdown)}
+                            >
+                                {filtroProfesor || 'Todos los profesores'}
+                                <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            {showProfesorDropdown && (
+                                <div className="dropdown-menu">
+                                    <button 
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFiltroProfesor('');
+                                            setShowProfesorDropdown(false);
+                                        }}
+                                    >
+                                        Todos los profesores
+                                    </button>
+                                    {profesores.map(profesor => (
+                                        <button
+                                            key={profesor.id}
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFiltroProfesor(profesor.nombre);
+                                                setShowProfesorDropdown(false);
+                                            }}
+                                        >
+                                            {profesor.nombre}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
             
             <div className="dashboard-container">
-                <div className="calendar-view">
+                <div className="calendar-view-fullwidth">
                     <div className="calendar-header">
                         <div className="calendar-header-left">
                             <button className="today-button" onClick={() => handleCalendarNav('today')}>Hoy</button>
