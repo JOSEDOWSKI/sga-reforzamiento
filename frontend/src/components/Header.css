@@ -43,6 +43,20 @@
   color: var(--primary);
 }
 
+/* Logo de PROMESA en el header */
+.promesa-logo-small {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.mobile-header .nav-brand:hover .promesa-logo-small {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Mantener el placeholder como fallback */
 .mobile-header .logo-placeholder {
   width: 32px;
   height: 32px;
@@ -171,6 +185,11 @@
     gap: 0.5rem;
   }
   
+  .promesa-logo-small {
+    width: 28px;
+    height: 28px;
+  }
+  
   .mobile-header .logo-placeholder {
     width: 28px;
     height: 28px;
@@ -191,6 +210,11 @@
   
   .mobile-header .nav-brand {
     font-size: 0.9rem;
+  }
+  
+  .promesa-logo-small {
+    width: 24px;
+    height: 24px;
   }
   
   .mobile-header .logo-placeholder {
