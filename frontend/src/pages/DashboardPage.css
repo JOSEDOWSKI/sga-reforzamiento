@@ -1,8 +1,5 @@
 .dashboard-container {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 2.5rem;
-  align-items: flex-start;
+  display: block;
   animation: contentFadeIn 0.6s ease-in-out 0.2s;
   animation-fill-mode: backwards;
   max-width: 100%;
@@ -33,8 +30,25 @@
   box-sizing: border-box;
 }
 
+.calendar-view-fullwidth {
+  background-color: var(--card);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  padding: 2.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 2rem;
+  min-height: 800px;
+  position: relative;
+  z-index: 10;
+}
+
 .booking-form:hover,
-.calendar-view:hover {
+.calendar-view:hover,
+.calendar-view-fullwidth:hover {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
 }
@@ -150,7 +164,8 @@
 
 /* --- Estilos para FullCalendar --- */
 
-.calendar-view {
+.calendar-view,
+.calendar-view-fullwidth {
   --fc-border-color: var(--border);
   --fc-today-bg-color: color-mix(in srgb, var(--primary) 10%, transparent);
   --fc-list-event-hover-bg-color: var(--muted);
@@ -158,6 +173,13 @@
   --fc-event-border-color: var(--primary);
   --fc-event-text-color: var(--primary-foreground);
   overflow-x: auto;
+}
+
+.calendar-view-fullwidth .fc {
+  height: auto !important;
+  min-height: 600px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Cabecera personalizada */
@@ -391,76 +413,84 @@
 
 /* Pantallas grandes */
 @media (max-width: 1200px) {
-  .dashboard-container {
-    grid-template-columns: 350px 1fr;
-    gap: 2rem;
+  .calendar-view-fullwidth {
+    padding: 1.75rem;
+    min-height: 750px;
   }
   
-  .booking-form,
-  .calendar-view {
+  .filters-container {
     padding: 1.75rem;
   }
 }
 
 /* Tablets grandes */
 @media (max-width: 1024px) {
-  .dashboard-container {
-    grid-template-columns: 320px 1fr;
-    gap: 1.75rem;
-    animation: none;
-  }
-  
-  .booking-form {
-    position: static;
-  }
-  
-  .booking-form,
-  .calendar-view {
-    padding: 1.5rem;
+  .calendar-view-fullwidth {
+    padding: 2rem;
+    min-height: 700px;
   }
   
   .calendar-title {
     font-size: 1.35rem;
   }
+  
+  .filters-container {
+    padding: 1.5rem;
+  }
+  
+  .filters-row {
+    gap: 1.5rem;
+  }
 }
 
 /* Tablets */
 @media (max-width: 900px) {
-  .dashboard-container {
+  .calendar-view-fullwidth {
+    padding: 1.5rem;
+    min-height: 600px;
+  }
+  
+  .filters-row {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   
-  .booking-form {
-    position: static;
-    order: 2; /* Poner el formulario después del calendario en móviles */
+  .filters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
   
-  .calendar-view {
-    order: 1;
+  .filters-stats {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
 /* Móviles */
 @media (max-width: 768px) {
-  .dashboard-container {
-    gap: 1.25rem;
+  .calendar-view-fullwidth {
+    padding: 1.25rem;
+    min-height: 500px;
   }
   
-  .booking-form,
-  .calendar-view {
+  .filters-container {
     padding: 1.25rem;
   }
   
-  .form-group input,
-  .form-group select {
-    padding: 0.75rem;
-    font-size: 1rem; /* Tamaño más grande para mejor usabilidad en móvil */
+  .filters-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
   
-  .form-button {
-    padding: 1rem;
-    font-size: 1.05rem;
+  .dropdown-trigger {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
   }
   
   .calendar-header {
@@ -498,26 +528,44 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
+  
+  .clear-filters-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
 }
 
 /* Móviles pequeños */
 @media (max-width: 480px) {
-  .dashboard-container {
-    gap: 1rem;
+  .calendar-view-fullwidth {
+    padding: 1rem;
+    min-height: 400px;
   }
   
-  .booking-form,
-  .calendar-view {
+  .filters-container {
     padding: 1rem;
   }
   
-  .form-group {
-    gap: 0.375rem;
+  .filters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
   
-  .form-group input,
-  .form-group select {
+  .filters-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .dropdown-trigger {
     padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  
+  .dropdown-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
   }
   
   .calendar-header-left {
@@ -542,20 +590,23 @@
 
 /* Móviles muy pequeños */
 @media (max-width: 320px) {
-  .booking-form,
-  .calendar-view {
+  .calendar-view-fullwidth {
+    padding: 0.75rem;
+    min-height: 350px;
+  }
+  
+  .filters-container {
     padding: 0.75rem;
   }
   
-  .form-group input,
-  .form-group select {
+  .dropdown-trigger {
     padding: 0.625rem 0.75rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
   
-  .form-button {
-    padding: 0.875rem;
-    font-size: 1rem;
+  .dropdown-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
   }
   
   .calendar-title {
@@ -572,19 +623,575 @@
     padding: 0.4rem 0.5rem;
     font-size: 0.7rem;
   }
+  
+  .clear-filters-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
 }
 
 /* Mejoras para scroll horizontal en el calendario */
-.calendar-view .fc {
+.calendar-view .fc,
+.calendar-view-fullwidth .fc {
   min-width: 300px;
 }
 
 @media (max-width: 768px) {
-  .calendar-view {
+  .calendar-view,
+  .calendar-view-fullwidth {
     overflow-x: auto;
   }
   
   .fc .fc-view-harness {
     min-width: 320px;
+  }
+} 
+
+/* --- ESTILOS PARA FUNCIONALIDADES AVANZADAS DEL DASHBOARD --- */
+
+/* Mensajes de éxito y error globales */
+.success-message {
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius, 8px);
+  background-color: color-mix(in srgb, #10b981 15%, transparent);
+  color: #059669;
+  border: 1px solid #10b981;
+  font-weight: 500;
+  text-align: center;
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+.error-message {
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius, 8px);
+  background-color: color-mix(in srgb, #ef4444 15%, transparent);
+  color: #dc2626;
+  border: 1px solid #ef4444;
+  font-weight: 500;
+  text-align: center;
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Filtros Premium */
+.filters-container {
+  background-color: var(--card);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 500;
+}
+
+.filters-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filters-header h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.filters-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters-stats span {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.clear-filters-btn {
+  background: color-mix(in srgb, var(--destructive) 10%, transparent);
+  color: var(--destructive);
+  border: 1px solid var(--destructive);
+  padding: 0.5rem 1rem;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-filters-btn:hover {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  transform: translateY(-1px);
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.filter-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-dropdown label {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dropdown-container {
+  position: relative;
+  z-index: 1000;
+}
+
+.dropdown-trigger {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  background-color: var(--muted);
+  color: var(--foreground);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.dropdown-trigger:hover {
+  border-color: var(--primary);
+  background-color: var(--background);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.dropdown-trigger.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.dropdown-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-trigger.active .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  max-height: 300px;
+  overflow-y: auto;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background: none;
+  border: none;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background-color: var(--muted);
+  color: var(--primary);
+}
+
+.dropdown-item:active {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Scrollbar personalizado para dropdown */
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary);
+}
+
+/* Modal de reserva */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-form {
+  padding: 2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-row:last-of-type {
+  grid-template-columns: 1fr;
+}
+
+.modal-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-form .form-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.modal-form .form-group input,
+.modal-form .form-group select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.modal-form .form-group input:focus,
+.modal-form .form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-form .form-group select:disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.modal-error {
+  padding: 1rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.modal-actions .btn-primary {
+  background: #667eea;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.modal-actions .btn-primary:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+}
+
+.modal-actions .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.modal-actions .btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.modal-actions .btn-secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.modal-actions .btn-delete {
+  background: #ef4444;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.modal-actions .btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Animaciones del modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mejoras en eventos del calendario */
+.custom-calendar-event {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.custom-calendar-event b {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.custom-calendar-event i {
+  display: block;
+  font-style: normal;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.custom-calendar-event p {
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.custom-calendar-event small {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* Responsividad para el modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .modal-form {
+    padding: 1.5rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .modal-actions button {
+    width: 100%;
+  }
+  
+  .filters-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .filter-stats {
+    text-align: center;
+    padding: 1rem 0 0.5rem 0;
+    border-top: 1px solid #eee;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 98%;
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-form {
+    padding: 1rem;
+  }
+  
+  .filters-container {
+    padding: 1rem;
+  }
+  
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary,
+  .modal-actions .btn-delete {
+    padding: 0.875rem;
+    font-size: 0.9rem;
   }
 } 

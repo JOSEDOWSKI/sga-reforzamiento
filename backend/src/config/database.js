@@ -2,15 +2,12 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// Cargar variables de entorno. Busca un archivo .env en la raíz del backend.
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
-
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
+    user: 'postgres',
+    host: 'localhost',
+    database: 'sga_reforzamiento', // Nombre de la base de datos que usaremos
+    password: 'postgres',
+    port: 5432,
 });
 
 // Función para inicializar la BD. Se llamará una vez al inicio.
@@ -53,7 +50,7 @@ const initializeDatabase = async () => {
     }
 };
 
-pool.ready = initializeDatabase();
+initializeDatabase();
 
 // Exportamos el pool directamente. Es la forma más robusta.
 // Los controladores lo usarán para hacer consultas.

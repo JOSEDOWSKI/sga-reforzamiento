@@ -1,11 +1,13 @@
-// Cargar variables de entorno
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-
 // Este script es para poblar la base de datos con datos de ejemplo.
-// Usa el pool de la configuración central, que ya tiene las credenciales.
-const pool = require('../src/config/database');
-const fs = require('fs'); // Aunque no se usa fs, lo mantenemos por si se necesita en el futuro.
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'sga_reforzamiento',
+    password: 'postgres',
+    port: 5432,
+});
 
 const cursos = [
     { nombre: 'Cálculo I', descripcion: 'Curso introductorio de cálculo diferencial.' },
@@ -30,8 +32,6 @@ const temas = {
 
 const seed = async () => {
     try {
-        await pool.ready;
-
         console.log('Iniciando el proceso de seeding...');
         const client = await pool.connect();
 

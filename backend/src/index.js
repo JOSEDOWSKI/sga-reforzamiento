@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan'); // Importar morgan
 require('./config/database'); // Conecta a la BD e inicializa las tablas si es necesario
 
 const app = express();
@@ -9,9 +8,6 @@ const port = process.env.PORT || 3001;
 // Middleware para CORS
 // Esto permitirá peticiones desde cualquier origen. Para producción, deberías restringirlo.
 app.use(cors());
-
-// Middleware para logging de peticiones HTTP
-app.use(morgan('dev'));
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -25,6 +21,9 @@ app.use('/api/profesores', profesorRoutes);
 
 const reservaRoutes = require('./routes/reservaRoutes');
 app.use('/api/reservas', reservaRoutes);
+
+const temaDirectRoutes = require('./routes/temaDirectRoutes');
+app.use('/api/temas', temaDirectRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
