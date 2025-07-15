@@ -1,69 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --font-sans: 'Manrope', system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  /* renovada paleta de colores para el modo claro (Light mode) */
+  --background: hsl(240 10% 99%);
+  --foreground: hsl(240 10% 3.9%);
+  --muted: hsl(240 5% 96.1%);
+  --muted-foreground: hsl(240 4% 46.1%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 10% 3.9%);
+  --card: hsl(0 0% 100% / 0.75);
+  --card-foreground: hsl(240 10% 3.9%);
+  --border: hsl(240 6% 90%);
+  --input: hsl(240 6% 90%);
+  --primary: hsl(262.1 83.3% 57.8%);
+  --primary-foreground: hsl(210 20% 98%);
+  --secondary: hsl(240 5% 96.1%);
+  --secondary-foreground: hsl(240 6% 10%);
+  --accent: hsl(240 5% 96.1%);
+  --accent-foreground: hsl(240 6% 10%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 20% 98%);
+  --success: hsl(142.1 76.2% 36.3%);
+  --success-foreground: hsl(210 20% 98%);
+  --ring: hsl(262.1 83.3% 57.8%);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --radius: 0.75rem;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+/* Temas de color - Claro */
+[data-color-theme='violet'] { --primary: hsl(262.1 83.3% 57.8%); --ring: hsl(262.1 83.3% 57.8%); }
+[data-color-theme='blue'] { --primary: hsl(217.2 91.2% 59.8%); --ring: hsl(217.2 91.2% 59.8%); }
+[data-color-theme='green'] { --primary: hsl(142.1 76.2% 36.3%); --ring: hsl(142.1 76.2% 36.3%); }
+[data-color-theme='orange'] { --primary: hsl(24.6 95% 53.1%); --ring: hsl(24.6 95% 53.1%); }
+[data-color-theme='rose'] { --primary: hsl(346.8 77.2% 49.8%); --ring: hsl(346.8 77.2% 49.8%); }
+
+
+[data-theme='dark'] {
+  --background: hsl(240 10% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --muted: hsl(240 4% 15%);
+  --muted-foreground: hsl(240 5% 65%);
+  --popover: hsl(240 10% 3.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --card: hsl(240 4% 10% / 0.75);
+  --card-foreground: hsl(0 0% 98%);
+  --border: hsl(240 4% 15%);
+  --input: hsl(240 4% 15%);
+  --primary: hsl(262.1 83.3% 57.8%);
+  --primary-foreground: hsl(210 20% 98%);
+  --secondary: hsl(240 4% 15%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --accent: hsl(240 4% 15%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 50.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --success: hsl(142.1 70.6% 45.3%);
+  --success-foreground: hsl(210 20% 98%);
+  --ring: hsl(262.1 83.3% 57.8%);
 }
-a:hover {
-  color: #535bf2;
+
+/* Temas de color - Oscuro */
+[data-theme='dark'][data-color-theme='violet'] { --primary: hsl(262.1, 75%, 68%); --ring: hsl(262.1, 75%, 68%); }
+[data-theme='dark'][data-color-theme='blue'] { --primary: hsl(217.2, 85%, 65%); --ring: hsl(217.2, 85%, 65%); }
+[data-theme='dark'][data-color-theme='green'] { --primary: hsl(142.1, 70.6%, 45.3%); --ring: hsl(142.1, 70.6%, 45.3%); }
+[data-theme='dark'][data-color-theme='orange'] { --primary: hsl(24.6, 90%, 55%); --ring: hsl(24.6, 90%, 55%); }
+[data-theme='dark'][data-color-theme='rose'] { --primary: hsl(346.8, 85%, 55%); --ring: hsl(346.8, 85%, 55%); }
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent horizontal scroll on the entire page */
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
   min-height: 100vh;
+  line-height: 1.5;
+  /* Optimize font rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Fondo Aurora controlado por JS */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200vw;
+  height: 200vh;
+  z-index: -1;
+  filter: blur(120px);
+  will-change: transform;
+  transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1), 
+              opacity 0.5s ease-in-out;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #f9f9f9;
-  color: #213547;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+body::before {
+  top: -50vh;
+  left: -50vw;
+  background: radial-gradient(circle at 40% 40%, var(--primary) 0%, transparent 20%),
+              radial-gradient(circle at 60% 60%, hsl(190, 80%, 60%) 0%, transparent 25%);
+  opacity: 0.5;
+  transform: translate(var(--aurora1-x, 0), var(--aurora1-y, 0)) rotate(var(--aurora1-r, 0deg)) scale(1);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+body::after {
+  top: -50vh;
+  left: -50vw;
+  background: radial-gradient(circle at 60% 40%, hsl(24, 95%, 53%) 0%, transparent 20%),
+              radial-gradient(circle at 40% 60%, hsl(347, 77%, 49%) 0%, transparent 25%);
+  opacity: 0.3;
+  transform: translate(var(--aurora2-x, 0), var(--aurora2-y, 0)) rotate(var(--aurora2-r, 0deg)) scale(1.2);
+}
+
+[data-theme='dark'] body::before {
+  opacity: 0.2;
+}
+[data-theme='dark'] body::after {
+  opacity: 0.15;
+}
+
+/* Animación 'boost' al cambiar de ruta */
+body.route-changing::before,
+body.route-changing::after {
+  animation-duration: 4s; /* Acelera la animación temporalmente */
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 10px;
+  border: 3px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary);
+}
+
+/* --- Mejoras de Responsividad Global --- */
+
+/* Prevenir zoom en inputs en iOS */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="search"],
+input[type="datetime-local"],
+select,
+textarea {
+  font-size: 16px; /* Previene zoom automático en iOS */
+}
+
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="search"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    font-size: 16px; /* Asegurar consistencia */
   }
-  a:hover {
-    color: #747bff;
+}
+
+/* Mejoras para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  /* Estilos específicos para dispositivos táctiles */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
-  button {
-    background-color: #f9f9f9;
+  
+  /* Reducir animaciones en dispositivos táctiles para mejor rendimiento */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mejoras para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  body::before,
+  body::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Optimizaciones para pantallas de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Soporte para modo paisaje en móviles */
+@media (orientation: landscape) and (max-height: 500px) {
+  body::before,
+  body::after {
+    opacity: 0.2; /* Reducir efecto aurora en modo paisaje */
   }
 }

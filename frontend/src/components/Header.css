@@ -1,0 +1,224 @@
+.mobile-header {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001; /* Por encima del navbar */
+  background-color: var(--card);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+  }
+}
+
+.mobile-header__left {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.mobile-header .nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.mobile-header .nav-brand:hover {
+  color: var(--primary);
+}
+
+/* Logo de PROMESA en el header */
+.promesa-logo-small {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.mobile-header .nav-brand:hover .promesa-logo-small {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Mantener el placeholder como fallback */
+.mobile-header .logo-placeholder {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: linear-gradient(45deg, var(--primary), hsl(190, 80%, 60%));
+  border-radius: var(--radius);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mobile-header .nav-brand:hover .logo-placeholder {
+  transform: scale(1.1) rotate(10deg);
+}
+
+/* Hamburger button styles mejorados */
+.hamburger-button {
+  padding: 12px;
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font: inherit;
+  color: inherit;
+  text-transform: none;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0;
+  overflow: visible;
+  position: relative;
+  min-width: 48px; /* Mejor área de toque */
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-button:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.hamburger-button:active {
+  transform: scale(0.95);
+}
+
+.hamburger-button.is-active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.hamburger-button.is-active:hover {
+  background-color: var(--primary);
+  opacity: 0.9;
+}
+
+.hamburger-button.is-active .hamburger-inner, 
+.hamburger-button.is-active .hamburger-inner::before, 
+.hamburger-button.is-active .hamburger-inner::after {
+  background-color: var(--primary-foreground);
+}
+
+.hamburger-box {
+  width: 24px;
+  height: 18px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburger-inner {
+  display: block;
+  top: 50%;
+  margin-top: -1.5px;
+}
+
+.hamburger-inner, 
+.hamburger-inner::before, 
+.hamburger-inner::after {
+  width: 24px;
+  height: 3px;
+  background-color: var(--foreground);
+  border-radius: 2px;
+  position: absolute;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hamburger-inner::before, 
+.hamburger-inner::after {
+  content: "";
+  display: block;
+}
+
+.hamburger-inner::before {
+  top: -8px;
+}
+
+.hamburger-inner::after {
+  bottom: -8px;
+}
+
+/* Animación mejorada */
+.hamburger-button.is-active .hamburger-inner {
+  transform: rotate(45deg);
+  background-color: var(--primary-foreground);
+}
+
+.hamburger-button.is-active .hamburger-inner::before {
+  top: 0;
+  transform: rotate(90deg);
+  background-color: var(--primary-foreground);
+}
+
+.hamburger-button.is-active .hamburger-inner::after {
+  bottom: 0;
+  transform: rotate(90deg);
+  background-color: var(--primary-foreground);
+}
+
+/* Mejoras para móviles pequeños */
+@media (max-width: 480px) {
+  .mobile-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .mobile-header .nav-brand {
+    font-size: 1rem;
+    gap: 0.5rem;
+  }
+  
+  .promesa-logo-small {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .mobile-header .logo-placeholder {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .hamburger-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+}
+
+/* Mejoras para pantallas muy pequeñas */
+@media (max-width: 320px) {
+  .mobile-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .mobile-header .nav-brand {
+    font-size: 0.9rem;
+  }
+  
+  .promesa-logo-small {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .mobile-header .logo-placeholder {
+    width: 24px;
+    height: 24px;
+  }
+} 
