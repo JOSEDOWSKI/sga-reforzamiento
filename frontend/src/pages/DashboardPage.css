@@ -212,13 +212,16 @@
   white-space: nowrap;
 }
 
-.calendar-nav, .calendar-header-right {
+.calendar-nav,
+.calendar-header-right {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.calendar-nav button, .calendar-header-right button, .today-button {
+.calendar-nav button,
+.calendar-header-right button,
+.today-button {
   background-color: var(--secondary);
   color: var(--secondary-foreground);
   border: 1px solid var(--border);
@@ -231,7 +234,9 @@
   white-space: nowrap;
 }
 
-.calendar-nav button:hover, .calendar-header-right button:hover, .today-button:hover {
+.calendar-nav button:hover,
+.calendar-header-right button:hover,
+.today-button:hover {
   background-color: var(--muted);
   color: var(--foreground);
   border-color: var(--primary);
@@ -260,7 +265,8 @@
   font-weight: 600;
 }
 
-.fc .fc-button-group, .fc .fc-button {
+.fc .fc-button-group,
+.fc .fc-button {
   border-radius: var(--radius);
 }
 
@@ -292,12 +298,13 @@
   font-weight: 800;
 }
 
-.fc-h-event, .fc-v-event {
+.fc-h-event,
+.fc-v-event {
   border: none !important;
   background-color: var(--primary) !important;
   color: var(--primary-foreground) !important;
   border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .custom-calendar-event {
@@ -308,7 +315,8 @@
   font-size: 0.8rem;
   line-height: 1.4;
   cursor: pointer;
-  border-left: 3px solid color-mix(in srgb, var(--primary-foreground), transparent 50%);
+  border-left: 3px solid
+    color-mix(in srgb, var(--primary-foreground), transparent 50%);
 }
 
 .custom-calendar-event i {
@@ -331,81 +339,81 @@
   --fc-list-day-bg-color: var(--muted);
 }
 
-[data-theme='dark'] .calendar-view {
+[data-theme="dark"] .calendar-view {
   --fc-col-header-cell-bg-color: var(--muted);
   --fc-list-day-bg-color: var(--muted);
   --fc-list-day-text-color: var(--foreground);
 }
 
 /* Specific override for dark mode header text to ensure legibility */
-[data-theme='dark'] .fc-col-header-cell-cushion {
+[data-theme="dark"] .fc-col-header-cell-cushion {
   color: var(--foreground);
 }
 
 /* Arreglar problema de días de semana en modo oscuro */
-[data-theme='dark'] .fc .fc-col-header-cell {
+[data-theme="dark"] .fc .fc-col-header-cell {
   background-color: var(--muted) !important;
   border-color: var(--border) !important;
 }
 
-[data-theme='dark'] .fc .fc-col-header-cell-cushion {
+[data-theme="dark"] .fc .fc-col-header-cell-cushion {
   color: var(--foreground) !important;
 }
 
 /* Asegurar que las celdas de los días también se vean bien en modo oscuro */
-[data-theme='dark'] .fc .fc-daygrid-day {
+[data-theme="dark"] .fc .fc-daygrid-day {
   background-color: var(--card) !important;
   border-color: var(--border) !important;
 }
 
-[data-theme='dark'] .fc .fc-daygrid-day-number {
+[data-theme="dark"] .fc .fc-daygrid-day-number {
   color: var(--foreground) !important;
 }
 
 /* Arreglar vista de Agenda (listWeek) en modo oscuro */
-[data-theme='dark'] .fc .fc-list-day-cushion {
+[data-theme="dark"] .fc .fc-list-day-cushion {
   background-color: var(--muted) !important;
   color: var(--foreground) !important;
 }
 
-[data-theme='dark'] .fc .fc-list-day-side {
+[data-theme="dark"] .fc .fc-list-day-side {
   background-color: var(--muted) !important;
   color: var(--foreground) !important;
 }
 
 /* Arreglar vista de Día - cuadradito "Todo el día" */
-[data-theme='dark'] .fc .fc-timegrid-slot-label {
+[data-theme="dark"] .fc .fc-timegrid-slot-label {
   background-color: var(--card) !important;
   color: var(--foreground) !important;
   border-color: var(--border) !important;
 }
 
-[data-theme='dark'] .fc .fc-timegrid-axis-cushion {
+[data-theme="dark"] .fc .fc-timegrid-axis-cushion {
   background-color: var(--card) !important;
   color: var(--foreground) !important;
 }
 
 /* Área "Todo el día" en vista de día/semana */
-[data-theme='dark'] .fc .fc-timegrid-divider {
+[data-theme="dark"] .fc .fc-timegrid-divider {
   background-color: var(--card) !important;
   border-color: var(--border) !important;
 }
 
-[data-theme='dark'] .fc .fc-timegrid-col-bg {
+[data-theme="dark"] .fc .fc-timegrid-col-bg {
   background-color: var(--card) !important;
 }
 
 /* Arreglar el cuadradito blanco en la esquina superior izquierda */
-[data-theme='dark'] .fc .fc-timegrid-axis {
+[data-theme="dark"] .fc .fc-timegrid-axis {
   background-color: var(--muted) !important;
   border-color: var(--border) !important;
 }
 
-[data-theme='dark'] .fc .fc-timegrid-axis-frame {
+[data-theme="dark"] .fc .fc-timegrid-axis-frame {
   background-color: var(--muted) !important;
 }
 
-[data-theme='dark'] .fc .fc-col-header-cell.fc-timegrid-axis-cushion {
+[data-theme="dark"] .fc .fc-col-header-cell.fc-timegrid-axis-cushion {
   background-color: var(--muted) !important;
 }
 
@@ -417,7 +425,7 @@
     padding: 1.75rem;
     min-height: 750px;
   }
-  
+
   .filters-container {
     padding: 1.75rem;
   }
@@ -429,15 +437,15 @@
     padding: 2rem;
     min-height: 700px;
   }
-  
+
   .calendar-title {
     font-size: 1.35rem;
   }
-  
+
   .filters-container {
     padding: 1.5rem;
   }
-  
+
   .filters-row {
     gap: 1.5rem;
   }
@@ -449,18 +457,18 @@
     padding: 1.5rem;
     min-height: 600px;
   }
-  
+
   .filters-row {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .filters-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .filters-stats {
     width: 100%;
     justify-content: space-between;
@@ -473,62 +481,62 @@
     padding: 1.25rem;
     min-height: 500px;
   }
-  
+
   .filters-container {
     padding: 1.25rem;
   }
-  
+
   .filters-row {
     grid-template-columns: 1fr;
     gap: 1.25rem;
   }
-  
+
   .dropdown-trigger {
     padding: 0.875rem 1rem;
     font-size: 1rem;
   }
-  
+
   .dropdown-item {
     padding: 0.75rem 1rem;
     font-size: 0.95rem;
   }
-  
+
   .calendar-header {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
   }
-  
+
   .calendar-header-left {
     justify-content: space-between;
     width: 100%;
   }
-  
+
   .calendar-header-right {
     width: 100%;
     justify-content: center;
   }
-  
+
   .calendar-header-right button {
     flex-grow: 1;
     padding: 0.75rem 0.5rem;
     font-size: 0.8rem;
   }
-  
+
   .calendar-title {
     font-size: 1.25rem;
   }
-  
+
   .today-button {
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
   }
-  
+
   .calendar-nav button {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
-  
+
   .clear-filters-btn {
     padding: 0.375rem 0.75rem;
     font-size: 0.8rem;
@@ -541,47 +549,47 @@
     padding: 1rem;
     min-height: 400px;
   }
-  
+
   .filters-container {
     padding: 1rem;
   }
-  
+
   .filters-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .filters-stats {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .dropdown-trigger {
     padding: 0.75rem 0.875rem;
     font-size: 0.95rem;
   }
-  
+
   .dropdown-item {
     padding: 0.625rem 0.875rem;
     font-size: 0.9rem;
   }
-  
+
   .calendar-header-left {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .calendar-nav {
     align-self: flex-start;
   }
-  
+
   .calendar-title {
     font-size: 1.1rem;
     align-self: flex-start;
   }
-  
+
   .calendar-header-right button {
     padding: 0.625rem 0.375rem;
     font-size: 0.75rem;
@@ -594,36 +602,36 @@
     padding: 0.75rem;
     min-height: 350px;
   }
-  
+
   .filters-container {
     padding: 0.75rem;
   }
-  
+
   .dropdown-trigger {
     padding: 0.625rem 0.75rem;
     font-size: 0.9rem;
   }
-  
+
   .dropdown-item {
     padding: 0.5rem 0.75rem;
     font-size: 0.85rem;
   }
-  
+
   .calendar-title {
     font-size: 1rem;
   }
-  
+
   .calendar-header-right button {
     padding: 0.5rem 0.25rem;
     font-size: 0.7rem;
   }
-  
+
   .today-button,
   .calendar-nav button {
     padding: 0.4rem 0.5rem;
     font-size: 0.7rem;
   }
-  
+
   .clear-filters-btn {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
@@ -641,11 +649,11 @@
   .calendar-view-fullwidth {
     overflow-x: auto;
   }
-  
+
   .fc .fc-view-harness {
     min-width: 320px;
   }
-} 
+}
 
 /* --- ESTILOS PARA FUNCIONALIDADES AVANZADAS DEL DASHBOARD --- */
 
@@ -917,24 +925,25 @@
   max-width: 850px;
   max-height: 90vh;
   overflow: hidden;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent);
   animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
 }
 
 .modal-content::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    color-mix(in srgb, var(--primary) 50%, transparent), 
-    transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--primary) 50%, transparent),
+    transparent
+  );
 }
 
 .modal-header {
@@ -942,24 +951,28 @@
   justify-content: space-between;
   align-items: center;
   padding: 2rem 2.5rem 1.5rem;
-  background: linear-gradient(135deg, 
-    var(--primary), 
-    color-mix(in srgb, var(--primary) 80%, hsl(220, 70%, 60%)));
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    color-mix(in srgb, var(--primary) 80%, hsl(220, 70%, 60%))
+  );
   color: var(--primary-foreground);
   position: relative;
   overflow: hidden;
 }
 
 .modal-header::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.1), 
-    rgba(255, 255, 255, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
   pointer-events: none;
 }
 
@@ -1063,8 +1076,7 @@
   outline: none;
   border-color: var(--primary);
   background: var(--background);
-  box-shadow: 
-    0 0 0 4px color-mix(in srgb, var(--primary) 15%, transparent),
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 15%, transparent),
     0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
@@ -1083,9 +1095,11 @@
 
 .modal-error {
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, 
+  background: linear-gradient(
+    135deg,
     color-mix(in srgb, var(--destructive) 10%, transparent),
-    color-mix(in srgb, var(--destructive) 5%, transparent));
+    color-mix(in srgb, var(--destructive) 5%, transparent)
+  );
   color: var(--destructive);
   border: 1px solid color-mix(in srgb, var(--destructive) 30%, transparent);
   border-radius: 12px;
@@ -1105,7 +1119,11 @@
 }
 
 .modal-actions .btn-primary {
-  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, hsl(220, 70%, 60%)));
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    color-mix(in srgb, var(--primary) 80%, hsl(220, 70%, 60%))
+  );
   color: var(--primary-foreground);
   padding: 1rem 2rem;
   border: none;
@@ -1113,8 +1131,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 4px 15px color-mix(in srgb, var(--primary) 40%, transparent),
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--primary) 40%, transparent),
     0 1px 3px rgba(0, 0, 0, 0.1);
   font-size: 1rem;
   position: relative;
@@ -1122,13 +1139,18 @@
 }
 
 .modal-actions .btn-primary::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -1138,8 +1160,7 @@
 
 .modal-actions .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px color-mix(in srgb, var(--primary) 50%, transparent),
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--primary) 50%, transparent),
     0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -1179,9 +1200,11 @@
 }
 
 .modal-actions .btn-delete {
-  background: linear-gradient(135deg, 
-    var(--destructive), 
-    color-mix(in srgb, var(--destructive) 80%, hsl(0, 70%, 60%)));
+  background: linear-gradient(
+    135deg,
+    var(--destructive),
+    color-mix(in srgb, var(--destructive) 80%, hsl(0, 70%, 60%))
+  );
   color: var(--destructive-foreground);
   border: none;
   padding: 1rem 2rem;
@@ -1190,21 +1213,25 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 1rem;
-  box-shadow: 
-    0 4px 15px color-mix(in srgb, var(--destructive) 40%, transparent),
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--destructive) 40%, transparent),
     0 1px 3px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
 }
 
 .modal-actions .btn-delete::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -1214,8 +1241,7 @@
 
 .modal-actions .btn-delete:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px color-mix(in srgb, var(--destructive) 50%, transparent),
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--destructive) 50%, transparent),
     0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -1225,8 +1251,12 @@
 
 /* Animaciones del modal */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalSlideIn {
@@ -1277,39 +1307,39 @@
     width: 95%;
     margin: 1rem;
   }
-  
+
   .modal-header {
     padding: 1rem 1.5rem;
   }
-  
+
   .modal-header h2 {
     font-size: 1.25rem;
   }
-  
+
   .modal-form {
     padding: 1.5rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .modal-actions {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .modal-actions button {
     width: 100%;
   }
-  
+
   .filters-row {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .filter-stats {
     text-align: center;
     padding: 1rem 0 0.5rem 0;
@@ -1323,23 +1353,23 @@
     margin: 0.5rem;
     max-height: 95vh;
   }
-  
+
   .modal-header {
     padding: 1rem;
   }
-  
+
   .modal-form {
     padding: 1rem;
   }
-  
+
   .filters-container {
     padding: 1rem;
   }
-  
+
   .modal-actions .btn-primary,
   .modal-actions .btn-secondary,
   .modal-actions .btn-delete {
     padding: 0.875rem;
     font-size: 0.9rem;
   }
-} 
+}

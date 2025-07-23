@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
+import '../styles/Modal.css'; // Importar los estilos del modal
 
 // Defino un tipo para los cursos para que TypeScript nos ayude
 interface Curso {
@@ -9,14 +10,34 @@ interface Curso {
     descripcion: string;
 }
 
+interface ModalState {
+    isOpen: boolean;
+    editingCurso: Curso | null;
+}
+
 const GestionCursos: React.FC = () => {
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
-    const [editingId, setEditingId] = useState<number | null>(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
+    
+    // Estados para el modal
+    const [modalState, setModalState] = useState<ModalState>({
+        isOpen: false,
+        editingCurso: null
+    });
+    const [modalNombre, setModalNombre] = useState('');
+    const [modalDescripcion, setModalDescripcion] = useState('');
+    const [modalError, setModalError] = useState('');
+    
+    // Estados para el modal de confirmación
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        cursoId: null as number | null,
+        cursoNombre: ''
+    });
 
     // Función para cargar los cursos desde el backend
     const fetchCursos = async () => {
@@ -37,7 +58,7 @@ const GestionCursos: React.FC = () => {
         fetchCursos();
     }, []);
 
-    // Función para manejar el envío del formulario
+    // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!nombre.trim()) {
@@ -49,54 +70,93 @@ const GestionCursos: React.FC = () => {
         setSuccess('');
 
         try {
-            if (editingId) {
-                await apiClient.put(`/cursos/${editingId}`, { nombre, descripcion });
-                setSuccess('Curso actualizado con éxito');
-            } else {
-                await apiClient.post('/cursos', { nombre, descripcion });
-                setSuccess('Curso creado con éxito');
-            }
-            
+            await apiClient.post('/cursos', { nombre, descripcion });
+            setSuccess('Curso creado con éxito');
             setNombre('');
             setDescripcion('');
-            setEditingId(null);
             fetchCursos();
-            
-            // Limpiar mensaje después de 3 segundos
             setTimeout(() => setSuccess(''), 3000);
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error || 'Error al guardar el curso';
+            const errorMessage = err.response?.data?.error || 'Error al crear el curso';
             setError(errorMessage);
         }
     };
 
-    const handleEdit = (curso: Curso) => {
-        setNombre(curso.nombre);
-        setDescripcion(curso.descripcion);
-        setEditingId(curso.id);
-        setError('');
-        setSuccess('');
+    // Funciones del modal
+    const openEditModal = (curso: Curso) => {
+        setModalState({
+            isOpen: true,
+            editingCurso: curso
+        });
+        setModalNombre(curso.nombre);
+        setModalDescripcion(curso.descripcion);
+        setModalError('');
     };
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('¿Estás seguro de que quieres eliminar este curso?')) {
-            try {
-                await apiClient.delete(`/cursos/${id}`);
-                setSuccess('Curso eliminado con éxito');
-                fetchCursos();
-                setTimeout(() => setSuccess(''), 3000);
-            } catch (err: any) {
-                setError('Error al eliminar el curso');
-            }
+    const closeModal = () => {
+        setModalState({
+            isOpen: false,
+            editingCurso: null
+        });
+        setModalNombre('');
+        setModalDescripcion('');
+        setModalError('');
+    };
+
+    const handleModalSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!modalNombre.trim()) {
+            setModalError('El nombre del curso es obligatorio');
+            return;
+        }
+
+        setModalError('');
+
+        try {
+            await apiClient.put(`/cursos/${modalState.editingCurso!.id}`, { 
+                nombre: modalNombre, 
+                descripcion: modalDescripcion 
+            });
+            setSuccess('Curso actualizado con éxito');
+            fetchCursos();
+            closeModal();
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.error || 'Error al actualizar el curso';
+            setModalError(errorMessage);
         }
     };
 
-    const handleCancel = () => {
-        setNombre('');
-        setDescripcion('');
-        setEditingId(null);
-        setError('');
-        setSuccess('');
+    // Funciones del modal de confirmación
+    const openConfirmModal = (curso: Curso) => {
+        setConfirmModal({
+            isOpen: true,
+            cursoId: curso.id,
+            cursoNombre: curso.nombre
+        });
+    };
+
+    const closeConfirmModal = () => {
+        setConfirmModal({
+            isOpen: false,
+            cursoId: null,
+            cursoNombre: ''
+        });
+    };
+
+    const handleConfirmDelete = async () => {
+        if (confirmModal.cursoId) {
+            try {
+                await apiClient.delete(`/cursos/${confirmModal.cursoId}`);
+                setSuccess('Curso eliminado con éxito');
+                fetchCursos();
+                closeConfirmModal();
+                setTimeout(() => setSuccess(''), 3000);
+            } catch (err: any) {
+                setError('Error al eliminar el curso');
+                closeConfirmModal();
+            }
+        }
     };
 
     if (loading) {
@@ -120,7 +180,7 @@ const GestionCursos: React.FC = () => {
             
             <div className="form-and-list-container">
                 <div className="form-section">
-                    <h2>{editingId ? 'Editar Curso' : 'Agregar Nuevo Curso'}</h2>
+                    <h2>Agregar Nuevo Curso</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="nombre-curso">Nombre:</label>
@@ -145,13 +205,8 @@ const GestionCursos: React.FC = () => {
                         </div>
                         <div className="form-actions">
                             <button type="submit" className="btn-primary">
-                                {editingId ? '🔄 Actualizar' : '➕ Crear Curso'}
+                                Crear Curso
                             </button>
-                            {editingId && (
-                                <button type="button" className="btn-secondary" onClick={handleCancel}>
-                                    ❌ Cancelar
-                                </button>
-                            )}
                         </div>
                     </form>
                 </div>
@@ -179,17 +234,17 @@ const GestionCursos: React.FC = () => {
                                                 <div className="action-buttons">
                                                     <button 
                                                         className="btn-edit"
-                                                        onClick={() => handleEdit(curso)}
+                                                        onClick={() => openEditModal(curso)}
                                                         title="Editar curso"
                                                     >
-                                                        ✏️ Editar
+                                                        Editar
                                                     </button>
                                                     <button 
                                                         className="btn-delete"
-                                                        onClick={() => handleDelete(curso.id)}
+                                                        onClick={() => openConfirmModal(curso)}
                                                         title="Eliminar curso"
                                                     >
-                                                        🗑️ Eliminar
+                                                        Eliminar
                                                     </button>
                                                 </div>
                                             </td>
@@ -203,6 +258,84 @@ const GestionCursos: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Modal de Edición */}
+            {modalState.isOpen && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Editar Curso</h2>
+                            <button className="modal-close" onClick={closeModal}>&times;</button>
+                        </div>
+                        <form onSubmit={handleModalSubmit} className="modal-form">
+                            <div className="form-group">
+                                <label htmlFor="modal-nombre-curso">Nombre:</label>
+                                <input 
+                                    id="modal-nombre-curso" 
+                                    type="text" 
+                                    value={modalNombre} 
+                                    onChange={(e) => setModalNombre(e.target.value)} 
+                                    placeholder="Ej: Matemáticas Avanzadas"
+                                    required 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="modal-descripcion-curso">Descripción:</label>
+                                <textarea 
+                                    id="modal-descripcion-curso" 
+                                    value={modalDescripcion} 
+                                    onChange={(e) => setModalDescripcion(e.target.value)}
+                                    placeholder="Descripción del curso..."
+                                    rows={4}
+                                />
+                            </div>
+                            
+                            {modalError && <div className="modal-error">{modalError}</div>}
+                            
+                            <div className="modal-actions">
+                                <button type="submit" className="btn-primary">
+                                    Actualizar Curso
+                                </button>
+                                <button type="button" className="btn-secondary" onClick={closeModal}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Confirmación */}
+            {confirmModal.isOpen && (
+                <div className="confirm-modal-overlay" onClick={closeConfirmModal}>
+                    <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-modal-header">
+                            <div className="confirm-modal-icon">⚠️</div>
+                            <h3 className="confirm-modal-title">Confirmar Eliminación</h3>
+                        </div>
+                        <div className="confirm-modal-body">
+                            <p className="confirm-modal-message">
+                                ¿Estás seguro de que quieres eliminar el curso <strong>"{confirmModal.cursoNombre}"</strong>? 
+                                Esta acción no se puede deshacer.
+                            </p>
+                        </div>
+                        <div className="confirm-modal-actions">
+                            <button 
+                                className="btn-danger" 
+                                onClick={handleConfirmDelete}
+                            >
+                                Eliminar
+                            </button>
+                            <button 
+                                className="btn-cancel" 
+                                onClick={closeConfirmModal}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

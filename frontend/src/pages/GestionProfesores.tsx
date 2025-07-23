@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
+import '../styles/Modal.css'; // Importar los estilos del modal
 
 interface Profesor {
     id: number;
@@ -9,15 +10,36 @@ interface Profesor {
     especialidad: string;
 }
 
+interface ModalState {
+    isOpen: boolean;
+    editingProfesor: Profesor | null;
+}
+
 const GestionProfesores: React.FC = () => {
     const [profesores, setProfesores] = useState<Profesor[]>([]);
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
     const [especialidad, setEspecialidad] = useState('');
-    const [editingId, setEditingId] = useState<number | null>(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
+    
+    // Estados para el modal
+    const [modalState, setModalState] = useState<ModalState>({
+        isOpen: false,
+        editingProfesor: null
+    });
+    const [modalNombre, setModalNombre] = useState('');
+    const [modalEmail, setModalEmail] = useState('');
+    const [modalEspecialidad, setModalEspecialidad] = useState('');
+    const [modalError, setModalError] = useState('');
+    
+    // Estados para el modal de confirmación
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        profesorId: null as number | null,
+        profesorNombre: ''
+    });
 
     const fetchProfesores = async () => {
         try {
@@ -36,6 +58,7 @@ const GestionProfesores: React.FC = () => {
         fetchProfesores();
     }, []);
 
+    // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!nombre.trim() || !email.trim()) {
@@ -47,57 +70,97 @@ const GestionProfesores: React.FC = () => {
         setSuccess('');
 
         try {
-            if (editingId) {
-                await apiClient.put(`/profesores/${editingId}`, { nombre, email, especialidad });
-                setSuccess('Profesor actualizado con éxito');
-            } else {
-                await apiClient.post('/profesores', { nombre, email, especialidad });
-                setSuccess('Profesor creado con éxito');
-            }
-            
+            await apiClient.post('/profesores', { nombre, email, especialidad });
+            setSuccess('Profesor creado con éxito');
             setNombre('');
             setEmail('');
             setEspecialidad('');
-            setEditingId(null);
             fetchProfesores();
-            
-            // Limpiar mensaje después de 3 segundos
             setTimeout(() => setSuccess(''), 3000);
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error || 'Error al guardar el profesor';
+            const errorMessage = err.response?.data?.error || 'Error al crear el profesor';
             setError(errorMessage);
         }
     };
 
-    const handleEdit = (profesor: Profesor) => {
-        setNombre(profesor.nombre);
-        setEmail(profesor.email);
-        setEspecialidad(profesor.especialidad);
-        setEditingId(profesor.id);
-        setError('');
-        setSuccess('');
+    // Funciones del modal
+    const openEditModal = (profesor: Profesor) => {
+        setModalState({
+            isOpen: true,
+            editingProfesor: profesor
+        });
+        setModalNombre(profesor.nombre);
+        setModalEmail(profesor.email);
+        setModalEspecialidad(profesor.especialidad);
+        setModalError('');
     };
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('¿Estás seguro de que quieres eliminar este profesor?')) {
-            try {
-                await apiClient.delete(`/profesores/${id}`);
-                setSuccess('Profesor eliminado con éxito');
-                fetchProfesores();
-                setTimeout(() => setSuccess(''), 3000);
-            } catch (err: any) {
-                setError('Error al eliminar el profesor');
-            }
+    const closeModal = () => {
+        setModalState({
+            isOpen: false,
+            editingProfesor: null
+        });
+        setModalNombre('');
+        setModalEmail('');
+        setModalEspecialidad('');
+        setModalError('');
+    };
+
+    const handleModalSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!modalNombre.trim() || !modalEmail.trim()) {
+            setModalError('El nombre y email son obligatorios');
+            return;
+        }
+
+        setModalError('');
+
+        try {
+            await apiClient.put(`/profesores/${modalState.editingProfesor!.id}`, { 
+                nombre: modalNombre, 
+                email: modalEmail,
+                especialidad: modalEspecialidad 
+            });
+            setSuccess('Profesor actualizado con éxito');
+            fetchProfesores();
+            closeModal();
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.error || 'Error al actualizar el profesor';
+            setModalError(errorMessage);
         }
     };
 
-    const handleCancel = () => {
-        setNombre('');
-        setEmail('');
-        setEspecialidad('');
-        setEditingId(null);
-        setError('');
-        setSuccess('');
+    // Funciones del modal de confirmación
+    const openConfirmModal = (profesor: Profesor) => {
+        setConfirmModal({
+            isOpen: true,
+            profesorId: profesor.id,
+            profesorNombre: profesor.nombre
+        });
+    };
+
+    const closeConfirmModal = () => {
+        setConfirmModal({
+            isOpen: false,
+            profesorId: null,
+            profesorNombre: ''
+        });
+    };
+
+    const handleConfirmDelete = async () => {
+        if (confirmModal.profesorId) {
+            try {
+                await apiClient.delete(`/profesores/${confirmModal.profesorId}`);
+                setSuccess('Profesor eliminado con éxito');
+                fetchProfesores();
+                closeConfirmModal();
+                setTimeout(() => setSuccess(''), 3000);
+            } catch (err: any) {
+                setError('Error al eliminar el profesor');
+                closeConfirmModal();
+            }
+        }
     };
 
     if (loading) {
@@ -121,7 +184,7 @@ const GestionProfesores: React.FC = () => {
             
             <div className="form-and-list-container">
                 <div className="form-section">
-                    <h2>{editingId ? 'Editar Profesor' : 'Agregar Nuevo Profesor'}</h2>
+                    <h2>Agregar Nuevo Profesor</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="nombre-profesor">Nombre:</label>
@@ -157,13 +220,8 @@ const GestionProfesores: React.FC = () => {
                         </div>
                         <div className="form-actions">
                             <button type="submit" className="btn-primary">
-                                {editingId ? '🔄 Actualizar' : '➕ Crear Profesor'}
+                                Crear Profesor
                             </button>
-                            {editingId && (
-                                <button type="button" className="btn-secondary" onClick={handleCancel}>
-                                    ❌ Cancelar
-                                </button>
-                            )}
                         </div>
                     </form>
                 </div>
@@ -193,17 +251,17 @@ const GestionProfesores: React.FC = () => {
                                                 <div className="action-buttons">
                                                     <button 
                                                         className="btn-edit"
-                                                        onClick={() => handleEdit(profesor)}
+                                                        onClick={() => openEditModal(profesor)}
                                                         title="Editar profesor"
                                                     >
-                                                        ✏️ Editar
+                                                        Editar
                                                     </button>
                                                     <button 
                                                         className="btn-delete"
-                                                        onClick={() => handleDelete(profesor.id)}
+                                                        onClick={() => openConfirmModal(profesor)}
                                                         title="Eliminar profesor"
                                                     >
-                                                        🗑️ Eliminar
+                                                        Eliminar
                                                     </button>
                                                 </div>
                                             </td>
@@ -217,6 +275,95 @@ const GestionProfesores: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Modal de Edición */}
+            {modalState.isOpen && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Editar Profesor</h2>
+                            <button className="modal-close" onClick={closeModal}>&times;</button>
+                        </div>
+                        <form onSubmit={handleModalSubmit} className="modal-form">
+                            <div className="form-group">
+                                <label htmlFor="modal-nombre-profesor">Nombre:</label>
+                                <input 
+                                    id="modal-nombre-profesor" 
+                                    type="text" 
+                                    value={modalNombre} 
+                                    onChange={(e) => setModalNombre(e.target.value)} 
+                                    placeholder="Ej: Dr. Juan Pérez"
+                                    required 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="modal-email-profesor">Email:</label>
+                                <input 
+                                    id="modal-email-profesor" 
+                                    type="email" 
+                                    value={modalEmail} 
+                                    onChange={(e) => setModalEmail(e.target.value)} 
+                                    placeholder="juan.perez@email.com"
+                                    required 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="modal-especialidad-profesor">Especialidad:</label>
+                                <input 
+                                    id="modal-especialidad-profesor" 
+                                    type="text" 
+                                    value={modalEspecialidad} 
+                                    onChange={(e) => setModalEspecialidad(e.target.value)}
+                                    placeholder="Ej: Matemáticas, Física, etc."
+                                />
+                            </div>
+                            
+                            {modalError && <div className="modal-error">{modalError}</div>}
+                            
+                            <div className="modal-actions">
+                                <button type="submit" className="btn-primary">
+                                    Actualizar Profesor
+                                </button>
+                                <button type="button" className="btn-secondary" onClick={closeModal}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Confirmación */}
+            {confirmModal.isOpen && (
+                <div className="confirm-modal-overlay" onClick={closeConfirmModal}>
+                    <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-modal-header">
+                            <div className="confirm-modal-icon">⚠️</div>
+                            <h3 className="confirm-modal-title">Confirmar Eliminación</h3>
+                        </div>
+                        <div className="confirm-modal-body">
+                            <p className="confirm-modal-message">
+                                ¿Estás seguro de que quieres eliminar al profesor <strong>"{confirmModal.profesorNombre}"</strong>? 
+                                Esta acción no se puede deshacer.
+                            </p>
+                        </div>
+                        <div className="confirm-modal-actions">
+                            <button 
+                                className="btn-danger" 
+                                onClick={handleConfirmDelete}
+                            >
+                                Eliminar
+                            </button>
+                            <button 
+                                className="btn-cancel" 
+                                onClick={closeConfirmModal}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

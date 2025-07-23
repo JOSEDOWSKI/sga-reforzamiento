@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
+import '../styles/Modal.css'; // Importar los estilos del modal
 
 interface Tema {
     id: number;
@@ -13,15 +14,35 @@ interface Curso {
     nombre: string;
 }
 
+interface ModalState {
+    isOpen: boolean;
+    editingTema: Tema | null;
+}
+
 const GestionTemas: React.FC = () => {
     const [temas, setTemas] = useState<Tema[]>([]);
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [nombre, setNombre] = useState('');
     const [cursoId, setCursoId] = useState('');
-    const [editingId, setEditingId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    
+    // Estados para el modal
+    const [modalState, setModalState] = useState<ModalState>({
+        isOpen: false,
+        editingTema: null
+    });
+    const [modalNombre, setModalNombre] = useState('');
+    const [modalCursoId, setModalCursoId] = useState('');
+    const [modalError, setModalError] = useState('');
+    
+    // Estados para el modal de confirmación
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        temaId: null as number | null,
+        temaNombre: ''
+    });
 
     useEffect(() => {
         fetchData();
@@ -45,6 +66,7 @@ const GestionTemas: React.FC = () => {
         }
     };
 
+    // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!nombre.trim() || !cursoId) {
@@ -56,60 +78,96 @@ const GestionTemas: React.FC = () => {
         setSuccess('');
 
         try {
-            if (editingId) {
-                await apiClient.put(`/temas/${editingId}`, { 
-                    nombre, 
-                    curso_id: parseInt(cursoId) 
-                });
-                setSuccess('Tema actualizado con éxito');
-            } else {
-                await apiClient.post('/temas', { 
-                    nombre, 
-                    curso_id: parseInt(cursoId) 
-                });
-                setSuccess('Tema creado con éxito');
-            }
-            
+            await apiClient.post('/temas', { 
+                nombre, 
+                curso_id: parseInt(cursoId) 
+            });
+            setSuccess('Tema creado con éxito');
             setNombre('');
             setCursoId('');
-            setEditingId(null);
             fetchData();
-            
-            // Limpiar mensaje después de 3 segundos
             setTimeout(() => setSuccess(''), 3000);
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error || 'Error al guardar el tema';
+            const errorMessage = err.response?.data?.error || 'Error al crear el tema';
             setError(errorMessage);
         }
     };
 
-    const handleEdit = (tema: Tema) => {
-        setNombre(tema.nombre);
-        setCursoId(tema.curso_id.toString());
-        setEditingId(tema.id);
-        setError('');
-        setSuccess('');
+    // Funciones del modal
+    const openEditModal = (tema: Tema) => {
+        setModalState({
+            isOpen: true,
+            editingTema: tema
+        });
+        setModalNombre(tema.nombre);
+        setModalCursoId(tema.curso_id.toString());
+        setModalError('');
     };
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('¿Estás seguro de que quieres eliminar este tema?')) {
-            try {
-                await apiClient.delete(`/temas/${id}`);
-                setSuccess('Tema eliminado con éxito');
-                fetchData();
-                setTimeout(() => setSuccess(''), 3000);
-            } catch (err: any) {
-                setError('Error al eliminar el tema');
-            }
+    const closeModal = () => {
+        setModalState({
+            isOpen: false,
+            editingTema: null
+        });
+        setModalNombre('');
+        setModalCursoId('');
+        setModalError('');
+    };
+
+    const handleModalSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!modalNombre.trim() || !modalCursoId) {
+            setModalError('El nombre y curso son obligatorios');
+            return;
+        }
+
+        setModalError('');
+
+        try {
+            await apiClient.put(`/temas/${modalState.editingTema!.id}`, { 
+                nombre: modalNombre, 
+                curso_id: parseInt(modalCursoId) 
+            });
+            setSuccess('Tema actualizado con éxito');
+            fetchData();
+            closeModal();
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.error || 'Error al actualizar el tema';
+            setModalError(errorMessage);
         }
     };
 
-    const handleCancel = () => {
-        setNombre('');
-        setCursoId('');
-        setEditingId(null);
-        setError('');
-        setSuccess('');
+    // Funciones del modal de confirmación
+    const openConfirmModal = (tema: Tema) => {
+        setConfirmModal({
+            isOpen: true,
+            temaId: tema.id,
+            temaNombre: tema.nombre
+        });
+    };
+
+    const closeConfirmModal = () => {
+        setConfirmModal({
+            isOpen: false,
+            temaId: null,
+            temaNombre: ''
+        });
+    };
+
+    const handleConfirmDelete = async () => {
+        if (confirmModal.temaId) {
+            try {
+                await apiClient.delete(`/temas/${confirmModal.temaId}`);
+                setSuccess('Tema eliminado con éxito');
+                fetchData();
+                closeConfirmModal();
+                setTimeout(() => setSuccess(''), 3000);
+            } catch (err: any) {
+                setError('Error al eliminar el tema');
+                closeConfirmModal();
+            }
+        }
     };
 
     const getCursoNombre = (cursoId: number) => {
@@ -138,7 +196,7 @@ const GestionTemas: React.FC = () => {
             
             <div className="form-and-list-container">
                 <div className="form-section">
-                    <h2>{editingId ? 'Editar Tema' : 'Agregar Nuevo Tema'}</h2>
+                    <h2>Agregar Nuevo Tema</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="nombre-tema">Nombre del Tema:</label>
@@ -169,13 +227,8 @@ const GestionTemas: React.FC = () => {
                         </div>
                         <div className="form-actions">
                             <button type="submit" className="btn-primary">
-                                {editingId ? '🔄 Actualizar' : '➕ Crear Tema'}
+                                Crear Tema
                             </button>
-                            {editingId && (
-                                <button type="button" className="btn-secondary" onClick={handleCancel}>
-                                    ❌ Cancelar
-                                </button>
-                            )}
                         </div>
                     </form>
                 </div>
@@ -203,17 +256,17 @@ const GestionTemas: React.FC = () => {
                                                 <div className="action-buttons">
                                                     <button 
                                                         className="btn-edit"
-                                                        onClick={() => handleEdit(tema)}
+                                                        onClick={() => openEditModal(tema)}
                                                         title="Editar tema"
                                                     >
-                                                        ✏️ Editar
+                                                        Editar
                                                     </button>
                                                     <button 
                                                         className="btn-delete"
-                                                        onClick={() => handleDelete(tema.id)}
+                                                        onClick={() => openConfirmModal(tema)}
                                                         title="Eliminar tema"
                                                     >
-                                                        🗑️ Eliminar
+                                                        Eliminar
                                                     </button>
                                                 </div>
                                             </td>
@@ -227,6 +280,90 @@ const GestionTemas: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Modal de Edición */}
+            {modalState.isOpen && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Editar Tema</h2>
+                            <button className="modal-close" onClick={closeModal}>&times;</button>
+                        </div>
+                        <form onSubmit={handleModalSubmit} className="modal-form">
+                            <div className="form-group">
+                                <label htmlFor="modal-nombre-tema">Nombre del Tema:</label>
+                                <input 
+                                    id="modal-nombre-tema" 
+                                    type="text" 
+                                    value={modalNombre} 
+                                    onChange={(e) => setModalNombre(e.target.value)}
+                                    placeholder="Ej: Derivadas e Integrales"
+                                    required 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="modal-curso-tema">Curso:</label>
+                                <select 
+                                    id="modal-curso-tema" 
+                                    value={modalCursoId} 
+                                    onChange={(e) => setModalCursoId(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Selecciona un curso</option>
+                                    {cursos.map(curso => (
+                                        <option key={curso.id} value={curso.id}>
+                                            {curso.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            {modalError && <div className="modal-error">{modalError}</div>}
+                            
+                            <div className="modal-actions">
+                                <button type="submit" className="btn-primary">
+                                    Actualizar Tema
+                                </button>
+                                <button type="button" className="btn-secondary" onClick={closeModal}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Confirmación */}
+            {confirmModal.isOpen && (
+                <div className="confirm-modal-overlay" onClick={closeConfirmModal}>
+                    <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-modal-header">
+                            <div className="confirm-modal-icon">⚠️</div>
+                            <h3 className="confirm-modal-title">Confirmar Eliminación</h3>
+                        </div>
+                        <div className="confirm-modal-body">
+                            <p className="confirm-modal-message">
+                                ¿Estás seguro de que quieres eliminar el tema <strong>"{confirmModal.temaNombre}"</strong>? 
+                                Esta acción no se puede deshacer.
+                            </p>
+                        </div>
+                        <div className="confirm-modal-actions">
+                            <button 
+                                className="btn-danger" 
+                                onClick={handleConfirmDelete}
+                            >
+                                Eliminar
+                            </button>
+                            <button 
+                                className="btn-cancel" 
+                                onClick={closeConfirmModal}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

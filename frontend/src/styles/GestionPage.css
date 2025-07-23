@@ -409,16 +409,19 @@
   transform: translateY(0);
 }
 
-/* Tabla de datos */
+/* Tabla de datos - Responsive mejorado */
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background-color: var(--muted);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
 }
 
 .data-table {
   width: 100%;
+  min-width: 600px; /* Ancho mínimo para evitar que se comprima demasiado */
   border-collapse: collapse;
   background-color: var(--background);
 }
@@ -428,6 +431,9 @@
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap; /* Evita que el texto se corte */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .data-table th {
@@ -437,6 +443,9 @@
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .data-table tr:hover {
@@ -445,6 +454,20 @@
 
 .data-table tr:last-child td {
   border-bottom: none;
+}
+
+/* Columnas específicas con anchos optimizados */
+.data-table th:first-child,
+.data-table td:first-child {
+  width: 60px; /* ID column */
+  min-width: 60px;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+  width: 180px; /* Actions column */
+  min-width: 180px;
+  white-space: normal; /* Permite que los botones se ajusten */
 }
 
 /* Botones de acción en tabla */
@@ -512,11 +535,20 @@
   
   .table-container {
     font-size: 0.875rem;
+    margin: 0 -1rem; /* Extiende la tabla hasta los bordes en móvil */
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .data-table {
+    min-width: 500px; /* Reduce el ancho mínimo en tablets */
   }
   
   .data-table th,
   .data-table td {
     padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
   }
   
   .action-buttons {
@@ -531,6 +563,19 @@
     padding: 0.5rem;
     font-size: 0.8rem;
   }
+  
+  /* Ajustar anchos de columnas en tablets */
+  .data-table th:first-child,
+  .data-table td:first-child {
+    width: 50px;
+    min-width: 50px;
+  }
+  
+  .data-table th:last-child,
+  .data-table td:last-child {
+    width: 120px;
+    min-width: 120px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -538,6 +583,20 @@
   .error-message {
     padding: 1rem;
     font-size: 0.9rem;
+  }
+  
+  .table-container {
+    margin: 0 -1.5rem; /* Extiende más en móviles pequeños */
+    box-shadow: none;
+    border: none;
+    background: transparent;
+  }
+  
+  .data-table {
+    min-width: 400px; /* Ancho mínimo más pequeño para móviles */
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
   }
   
   .data-table th,
@@ -549,6 +608,49 @@
   .data-table th:first-child,
   .data-table td:first-child {
     display: none; /* Ocultar ID en móviles */
+  }
+  
+  /* Hacer que las columnas de texto se ajusten mejor */
+  .data-table th:not(:first-child):not(:last-child),
+  .data-table td:not(:first-child):not(:last-child) {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 150px;
+  }
+  
+  .data-table th:last-child,
+  .data-table td:last-child {
+    width: 100px;
+    min-width: 100px;
+  }
+}
+
+/* Mejoras adicionales para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .table-container {
+    margin: 0 -2rem;
+  }
+  
+  .data-table {
+    min-width: 320px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.4rem 0.2rem;
+    font-size: 0.75rem;
+  }
+  
+  .btn-edit,
+  .btn-delete {
+    padding: 0.4rem;
+    font-size: 0.7rem;
+  }
+  
+  .data-table th:last-child,
+  .data-table td:last-child {
+    width: 80px;
+    min-width: 80px;
   }
 }
 
