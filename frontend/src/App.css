@@ -37,7 +37,7 @@
 }
 
 .app-container.nav-open .overlay {
-  opacity: 1;
+    opacity: 1;
   visibility: visible;
 }
 

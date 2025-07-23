@@ -330,8 +330,8 @@ const DashboardPage: React.FC = () => {
             <h1>Dashboard de Reservas</h1>
             
             {/* Mensajes de éxito y error */}
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
+                {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
 
             {/* Filtros mejorados */}
             <div className="filters-container">
@@ -346,7 +346,7 @@ const DashboardPage: React.FC = () => {
                         )}
                     </div>
                 </div>
-                <div className="filters-row">
+                    <div className="filters-row">
                     <div className="filter-dropdown">
                         <label>Filtrar por curso:</label>
                         <div className="dropdown-container">
@@ -370,7 +370,7 @@ const DashboardPage: React.FC = () => {
                                     >
                                         Todos los cursos
                                     </button>
-                                    {cursos.map(curso => (
+                                {cursos.map(curso => (
                                         <button
                                             key={curso.id}
                                             className="dropdown-item"
@@ -379,7 +379,7 @@ const DashboardPage: React.FC = () => {
                                                 setShowCursoDropdown(false);
                                             }}
                                         >
-                                            {curso.nombre}
+                                        {curso.nombre}
                                         </button>
                                     ))}
                                 </div>
@@ -425,10 +425,10 @@ const DashboardPage: React.FC = () => {
                                 </div>
                             )}
                         </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
+
             <div className="dashboard-container">
                 <div className="calendar-view-fullwidth">
                     <div className="calendar-header">
@@ -454,7 +454,7 @@ const DashboardPage: React.FC = () => {
                         datesSet={handleDatesSet}
                         initialView="dayGridMonth"
                         locale={esLocale}
-                        events={calendarEvents}
+                    events={calendarEvents}
                         eventContent={renderEventContent}
                         height="auto"
                         editable={true}
@@ -482,12 +482,12 @@ const DashboardPage: React.FC = () => {
                                         {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                                     </select>
                                 </div>
-                                <div className="form-group">
+                            <div className="form-group">
                                     <label htmlFor="modal-tema">Tema:</label>
                                     <select id="modal-tema" value={selectedTema} onChange={e => setSelectedTema(e.target.value)} required disabled={!selectedCurso || temasFiltrados.length === 0}>
                                         <option value="">Seleccione un tema</option>
                                         {temasFiltrados.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                                    </select>
+                                </select>
                                 </div>
                             </div>
                             <div className="form-row">
@@ -498,7 +498,7 @@ const DashboardPage: React.FC = () => {
                                         {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                                     </select>
                                 </div>
-                                <div className="form-group">
+                            <div className="form-group">
                                     <label htmlFor="modal-duracion">Duración (horas):</label>
                                     <select id="modal-duracion" value={duracionHoras} onChange={e => setDuracionHoras(e.target.value)} required>
                                         <option value="0.5">30 minutos</option>
@@ -507,7 +507,7 @@ const DashboardPage: React.FC = () => {
                                         <option value="2">2 horas</option>
                                         <option value="3">3 horas</option>
                                         <option value="4">4 horas</option>
-                                    </select>
+                                </select>
                                 </div>
                             </div>
                             <div className="form-row">
@@ -515,7 +515,7 @@ const DashboardPage: React.FC = () => {
                                     <label htmlFor="modal-fecha-hora">Fecha y Hora:</label>
                                     <input id="modal-fecha-hora" type="datetime-local" value={fechaHora} onChange={e => setFechaHora(e.target.value)} required />
                                 </div>
-                                <div className="form-group">
+                            <div className="form-group">
                                     <label htmlFor="modal-precio">Precio (€):</label>
                                     <input id="modal-precio" type="number" min="0" step="0.01" value={precio} onChange={e => setPrecio(e.target.value)} />
                                 </div>
@@ -525,20 +525,20 @@ const DashboardPage: React.FC = () => {
                                     <label htmlFor="modal-nombre-alumno">Nombre del Alumno:</label>
                                     <input id="modal-nombre-alumno" type="text" value={nombreAlumno} onChange={e => setNombreAlumno(e.target.value)} required />
                                 </div>
-                                <div className="form-group">
+                            <div className="form-group">
                                     <label htmlFor="modal-telefono-alumno">Teléfono del Alumno:</label>
                                     <input id="modal-telefono-alumno" type="tel" value={telefonoAlumno} onChange={e => setTelefonoAlumno(e.target.value)} />
                                 </div>
                             </div>
                             <div className="form-row">
-                                <div className="form-group">
+                            <div className="form-group">
                                     <label htmlFor="modal-estado-pago">Estado de Pago:</label>
                                     <select id="modal-estado-pago" value={estadoPago} onChange={e => setEstadoPago(e.target.value)}>
                                         <option value="Falta pagar">Falta pagar</option>
                                         <option value="Pagado parcial">Pagado parcial</option>
                                         <option value="Pagado completo">Pagado completo</option>
-                                    </select>
-                                </div>
+                                </select>
+                                    </div>
                             </div>
                             
                             {error && <div className="modal-error">{error}</div>}
