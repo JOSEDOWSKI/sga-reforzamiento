@@ -15,7 +15,7 @@ pnpm-debug.log*
 
 # Variables de entorno
 .env
-.env.*
+.env
 
 # Archivos de Sistema Operativo
 .DS_Store
