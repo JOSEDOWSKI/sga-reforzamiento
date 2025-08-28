@@ -25,6 +25,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Middleware para detectar tenant (aplicar a todas las rutas de API)
 app.use('/api', tenantMiddleware);
 
+// Rutas de autenticación (no requieren autenticación previa)
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 // Rutas de la API
 const cursoRoutes = require('./routes/cursoRoutes');
 app.use('/api/cursos', cursoRoutes);

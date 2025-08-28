@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Header.css';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { useTenant } from '../hooks/useTenant';
 
 interface HeaderProps {
     onMenuClick: () => void;
@@ -34,23 +36,96 @@ const PromesaLogo = () => (
 );
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick, isNavOpen }) => {
+    const { user, logout } = useAuth();
+    const tenantInfo = useTenant();
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement>(null);
+
+    // Cerrar menú cuando se hace clic fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+                setShowUserMenu(false);
+            }
+        };
+
+        if (showUserMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showUserMenu]);
+
+    const handleLogout = () => {
+        logout();
+        setShowUserMenu(false);
+    };
+
     return (
         <header className="mobile-header">
             <div className="mobile-header__left">
                  <NavLink to="/" className="nav-brand">
                     <PromesaLogo />
-                    <span>SGA Reforzamiento</span>
+                    <span>{tenantInfo.displayName}</span>
                 </NavLink>
             </div>
-            <button 
-                className={`hamburger-button ${isNavOpen ? 'is-active' : ''}`} 
-                onClick={onMenuClick}
-                aria-label="Abrir menú"
-            >
-                <span className="hamburger-box">
-                    <span className="hamburger-inner"></span>
-                </span>
-            </button>
+            
+            <div className="mobile-header__right">
+                <div className="user-menu" ref={userMenuRef}>
+                    <button 
+                        className="user-button"
+                        onClick={() => setShowUserMenu(!showUserMenu)}
+                        aria-label="Menú de usuario"
+                    >
+                        <div className="user-avatar">
+                            {user?.nombre?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <span className="user-name">{user?.nombre}</span>
+                        <svg 
+                            className={`chevron ${showUserMenu ? 'open' : ''}`}
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 16 16"
+                        >
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        </svg>
+                    </button>
+                    
+                    {showUserMenu && (
+                        <div className="user-dropdown">
+                            <div className="user-info">
+                                <div className="user-name-full">{user?.nombre}</div>
+                                <div className="user-email">{user?.email}</div>
+                                <div className="user-role">Rol: {user?.rol}</div>
+                            </div>
+                            <hr className="dropdown-divider" />
+                            <button 
+                                className="logout-button"
+                                onClick={handleLogout}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 16 16">
+                                    <path d="M6 2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H6zM5 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3z"/>
+                                    <path d="M11.5 8a.5.5 0 0 1-.5.5H8a.5.5 0 0 1 0-1h3a.5.5 0 0 1 .5.5z"/>
+                                    <path d="M10.146 7.146a.5.5 0 0 1 .708.708L9.707 9l1.147 1.146a.5.5 0 0 1-.708.708L9 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L8.293 9 7.146 7.854a.5.5 0 1 1 .708-.708L9 8.293l1.146-1.147z"/>
+                                </svg>
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                    )}
+                </div>
+                
+                <button 
+                    className={`hamburger-button ${isNavOpen ? 'is-active' : ''}`} 
+                    onClick={onMenuClick}
+                    aria-label="Abrir menú"
+                >
+                    <span className="hamburger-box">
+                        <span className="hamburger-inner"></span>
+                    </span>
+                </button>
+            </div>
         </header>
     );
 };

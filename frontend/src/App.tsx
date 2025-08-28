@@ -9,14 +9,16 @@ import Navbar from './components/Navbar';
 import Header from './components/Header';
 import SplashScreen from './components/SplashScreen';
 import SplashReset from './components/SplashReset';
-import { useSplashScreen } from './hooks/useSplashScreen';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './hooks/useAuth';
+import { SplashProvider, useSplashContext } from './contexts/SplashContext';
 import './App.css';
 
 // Componente intermedio para acceder al contexto del Router
 function AppContent() {
   const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const { showSplash, isInitialized, hideSplash } = useSplashScreen();
+  const { showSplash, hideSplash } = useSplashContext();
 
   useEffect(() => {
     if (isNavOpen) {
@@ -34,23 +36,26 @@ function AppContent() {
 
   return (
     <>
-      {/* SplashScreen overlay, siempre por encima del contenido real */}
-      {(!isInitialized || showSplash) && <SplashScreen onComplete={hideSplash} />}
-      <div className={`app-container ${isNavOpen ? 'nav-open' : ''}`}>
-        <Header onMenuClick={() => setIsNavOpen(!isNavOpen)} isNavOpen={isNavOpen} />
-        <Navbar isNavOpen={isNavOpen} />
-        <main className="content-container">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/cursos" element={<GestionCursos />} />
-            <Route path="/profesores" element={<GestionProfesores />} />
-            <Route path="/temas" element={<GestionTemas />} />
-            <Route path="/estadisticas" element={<EstadisticasPage />} />
-          </Routes>
-        </main>
-        {isNavOpen && <div className="overlay" onClick={() => setIsNavOpen(false)}></div>}
-        <SplashReset />
-      </div>
+      {/* SplashScreen overlay, solo cuando showSplash es true */}
+      {showSplash && <SplashScreen onComplete={hideSplash} />}
+      
+      <ProtectedRoute>
+        <div className={`app-container ${isNavOpen ? 'nav-open' : ''}`}>
+          <Header onMenuClick={() => setIsNavOpen(!isNavOpen)} isNavOpen={isNavOpen} />
+          <Navbar isNavOpen={isNavOpen} />
+          <main className="content-container">
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/cursos" element={<GestionCursos />} />
+              <Route path="/profesores" element={<GestionProfesores />} />
+              <Route path="/temas" element={<GestionTemas />} />
+              <Route path="/estadisticas" element={<EstadisticasPage />} />
+            </Routes>
+          </main>
+          {isNavOpen && <div className="overlay" onClick={() => setIsNavOpen(false)}></div>}
+          <SplashReset />
+        </div>
+      </ProtectedRoute>
     </>
   );
 }
@@ -58,7 +63,11 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <SplashProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </SplashProvider>
     </Router>
   );
 }

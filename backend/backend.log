@@ -1,0 +1,5 @@
+nohup: ignoring input
+🚀 AgendaTe SaaS API running on port 4000
+📊 Environment: development
+🌐 Health check: http://localhost:4000/health
+Database connection established for tenant: demo

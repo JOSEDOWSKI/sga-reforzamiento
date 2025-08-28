@@ -24,7 +24,7 @@ const apiClient = axios.create({
     headers: {
         'Content-Type': 'application/json'
     },
-    withCredentials: true // Para enviar cookies si es necesario
+    withCredentials: false // Deshabilitado completamente para evitar problemas CORS
 });
 
 // Interceptor para agregar información del tenant
@@ -33,7 +33,8 @@ apiClient.interceptors.request.use((config) => {
     const hostname = window.location.hostname;
     const parts = hostname.split('.');
     
-    if (parts.length >= 3 && !hostname.includes('localhost')) {
+    // Solo agregar X-Tenant si NO estamos en localhost y hay subdominio
+    if (parts.length >= 3 && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
         const tenant = parts[0];
         config.headers['X-Tenant'] = tenant;
     }

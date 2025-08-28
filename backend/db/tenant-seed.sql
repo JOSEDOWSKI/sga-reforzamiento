@@ -5,9 +5,9 @@
 INSERT INTO tenant_config (tenant_name, display_name, primary_color, secondary_color, timezone, locale) 
 VALUES ('demo', 'Academia Demo', '#007bff', '#6c757d', 'America/Mexico_City', 'es-MX');
 
--- Usuario administrador por defecto
+-- Usuario administrador por defecto (password: admin123)
 INSERT INTO usuarios (email, password_hash, nombre, rol) 
-VALUES ('admin@demo.com', '$2b$10$rQZ9QmjytWIeJH7L8F5zKOxvQJ5L5L5L5L5L5L5L5L5L5L5L5L5L5', 'Administrador', 'admin');
+VALUES ('admin@demo.com', '$2b$12$kC4KdwTjBnecm935PeRUp.p2jklGzKBc5pFgvsiZZ6ZtYx7neHzdO', 'Administrador', 'admin');
 
 -- Cursos de ejemplo
 INSERT INTO cursos (nombre, descripcion, precio, duracion_minutos) VALUES
