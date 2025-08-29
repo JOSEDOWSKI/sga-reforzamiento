@@ -195,7 +195,7 @@ const GestionTemas: React.FC = () => {
             {success && <div className="page-message success-message">{success}</div>}
             
             <div className="form-and-list-container">
-                <div className="form-section">
+                <div className="form-section" id="tema-add-form">
                     <h2>Agregar Nuevo Tema</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">

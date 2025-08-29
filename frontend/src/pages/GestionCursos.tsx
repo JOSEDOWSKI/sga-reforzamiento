@@ -179,9 +179,9 @@ const GestionCursos: React.FC = () => {
             {success && <div className="page-message success-message">{success}</div>}
             
             <div className="form-and-list-container">
-                <div className="form-section">
+                <div className="form-section" id="curso-add-form">
                     <h2>Agregar Nuevo Curso</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} >
                         <div className="form-group">
                             <label htmlFor="nombre-curso">Nombre:</label>
                             <input 

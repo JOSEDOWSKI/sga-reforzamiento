@@ -384,6 +384,7 @@ const DashboardPage: React.FC = () => {
             <label>Filtrar por curso:</label>
             <div className="dropdown-container">
               <button
+                id="filter-curso-btn"
                 className={`dropdown-trigger ${
                   showCursoDropdown ? "active" : ""
                 }`}
@@ -402,7 +403,7 @@ const DashboardPage: React.FC = () => {
               </button>
               {showCursoDropdown && (
                 <div className="dropdown-menu">
-                  <button
+                  <button 
                     className="dropdown-item"
                     onClick={() => {
                       setFiltroCurso("");
@@ -431,7 +432,7 @@ const DashboardPage: React.FC = () => {
           <div className="filter-dropdown">
             <label>Filtrar por profesor:</label>
             <div className="dropdown-container">
-              <button
+              <button id="filter-profesor-btn"
                 className={`dropdown-trigger ${
                   showProfesorDropdown ? "active" : ""
                 }`}

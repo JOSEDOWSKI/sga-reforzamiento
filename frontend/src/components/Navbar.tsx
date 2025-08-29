@@ -24,19 +24,19 @@ const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
                 <NavLink to="/" className="nav-brand">SGA Reforzamiento</NavLink>
             </div>
             <div className="nav-links">
-                <NavLink to="/" data-tooltip="Página principal">
+                <NavLink id="nav-dashboard" to="/" data-tooltip="Página principal">
                     <DashboardIcon /> Dashboard
                 </NavLink>
-                <NavLink to="/cursos" data-tooltip="Administrar cursos">
+                <NavLink  id="nav-cursos" to="/cursos" data-tooltip="Administrar cursos">
                     <CoursesIcon /> Cursos
                 </NavLink>
-                <NavLink to="/profesores" data-tooltip="Administrar profesores">
+                <NavLink  id="nav-profesores" to="/profesores" data-tooltip="Administrar profesores">
                     <ProfessorsIcon /> Profesores
                 </NavLink>
-                <NavLink to="/temas" data-tooltip="Administrar temas">
+                <NavLink id="nav-temas" to="/temas" data-tooltip="Administrar temas">
                     <TopicsIcon /> Temas
                 </NavLink>
-                <NavLink to="/estadisticas" data-tooltip="Ver estadísticas del sistema">
+                <NavLink id="nav-estadisticas" to="/estadisticas" data-tooltip="Ver estadísticas del sistema">
                     <StatsIcon /> Estadísticas
                 </NavLink>
             </div>

@@ -183,7 +183,7 @@ const GestionProfesores: React.FC = () => {
             {success && <div className="page-message success-message">{success}</div>}
             
             <div className="form-and-list-container">
-                <div className="form-section">
+                <div className="form-section" id="profesor-add-form">
                     <h2>Agregar Nuevo Profesor</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
@@ -368,4 +368,4 @@ const GestionProfesores: React.FC = () => {
     );
 };
 
-export default GestionProfesores; 
+export default GestionProfesores;

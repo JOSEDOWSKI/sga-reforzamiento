@@ -180,7 +180,7 @@ const EstadisticasPage: React.FC = () => {
             {error && <div className="page-message error-message">{error}</div>}
 
             {/* Métricas Principales */}
-            <div className="stats-overview">
+            <div className="stats-overview"  id="stats-overview">
                 <div className="stats-grid">
                     <div className="stat-card primary">
                         <div className="stat-icon">📅</div>
@@ -282,7 +282,7 @@ const EstadisticasPage: React.FC = () => {
             {/* Top Rankings */}
             <div className="rankings">
                 <div className="form-and-list-container">
-                    <div className="list-section">
+                    <div className="list-section" id="stats-top-cursos">
                         <h2>Top Cursos</h2>
                         {stats.topCursos.length > 0 ? (
                             <div className="table-container">
@@ -318,7 +318,7 @@ const EstadisticasPage: React.FC = () => {
                         )}
                     </div>
                     
-                    <div className="list-section">
+                    <div className="list-section"  id="stats-top-profesores">
                         <h2>Top Profesores</h2>
                         {stats.topProfesores.length > 0 ? (
                             <div className="table-container">

@@ -10,6 +10,7 @@ import Header from './components/Header';
 import SplashScreen from './components/SplashScreen';
 import SplashReset from './components/SplashReset';
 import { useSplashScreen } from './hooks/useSplashScreen';
+import TourOrchestrator from './tour/TourOrchestrator';
 import './App.css';
 
 // Componente intermedio para acceder al contexto del Router
@@ -39,6 +40,7 @@ function AppContent() {
       <div className={`app-container ${isNavOpen ? 'nav-open' : ''}`}>
         <Header onMenuClick={() => setIsNavOpen(!isNavOpen)} isNavOpen={isNavOpen} />
         <Navbar isNavOpen={isNavOpen} />
+        {!showSplash && isInitialized && <TourOrchestrator />}
         <main className="content-container">
           <Routes>
             <Route path="/" element={<DashboardPage />} />
