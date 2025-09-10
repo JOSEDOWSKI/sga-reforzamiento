@@ -7,7 +7,7 @@ VALUES ('demo', 'Academia Demo', '#007bff', '#6c757d', 'America/Mexico_City', 'e
 
 -- Usuario administrador por defecto (password: admin123)
 INSERT INTO usuarios (email, password_hash, nombre, rol) 
-VALUES ('admin@demo.com', '$2b$12$kC4KdwTjBnecm935PeRUp.p2jklGzKBc5pFgvsiZZ6ZtYx7neHzdO', 'Administrador', 'admin');
+VALUES ('admin@demo.com', '$2b$12$.fZSoDmGCiPbSky2rP5yIOBv0cTdSzMlL8DpGL9JhFCPOyBAnSrpW', 'Administrador', 'admin');
 
 -- Cursos de ejemplo
 INSERT INTO cursos (nombre, descripcion, precio, duracion_minutos) VALUES

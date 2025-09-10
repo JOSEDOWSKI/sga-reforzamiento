@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { useSplashScreen } from '../hooks/useSplashScreen';
 
 interface SplashContextType {

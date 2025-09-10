@@ -1,0 +1,216 @@
+.demo-contact-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-width: 350px;
+    animation: slideInRight 0.6s ease-out;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.demo-contact-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.demo-contact-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.demo-contact-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.demo-contact-content {
+    margin-bottom: 20px;
+}
+
+.contact-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.whatsapp-button {
+    background: #25D366;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.whatsapp-button:hover {
+    background: #128C7E;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.email-button {
+    background: #4285f4;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.email-button:hover {
+    background: #3367d6;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+.email-icon {
+    font-size: 1rem;
+}
+
+.email-form {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.email-form .form-group {
+    margin-bottom: 12px;
+}
+
+.email-form input,
+.email-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    box-sizing: border-box;
+}
+
+.email-form input:focus,
+.email-form textarea:focus {
+    outline: none;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.email-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.submit-message {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.submit-message.success {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.submit-message.error {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+}
+
+.form-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.cancel-button,
+.submit-button {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancel-button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.cancel-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.submit-button {
+    background: #4285f4;
+    color: white;
+}
+
+.submit-button:hover {
+    background: #3367d6;
+}
+
+.submit-button:disabled,
+.cancel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.demo-contact-footer {
+    text-align: center;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.demo-contact-footer p {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .demo-contact-card {
+        max-width: 100%;
+        margin-top: 20px;
+    }
+}
