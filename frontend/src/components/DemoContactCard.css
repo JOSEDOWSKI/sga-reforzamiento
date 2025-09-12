@@ -1,14 +1,17 @@
 .demo-contact-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    padding: 24px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    max-width: 350px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    color: #2D3748;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.05);
+    max-width: 380px;
     animation: slideInRight 0.6s ease-out;
     position: relative;
     z-index: 10;
     pointer-events: auto;
+    border: 1px solid #E2E8F0;
 }
 
 @keyframes slideInRight {
@@ -24,77 +27,130 @@
 
 .demo-contact-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
+    position: relative;
+}
+
+.demo-contact-header::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 2px;
 }
 
 .demo-contact-header h3 {
     margin: 0 0 8px 0;
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1A202C;
+    letter-spacing: -0.5px;
 }
 
 .demo-contact-header p {
     margin: 0;
-    opacity: 0.9;
-    font-size: 0.9rem;
+    color: #718096;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .demo-contact-content {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
 }
 
 .contact-buttons {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .whatsapp-button {
     background: #25D366;
     border: none;
-    border-radius: 8px;
-    padding: 14px 16px;
+    border-radius: 12px;
+    padding: 16px 24px;
     color: white;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.whatsapp-button::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .whatsapp-button:hover {
     background: #128C7E;
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
+.whatsapp-button:active {
+    transform: translateY(0);
+}
+
 .email-button {
-    background: #4285f4;
+    background: #667eea;
     border: none;
-    border-radius: 8px;
-    padding: 14px 16px;
+    border-radius: 12px;
+    padding: 16px 24px;
     color: white;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.email-button::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .email-button:hover {
-    background: #3367d6;
-    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    background: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-.email-icon {
-    font-size: 1rem;
+.email-button:active {
+    transform: translateY(0);
 }
 
 .email-form {
     animation: slideDown 0.3s ease-out;
+    background: #F7FAFC;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #E2E8F0;
 }
 
 @keyframes slideDown {
@@ -109,84 +165,97 @@
 }
 
 .email-form .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .email-form input,
 .email-form textarea {
     width: 100%;
-    padding: 10px 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
+    padding: 12px 16px;
+    border: 2px solid #E2E8F0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: white;
+    color: #2D3748;
     box-sizing: border-box;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.email-form input::placeholder,
+.email-form textarea::placeholder {
+    color: #A0AEC0;
+    font-weight: 400;
 }
 
 .email-form input:focus,
 .email-form textarea:focus {
     outline: none;
-    background: white;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .email-form textarea {
     resize: vertical;
-    min-height: 60px;
+    min-height: 80px;
+    font-family: inherit;
 }
 
 .submit-message {
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    margin-bottom: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
     text-align: center;
+    font-weight: 500;
 }
 
 .submit-message.success {
-    background: rgba(76, 175, 80, 0.2);
-    border: 1px solid rgba(76, 175, 80, 0.5);
+    background: #C6F6D5;
+    color: #22543D;
+    border: 1px solid #9AE6B4;
 }
 
 .submit-message.error {
-    background: rgba(244, 67, 54, 0.2);
-    border: 1px solid rgba(244, 67, 54, 0.5);
+    background: #FED7D7;
+    color: #742A2A;
+    border: 1px solid #FEB2B2;
 }
 
 .form-buttons {
     display: flex;
-    gap: 8px;
+    gap: 12px;
 }
 
 .cancel-button,
 .submit-button {
     flex: 1;
-    padding: 10px 12px;
+    padding: 12px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .cancel-button {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+    background: #E2E8F0;
+    color: #4A5568;
+    border: 1px solid #CBD5E0;
 }
 
 .cancel-button:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: #CBD5E0;
 }
 
 .submit-button {
-    background: #4285f4;
+    background: #667eea;
     color: white;
 }
 
 .submit-button:hover {
-    background: #3367d6;
+    background: #5a67d8;
 }
 
 .submit-button:disabled,
@@ -197,14 +266,15 @@
 
 .demo-contact-footer {
     text-align: center;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 20px;
+    border-top: 1px solid #E2E8F0;
 }
 
 .demo-contact-footer p {
     margin: 0;
-    font-size: 0.8rem;
-    opacity: 0.9;
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 500;
 }
 
 /* Responsive */
@@ -212,5 +282,37 @@
     .demo-contact-card {
         max-width: 100%;
         margin-top: 20px;
+        padding: 28px;
+    }
+    
+    .demo-contact-header h3 {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .demo-contact-card {
+        padding: 24px;
+        border-radius: 16px;
+    }
+    
+    .email-form {
+        padding: 20px;
+    }
+    
+    .contact-buttons {
+        gap: 12px;
+    }
+    
+    .whatsapp-button,
+    .email-button {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+    }
+    
+    .whatsapp-button::before,
+    .email-button::before {
+        width: 18px;
+        height: 18px;
     }
 }
