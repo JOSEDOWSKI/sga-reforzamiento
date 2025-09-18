@@ -217,14 +217,33 @@ const DashboardPage: React.FC = () => {
     setError("");
     setSuccess("");
 
-    // Validaciones avanzadas
-    if (
-      !selectedCurso ||
-      !selectedTema ||
-      !selectedProfesor ||
-      !nombreAlumno.trim()
-    ) {
-      setError("Por favor completa todos los campos obligatorios.");
+    // Validaciones específicas por campo
+    const camposFaltantes = [];
+
+    if (!selectedCurso) {
+      camposFaltantes.push("Curso");
+    }
+    if (!selectedTema) {
+      camposFaltantes.push("Tema");
+    }
+    if (!selectedProfesor) {
+      camposFaltantes.push("Profesor");
+    }
+    if (!nombreAlumno.trim()) {
+      camposFaltantes.push("Nombre del alumno");
+    }
+    if (!fechaHora) {
+      camposFaltantes.push("Fecha y hora");
+    }
+
+    if (camposFaltantes.length > 0) {
+      const mensaje =
+        camposFaltantes.length === 1
+          ? `Falta completar el campo: ${camposFaltantes[0]}`
+          : `Faltan completar los siguientes campos: ${camposFaltantes.join(
+              ", "
+            )}`;
+      setError(mensaje);
       return;
     }
 
@@ -558,7 +577,7 @@ const DashboardPage: React.FC = () => {
                 &times;
               </button>
             </div>
-            <form onSubmit={handleBooking} className="modal-form">
+            <form onSubmit={handleBooking} className="modal-form" noValidate>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="modal-curso">Curso:</label>
@@ -566,7 +585,7 @@ const DashboardPage: React.FC = () => {
                     id="modal-curso"
                     value={selectedCurso}
                     onChange={(e) => setSelectedCurso(e.target.value)}
-                    required
+                    className={!selectedCurso && error ? "field-error" : ""}
                   >
                     <option value="">Seleccione un curso</option>
                     {cursos.map((c) => (
@@ -575,6 +594,11 @@ const DashboardPage: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                  {!selectedCurso && error && (
+                    <span className="field-error-message">
+                      Seleccione un curso
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="modal-tema">Tema:</label>
@@ -582,7 +606,7 @@ const DashboardPage: React.FC = () => {
                     id="modal-tema"
                     value={selectedTema}
                     onChange={(e) => setSelectedTema(e.target.value)}
-                    required
+                    className={!selectedTema && error ? "field-error" : ""}
                     disabled={!selectedCurso || temasFiltrados.length === 0}
                   >
                     <option value="">Seleccione un tema</option>
@@ -592,6 +616,11 @@ const DashboardPage: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                  {!selectedTema && error && selectedCurso && (
+                    <span className="field-error-message">
+                      Seleccione un tema
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="form-row">
@@ -601,7 +630,7 @@ const DashboardPage: React.FC = () => {
                     id="modal-profesor"
                     value={selectedProfesor}
                     onChange={(e) => setSelectedProfesor(e.target.value)}
-                    required
+                    className={!selectedProfesor && error ? "field-error" : ""}
                   >
                     <option value="">Seleccione un profesor</option>
                     {profesores.map((p) => (
@@ -610,6 +639,11 @@ const DashboardPage: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                  {!selectedProfesor && error && (
+                    <span className="field-error-message">
+                      Seleccione un profesor
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="modal-duracion">Duración (horas):</label>
@@ -617,7 +651,6 @@ const DashboardPage: React.FC = () => {
                     id="modal-duracion"
                     value={duracionHoras}
                     onChange={(e) => setDuracionHoras(e.target.value)}
-                    required
                   >
                     <option value="0.5">30 minutos</option>
                     <option value="1">1 hora</option>
@@ -636,8 +669,13 @@ const DashboardPage: React.FC = () => {
                     type="datetime-local"
                     value={fechaHora}
                     onChange={(e) => setFechaHora(e.target.value)}
-                    required
+                    className={!fechaHora && error ? "field-error" : ""}
                   />
+                  {!fechaHora && error && (
+                    <span className="field-error-message">
+                      Seleccione fecha y hora
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="modal-precio">Precio (€):</label>
@@ -661,8 +699,15 @@ const DashboardPage: React.FC = () => {
                     type="text"
                     value={nombreAlumno}
                     onChange={(e) => setNombreAlumno(e.target.value)}
-                    required
+                    className={
+                      !nombreAlumno.trim() && error ? "field-error" : ""
+                    }
                   />
+                  {!nombreAlumno.trim() && error && (
+                    <span className="field-error-message">
+                      Ingrese el nombre del alumno
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="modal-telefono-alumno">
@@ -699,9 +744,7 @@ const DashboardPage: React.FC = () => {
                   className="btn-primary"
                   disabled={loading}
                 >
-                  {modalReserva.editingReserva
-                    ? "Actualizar"
-                    : "Crear Reserva"}
+                  {modalReserva.editingReserva ? "Actualizar" : "Crear Reserva"}
                 </button>
                 <button
                   type="button"

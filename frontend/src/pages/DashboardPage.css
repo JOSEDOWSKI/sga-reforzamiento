@@ -1373,3 +1373,53 @@
     font-size: 0.9rem;
   }
 }
+
+/* Estilos para campos con error */
+.field-error {
+  border: 2px solid #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.05) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.field-error-message {
+  display: block;
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+  animation: errorSlideIn 0.3s ease-out;
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejorar el estilo de los inputs con error */
+.modal-form input.field-error,
+.modal-form select.field-error,
+.modal-form textarea.field-error {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.05);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.modal-form input.field-error:focus,
+.modal-form select.field-error:focus,
+.modal-form textarea.field-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  outline: none;
+}
+
+/* Estilo para el label cuando hay error */
+.form-group:has(.field-error) label {
+  color: #ef4444;
+  font-weight: 600;
+}

@@ -19,6 +19,25 @@ const LoginForm = () => {
         setError('');
         setIsSubmitting(true);
 
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
+        if (!email.trim()) {
+            camposFaltantes.push("Correo electrónico");
+        }
+        if (!password.trim()) {
+            camposFaltantes.push("Contraseña");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setError(mensaje);
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             await login(email, password);
             // Activar splash screen después del login exitoso
@@ -43,7 +62,7 @@ const LoginForm = () => {
                     <p className="login-subtitle">Sistema de Gestión Académica</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="login-form">
+                <form onSubmit={handleSubmit} className="login-form" noValidate>
                     {error && (
                         <div className="login-error">
                             <span className="error-icon">⚠️</span>
@@ -60,11 +79,13 @@ const LoginForm = () => {
                             id="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="form-input"
+                            className={`form-input ${!email.trim() && error ? "field-error" : ""}`}
                             placeholder="tu@email.com"
-                            required
                             disabled={isSubmitting}
                         />
+                        {!email.trim() && error && (
+                            <span className="field-error-message">Ingrese su correo electrónico</span>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -76,11 +97,13 @@ const LoginForm = () => {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="form-input"
+                            className={`form-input ${!password.trim() && error ? "field-error" : ""}`}
                             placeholder="••••••••"
-                            required
                             disabled={isSubmitting}
                         />
+                        {!password.trim() && error && (
+                            <span className="field-error-message">Ingrese su contraseña</span>
+                        )}
                     </div>
 
                     <button

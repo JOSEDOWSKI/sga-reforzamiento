@@ -61,8 +61,22 @@ const GestionProfesores: React.FC = () => {
     // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!nombre.trim() || !email.trim()) {
-            setError('El nombre y email son obligatorios');
+        
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
+        if (!nombre.trim()) {
+            camposFaltantes.push("Nombre");
+        }
+        if (!email.trim()) {
+            camposFaltantes.push("Email");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setError(mensaje);
             return;
         }
 
@@ -108,8 +122,22 @@ const GestionProfesores: React.FC = () => {
 
     const handleModalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!modalNombre.trim() || !modalEmail.trim()) {
-            setModalError('El nombre y email son obligatorios');
+        
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
+        if (!modalNombre.trim()) {
+            camposFaltantes.push("Nombre");
+        }
+        if (!modalEmail.trim()) {
+            camposFaltantes.push("Email");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setModalError(mensaje);
             return;
         }
 
@@ -185,7 +213,7 @@ const GestionProfesores: React.FC = () => {
             <div className="form-and-list-container">
                 <div className="form-section">
                     <h2>Agregar Nuevo Profesor</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                         <div className="form-group">
                             <label htmlFor="nombre-profesor">Nombre:</label>
                             <input 
@@ -194,8 +222,11 @@ const GestionProfesores: React.FC = () => {
                                 value={nombre} 
                                 onChange={(e) => setNombre(e.target.value)} 
                                 placeholder="Ej: Dr. Juan Pérez"
-                                required 
+                                className={!nombre.trim() && error ? "field-error" : ""}
                             />
+                            {!nombre.trim() && error && (
+                                <span className="field-error-message">Ingrese el nombre del profesor</span>
+                            )}
                         </div>
                         <div className="form-group">
                             <label htmlFor="email-profesor">Email:</label>
@@ -205,8 +236,11 @@ const GestionProfesores: React.FC = () => {
                                 value={email} 
                                 onChange={(e) => setEmail(e.target.value)} 
                                 placeholder="juan.perez@email.com"
-                                required 
+                                className={!email.trim() && error ? "field-error" : ""}
                             />
+                            {!email.trim() && error && (
+                                <span className="field-error-message">Ingrese el email del profesor</span>
+                            )}
                         </div>
                         <div className="form-group">
                             <label htmlFor="especialidad-profesor">Especialidad:</label>
@@ -284,7 +318,7 @@ const GestionProfesores: React.FC = () => {
                             <h2>Editar Profesor</h2>
                             <button className="modal-close" onClick={closeModal}>&times;</button>
                         </div>
-                        <form onSubmit={handleModalSubmit} className="modal-form">
+                        <form onSubmit={handleModalSubmit} className="modal-form" noValidate>
                             <div className="form-group">
                                 <label htmlFor="modal-nombre-profesor">Nombre:</label>
                                 <input 
@@ -293,8 +327,11 @@ const GestionProfesores: React.FC = () => {
                                     value={modalNombre} 
                                     onChange={(e) => setModalNombre(e.target.value)} 
                                     placeholder="Ej: Dr. Juan Pérez"
-                                    required 
+                                    className={!modalNombre.trim() && modalError ? "field-error" : ""}
                                 />
+                                {!modalNombre.trim() && modalError && (
+                                    <span className="field-error-message">Ingrese el nombre del profesor</span>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="modal-email-profesor">Email:</label>
@@ -304,8 +341,11 @@ const GestionProfesores: React.FC = () => {
                                     value={modalEmail} 
                                     onChange={(e) => setModalEmail(e.target.value)} 
                                     placeholder="juan.perez@email.com"
-                                    required 
+                                    className={!modalEmail.trim() && modalError ? "field-error" : ""}
                                 />
+                                {!modalEmail.trim() && modalError && (
+                                    <span className="field-error-message">Ingrese el email del profesor</span>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="modal-especialidad-profesor">Especialidad:</label>

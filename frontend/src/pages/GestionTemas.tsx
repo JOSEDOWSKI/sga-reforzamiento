@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
+import './DashboardPage.css'; // Importar los estilos del dashboard para los dropdowns
 
 interface Tema {
     id: number;
@@ -44,8 +45,28 @@ const GestionTemas: React.FC = () => {
         temaNombre: ''
     });
 
+    // Estados para dropdowns personalizados
+    const [showCursoDropdown, setShowCursoDropdown] = useState(false);
+    const [showModalCursoDropdown, setShowModalCursoDropdown] = useState(false);
+
     useEffect(() => {
         fetchData();
+    }, []);
+
+    // Cerrar dropdowns al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Element;
+            if (!target.closest('.dropdown-container')) {
+                setShowCursoDropdown(false);
+                setShowModalCursoDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     const fetchData = async () => {
@@ -69,8 +90,22 @@ const GestionTemas: React.FC = () => {
     // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!nombre.trim() || !cursoId) {
-            setError('El nombre y curso son obligatorios');
+        
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
+        if (!nombre.trim()) {
+            camposFaltantes.push("Nombre del tema");
+        }
+        if (!cursoId) {
+            camposFaltantes.push("Curso");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setError(mensaje);
             return;
         }
 
@@ -116,8 +151,22 @@ const GestionTemas: React.FC = () => {
 
     const handleModalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!modalNombre.trim() || !modalCursoId) {
-            setModalError('El nombre y curso son obligatorios');
+        
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
+        if (!modalNombre.trim()) {
+            camposFaltantes.push("Nombre del tema");
+        }
+        if (!modalCursoId) {
+            camposFaltantes.push("Curso");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setModalError(mensaje);
             return;
         }
 
@@ -175,6 +224,29 @@ const GestionTemas: React.FC = () => {
         return curso ? curso.nombre : 'Curso no encontrado';
     };
 
+    // Funciones para el dropdown personalizado
+    const handleCursoSelect = (curso: Curso) => {
+        setCursoId(curso.id.toString());
+        setShowCursoDropdown(false);
+    };
+
+    const handleModalCursoSelect = (curso: Curso) => {
+        setModalCursoId(curso.id.toString());
+        setShowModalCursoDropdown(false);
+    };
+
+    const getSelectedCursoNombre = () => {
+        if (!cursoId) return "Selecciona un curso";
+        const curso = cursos.find(c => c.id.toString() === cursoId);
+        return curso ? curso.nombre : "Selecciona un curso";
+    };
+
+    const getSelectedModalCursoNombre = () => {
+        if (!modalCursoId) return "Selecciona un curso";
+        const curso = cursos.find(c => c.id.toString() === modalCursoId);
+        return curso ? curso.nombre : "Selecciona un curso";
+    };
+
     if (loading) {
         return (
             <div className="page-container">
@@ -197,7 +269,7 @@ const GestionTemas: React.FC = () => {
             <div className="form-and-list-container">
                 <div className="form-section">
                     <h2>Agregar Nuevo Tema</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                         <div className="form-group">
                             <label htmlFor="nombre-tema">Nombre del Tema:</label>
                             <input 
@@ -206,24 +278,49 @@ const GestionTemas: React.FC = () => {
                                 value={nombre} 
                                 onChange={(e) => setNombre(e.target.value)}
                                 placeholder="Ej: Derivadas e Integrales"
-                                required 
+                                className={!nombre.trim() && error ? "field-error" : ""}
                             />
+                            {!nombre.trim() && error && (
+                                <span className="field-error-message">Ingrese el nombre del tema</span>
+                            )}
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="curso-tema">Curso:</label>
-                            <select 
-                                id="curso-tema" 
-                                value={cursoId} 
-                                onChange={(e) => setCursoId(e.target.value)}
-                                required
-                            >
-                                <option value="">Selecciona un curso</option>
-                                {cursos.map(curso => (
-                                    <option key={curso.id} value={curso.id}>
-                                        {curso.nombre}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="filter-dropdown">
+                            <label>Curso:</label>
+                            <div className="dropdown-container">
+                                <button
+                                    type="button"
+                                    className={`dropdown-trigger ${showCursoDropdown ? "active" : ""}`}
+                                    onClick={() => setShowCursoDropdown(!showCursoDropdown)}
+                                >
+                                    {getSelectedCursoNombre()}
+                                    <svg
+                                        className="dropdown-icon"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <path d="m6 9 6 6 6-6" />
+                                    </svg>
+                                </button>
+                                {showCursoDropdown && (
+                                    <div className="dropdown-menu">
+                                        {cursos.map((curso) => (
+                                            <button
+                                                key={curso.id}
+                                                type="button"
+                                                className="dropdown-item"
+                                                onClick={() => handleCursoSelect(curso)}
+                                            >
+                                                {curso.nombre}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {!cursoId && error && (
+                                <span className="field-error-message">Seleccione un curso</span>
+                            )}
                         </div>
                         <div className="form-actions">
                             <button type="submit" className="btn-primary">
@@ -289,7 +386,7 @@ const GestionTemas: React.FC = () => {
                             <h2>Editar Tema</h2>
                             <button className="modal-close" onClick={closeModal}>&times;</button>
                         </div>
-                        <form onSubmit={handleModalSubmit} className="modal-form">
+                        <form onSubmit={handleModalSubmit} className="modal-form" noValidate>
                             <div className="form-group">
                                 <label htmlFor="modal-nombre-tema">Nombre del Tema:</label>
                                 <input 
@@ -298,24 +395,49 @@ const GestionTemas: React.FC = () => {
                                     value={modalNombre} 
                                     onChange={(e) => setModalNombre(e.target.value)}
                                     placeholder="Ej: Derivadas e Integrales"
-                                    required 
+                                    className={!modalNombre.trim() && modalError ? "field-error" : ""}
                                 />
+                                {!modalNombre.trim() && modalError && (
+                                    <span className="field-error-message">Ingrese el nombre del tema</span>
+                                )}
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="modal-curso-tema">Curso:</label>
-                                <select 
-                                    id="modal-curso-tema" 
-                                    value={modalCursoId} 
-                                    onChange={(e) => setModalCursoId(e.target.value)}
-                                    required
-                                >
-                                    <option value="">Selecciona un curso</option>
-                                    {cursos.map(curso => (
-                                        <option key={curso.id} value={curso.id}>
-                                            {curso.nombre}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="filter-dropdown">
+                                <label>Curso:</label>
+                                <div className="dropdown-container">
+                                    <button
+                                        type="button"
+                                        className={`dropdown-trigger ${showModalCursoDropdown ? "active" : ""}`}
+                                        onClick={() => setShowModalCursoDropdown(!showModalCursoDropdown)}
+                                    >
+                                        {getSelectedModalCursoNombre()}
+                                        <svg
+                                            className="dropdown-icon"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                        >
+                                            <path d="m6 9 6 6 6-6" />
+                                        </svg>
+                                    </button>
+                                    {showModalCursoDropdown && (
+                                        <div className="dropdown-menu">
+                                            {cursos.map((curso) => (
+                                                <button
+                                                    key={curso.id}
+                                                    type="button"
+                                                    className="dropdown-item"
+                                                    onClick={() => handleModalCursoSelect(curso)}
+                                                >
+                                                    {curso.nombre}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                {!modalCursoId && modalError && (
+                                    <span className="field-error-message">Seleccione un curso</span>
+                                )}
                             </div>
                             
                             {modalError && <div className="modal-error">{modalError}</div>}

@@ -30,6 +30,28 @@ const DemoContactCard = () => {
         setIsSubmitting(true);
         setSubmitMessage('');
 
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
+        if (!emailForm.name.trim()) {
+            camposFaltantes.push("Nombre");
+        }
+        if (!emailForm.email.trim()) {
+            camposFaltantes.push("Email");
+        }
+        if (!emailForm.message.trim()) {
+            camposFaltantes.push("Mensaje");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setSubmitMessage(mensaje);
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             // Verificar si EmailJS está configurado
             if (!isEmailServiceConfigured()) {
@@ -82,16 +104,19 @@ const DemoContactCard = () => {
                         </button>
                     </div>
                 ) : (
-                    <form onSubmit={handleEmailSubmit} className="email-form">
+                    <form onSubmit={handleEmailSubmit} className="email-form" noValidate>
                         <div className="form-group">
                             <input
                                 type="text"
                                 placeholder="Tu nombre"
                                 value={emailForm.name}
                                 onChange={(e) => setEmailForm({...emailForm, name: e.target.value})}
-                                required
+                                className={!emailForm.name.trim() && submitMessage.includes('Falta') ? "field-error" : ""}
                                 disabled={isSubmitting}
                             />
+                            {!emailForm.name.trim() && submitMessage.includes('Falta') && (
+                                <span className="field-error-message">Ingrese su nombre</span>
+                            )}
                         </div>
                         <div className="form-group">
                             <input
@@ -99,9 +124,12 @@ const DemoContactCard = () => {
                                 placeholder="Tu email"
                                 value={emailForm.email}
                                 onChange={(e) => setEmailForm({...emailForm, email: e.target.value})}
-                                required
+                                className={!emailForm.email.trim() && submitMessage.includes('Falta') ? "field-error" : ""}
                                 disabled={isSubmitting}
                             />
+                            {!emailForm.email.trim() && submitMessage.includes('Falta') && (
+                                <span className="field-error-message">Ingrese su email</span>
+                            )}
                         </div>
                         <div className="form-group">
                             <textarea
@@ -109,9 +137,12 @@ const DemoContactCard = () => {
                                 value={emailForm.message}
                                 onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
                                 rows={3}
-                                required
+                                className={!emailForm.message.trim() && submitMessage.includes('Falta') ? "field-error" : ""}
                                 disabled={isSubmitting}
                             />
+                            {!emailForm.message.trim() && submitMessage.includes('Falta') && (
+                                <span className="field-error-message">Ingrese su mensaje</span>
+                            )}
                         </div>
                         
                         {submitMessage && (

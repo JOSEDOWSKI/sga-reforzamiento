@@ -61,8 +61,19 @@ const GestionCursos: React.FC = () => {
     // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
         if (!nombre.trim()) {
-            setError('El nombre del curso es obligatorio');
+            camposFaltantes.push("Nombre del curso");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setError(mensaje);
             return;
         }
 
@@ -105,8 +116,19 @@ const GestionCursos: React.FC = () => {
 
     const handleModalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validaciones específicas por campo
+        const camposFaltantes = [];
+        
         if (!modalNombre.trim()) {
-            setModalError('El nombre del curso es obligatorio');
+            camposFaltantes.push("Nombre del curso");
+        }
+
+        if (camposFaltantes.length > 0) {
+            const mensaje = camposFaltantes.length === 1 
+                ? `Falta completar el campo: ${camposFaltantes[0]}`
+                : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+            setModalError(mensaje);
             return;
         }
 
@@ -181,7 +203,7 @@ const GestionCursos: React.FC = () => {
             <div className="form-and-list-container">
                 <div className="form-section">
                     <h2>Agregar Nuevo Curso</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                         <div className="form-group">
                             <label htmlFor="nombre-curso">Nombre:</label>
                             <input 
@@ -190,8 +212,11 @@ const GestionCursos: React.FC = () => {
                                 value={nombre} 
                                 onChange={(e) => setNombre(e.target.value)} 
                                 placeholder="Ej: Matemáticas Avanzadas"
-                                required 
+                                className={!nombre.trim() && error ? "field-error" : ""}
                             />
+                            {!nombre.trim() && error && (
+                                <span className="field-error-message">Ingrese el nombre del curso</span>
+                            )}
                         </div>
                         <div className="form-group">
                             <label htmlFor="descripcion-curso">Descripción:</label>
@@ -267,7 +292,7 @@ const GestionCursos: React.FC = () => {
                             <h2>Editar Curso</h2>
                             <button className="modal-close" onClick={closeModal}>&times;</button>
                         </div>
-                        <form onSubmit={handleModalSubmit} className="modal-form">
+                        <form onSubmit={handleModalSubmit} className="modal-form" noValidate>
                             <div className="form-group">
                                 <label htmlFor="modal-nombre-curso">Nombre:</label>
                                 <input 
@@ -276,8 +301,11 @@ const GestionCursos: React.FC = () => {
                                     value={modalNombre} 
                                     onChange={(e) => setModalNombre(e.target.value)} 
                                     placeholder="Ej: Matemáticas Avanzadas"
-                                    required 
+                                    className={!modalNombre.trim() && modalError ? "field-error" : ""}
                                 />
+                                {!modalNombre.trim() && modalError && (
+                                    <span className="field-error-message">Ingrese el nombre del curso</span>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="modal-descripcion-curso">Descripción:</label>

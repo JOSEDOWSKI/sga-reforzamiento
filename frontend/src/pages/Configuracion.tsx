@@ -40,6 +40,25 @@ const Configuracion: React.FC = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    
+    // Validaciones específicas por campo
+    const camposFaltantes = [];
+    
+    if (!nombreInstitucion.trim()) {
+      camposFaltantes.push("Nombre de la institución");
+    }
+    if (!precioHora || parseFloat(precioHora) < 0) {
+      camposFaltantes.push("Precio por hora válido");
+    }
+
+    if (camposFaltantes.length > 0) {
+      const mensaje = camposFaltantes.length === 1 
+        ? `Falta completar el campo: ${camposFaltantes[0]}`
+        : `Faltan completar los siguientes campos: ${camposFaltantes.join(", ")}`;
+      setError(mensaje);
+      return;
+    }
+    
     try {
       let logoUrl = logo;
       if (logo && typeof logo !== 'string') {
@@ -69,7 +88,7 @@ const Configuracion: React.FC = () => {
       <h2 style={{ color: colorPrimario }}>⚙️ Configuración de la Institución</h2>
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 24 }} noValidate>
         <label>Color Primario:
           <input type="color" value={colorPrimario} onChange={e => setColorPrimario(e.target.value)} style={{ marginLeft: 12 }} />
         </label>
@@ -80,12 +99,46 @@ const Configuracion: React.FC = () => {
           <input type="file" accept="image/*" onChange={handleLogoChange} style={{ marginLeft: 12 }} />
         </label>
         {logoPreview && <img src={logoPreview} alt="Logo" style={{ maxWidth: 120, margin: '12px 0', borderRadius: 8, border: `2px solid ${colorPrimario}` }} />}
-        <label>Precio por hora:
-          <input type="number" min="0" step="0.01" value={precioHora} onChange={e => setPrecioHora(e.target.value)} style={{ marginLeft: 12, width: 120 }} />
-        </label>
-        <label>Nombre de la institución:
-          <input type="text" value={nombreInstitucion} onChange={e => setNombreInstitucion(e.target.value)} style={{ marginLeft: 12, width: '100%' }} />
-        </label>
+        <div>
+          <label>Precio por hora:
+            <input 
+              type="number" 
+              min="0" 
+              step="0.01" 
+              value={precioHora} 
+              onChange={e => setPrecioHora(e.target.value)} 
+              style={{ 
+                marginLeft: 12, 
+                width: 120,
+                ...((!precioHora || parseFloat(precioHora) < 0) && error ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.05)' } : {})
+              }} 
+            />
+          </label>
+          {(!precioHora || parseFloat(precioHora) < 0) && error && (
+            <div style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.5rem', fontWeight: 500 }}>
+              Ingrese un precio válido
+            </div>
+          )}
+        </div>
+        <div>
+          <label>Nombre de la institución:
+            <input 
+              type="text" 
+              value={nombreInstitucion} 
+              onChange={e => setNombreInstitucion(e.target.value)} 
+              style={{ 
+                marginLeft: 12, 
+                width: '100%',
+                ...(!nombreInstitucion.trim() && error ? { border: '2px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.05)' } : {})
+              }} 
+            />
+          </label>
+          {!nombreInstitucion.trim() && error && (
+            <div style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.5rem', fontWeight: 500 }}>
+              Ingrese el nombre de la institución
+            </div>
+          )}
+        </div>
         <button type="submit" className="btn btn-primary" style={{ background: colorPrimario, borderColor: colorSecundario }}>Guardar cambios</button>
       </form>
       <div style={{ marginTop: 32 }}>
