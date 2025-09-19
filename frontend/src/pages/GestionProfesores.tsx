@@ -15,6 +15,8 @@ interface ModalState {
     editingProfesor: Profesor | null;
 }
 
+
+
 const GestionProfesores: React.FC = () => {
     const [profesores, setProfesores] = useState<Profesor[]>([]);
     const [nombre, setNombre] = useState('');
@@ -219,18 +221,18 @@ const GestionProfesores: React.FC = () => {
                             />
                         </div>
                         <div className="form-actions">
-                            <button type="submit" className="btn-primary">
+                            <button type="submit" className="btn-primary" id="profesor-submit">
                                 Crear Profesor
                             </button>
                         </div>
                     </form>
                 </div>
                 
-                <div className="list-section">
+                <div className="list-section" id="profesores-list">
                     <h2>Lista de Profesores</h2>
                     {profesores.length > 0 ? (
                         <div className="table-container">
-                            <table className="data-table">
+                            <table className="data-table" id="profesores-table">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -279,7 +281,7 @@ const GestionProfesores: React.FC = () => {
             {/* Modal de Edición */}
             {modalState.isOpen && (
                 <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content" id="profesor-edit-modal" role="dialog" aria-modal="true" tabIndex={-1} onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Editar Profesor</h2>
                             <button className="modal-close" onClick={closeModal}>&times;</button>
@@ -321,7 +323,7 @@ const GestionProfesores: React.FC = () => {
                             {modalError && <div className="modal-error">{modalError}</div>}
                             
                             <div className="modal-actions">
-                                <button type="submit" className="btn-primary">
+                                <button type="submit" className="btn-primary" id="modal-profesor-submit">
                                     Actualizar Profesor
                                 </button>
                                 <button type="button" className="btn-secondary" onClick={closeModal}>
@@ -336,7 +338,7 @@ const GestionProfesores: React.FC = () => {
             {/* Modal de Confirmación */}
             {confirmModal.isOpen && (
                 <div className="confirm-modal-overlay" onClick={closeConfirmModal}>
-                    <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-modal-content"  id="profesor-confirm-modal"  onClick={(e) => e.stopPropagation()}>
                         <div className="confirm-modal-header">
                             <div className="confirm-modal-icon">⚠️</div>
                             <h3 className="confirm-modal-title">Confirmar Eliminación</h3>
@@ -348,16 +350,11 @@ const GestionProfesores: React.FC = () => {
                             </p>
                         </div>
                         <div className="confirm-modal-actions">
-                            <button 
-                                className="btn-danger" 
-                                onClick={handleConfirmDelete}
-                            >
+
+                            <button className="btn-danger" id="confirm-delete-prof" onClick={handleConfirmDelete}>
                                 Eliminar
                             </button>
-                            <button 
-                                className="btn-cancel" 
-                                onClick={closeConfirmModal}
-                            >
+                            <button className="btn-danger" id="confirm-delete-prof" onClick={handleConfirmDelete}>
                                 Cancelar
                             </button>
                         </div>

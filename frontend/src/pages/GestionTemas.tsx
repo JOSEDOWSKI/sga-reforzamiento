@@ -226,14 +226,14 @@ const GestionTemas: React.FC = () => {
                             </select>
                         </div>
                         <div className="form-actions">
-                            <button type="submit" className="btn-primary">
+                            <button type="submit" className="btn-primary" id="tema-submit">
                                 Crear Tema
                             </button>
                         </div>
                     </form>
                 </div>
                 
-                <div className="list-section">
+                <div className="list-section" id="temas-list">
                     <h2>Lista de Temas</h2>
                     {temas.length > 0 ? (
                         <div className="table-container">
@@ -284,7 +284,7 @@ const GestionTemas: React.FC = () => {
             {/* Modal de Edición */}
             {modalState.isOpen && (
                 <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content" id="tema-edit-modal" role="dialog" aria-modal="true" tabIndex={-1} onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Editar Tema</h2>
                             <button className="modal-close" onClick={closeModal}>&times;</button>
@@ -321,7 +321,7 @@ const GestionTemas: React.FC = () => {
                             {modalError && <div className="modal-error">{modalError}</div>}
                             
                             <div className="modal-actions">
-                                <button type="submit" className="btn-primary">
+                                <button type="submit" className="btn-primary" id="modal-tema-submit">
                                     Actualizar Tema
                                 </button>
                                 <button type="button" className="btn-secondary" onClick={closeModal}>
@@ -336,7 +336,7 @@ const GestionTemas: React.FC = () => {
             {/* Modal de Confirmación */}
             {confirmModal.isOpen && (
                 <div className="confirm-modal-overlay" onClick={closeConfirmModal}>
-                    <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="confirm-modal-content"  id="tema-confirm-modal"  onClick={(e) => e.stopPropagation()}>
                         <div className="confirm-modal-header">
                             <div className="confirm-modal-icon">⚠️</div>
                             <h3 className="confirm-modal-title">Confirmar Eliminación</h3>
@@ -348,17 +348,11 @@ const GestionTemas: React.FC = () => {
                             </p>
                         </div>
                         <div className="confirm-modal-actions">
-                            <button 
-                                className="btn-danger" 
-                                onClick={handleConfirmDelete}
-                            >
-                                Eliminar
+                           <button className="btn-danger" id="tema-confirm-delete-btn" onClick={handleConfirmDelete}>
+                              Eliminar
                             </button>
-                            <button 
-                                className="btn-cancel" 
-                                onClick={closeConfirmModal}
-                            >
-                                Cancelar
+                            <button className="btn-cancel" id="tema-confirm-cancel-btn" onClick={closeConfirmModal}>
+                              Cancelar
                             </button>
                         </div>
                     </div>

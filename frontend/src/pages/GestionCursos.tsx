@@ -204,14 +204,14 @@ const GestionCursos: React.FC = () => {
                             />
                         </div>
                         <div className="form-actions">
-                            <button type="submit" className="btn-primary">
+                            <button type="submit" className="btn-primary" id="curso-submit">
                                 Crear Curso
                             </button>
                         </div>
                     </form>
                 </div>
                 
-                <div className="list-section">
+                <div className="list-section" id="cursos-list">
                     <h2>Lista de Cursos</h2>
                     {cursos.length > 0 ? (
                         <div className="table-container">
@@ -262,7 +262,7 @@ const GestionCursos: React.FC = () => {
             {/* Modal de Edición */}
             {modalState.isOpen && (
                 <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content" id="curso-edit-modal" role="dialog" aria-modal="true" tabIndex={-1} onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Editar Curso</h2>
                             <button className="modal-close" onClick={closeModal}>&times;</button>
@@ -293,7 +293,7 @@ const GestionCursos: React.FC = () => {
                             {modalError && <div className="modal-error">{modalError}</div>}
                             
                             <div className="modal-actions">
-                                <button type="submit" className="btn-primary">
+                                <button type="submit" className="btn-primary" id="modal-curso-submit">
                                     Actualizar Curso
                                 </button>
                                 <button type="button" className="btn-secondary" onClick={closeModal}>
@@ -308,7 +308,8 @@ const GestionCursos: React.FC = () => {
             {/* Modal de Confirmación */}
             {confirmModal.isOpen && (
                 <div className="confirm-modal-overlay" onClick={closeConfirmModal}>
-                    <div className="confirm-modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="confirm-modal-content" id="curso-confirm-modal" onClick={(e) => e.stopPropagation()}>
+
                         <div className="confirm-modal-header">
                             <div className="confirm-modal-icon">⚠️</div>
                             <h3 className="confirm-modal-title">Confirmar Eliminación</h3>
@@ -320,16 +321,10 @@ const GestionCursos: React.FC = () => {
                             </p>
                         </div>
                         <div className="confirm-modal-actions">
-                            <button 
-                                className="btn-danger" 
-                                onClick={handleConfirmDelete}
-                            >
+                            <button className="btn-danger" id="confirm-delete-btn" onClick={handleConfirmDelete}>
                                 Eliminar
                             </button>
-                            <button 
-                                className="btn-cancel" 
-                                onClick={closeConfirmModal}
-                            >
+                            <button className="btn-cancel" id="confirm-cancel-btn" onClick={closeConfirmModal}>
                                 Cancelar
                             </button>
                         </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import ThemeToggleButton from './ThemeToggleButton';
+import TourLauncher from "../pages/TourLauncher";
 import ColorThemeSwitcher from './ColorThemeSwitcher';
 import './Navbar.css';
 
@@ -43,6 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
             <div className="nav-footer">
                 <ThemeToggleButton />
                 <ColorThemeSwitcher />
+                <TourLauncher floating phase="dashboard" />
             </div>
         </nav>
     );
