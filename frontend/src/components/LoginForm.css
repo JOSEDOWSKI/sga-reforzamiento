@@ -321,7 +321,7 @@
 .login-card * {
     color-scheme: light !important;
 }
-* Estilos para campos con error */
+/* Estilos para campos con error */
 .field-error {
   border: 2px solid #ef4444 !important;
   background-color: rgba(239, 68, 68, 0.05) !important;
