@@ -320,7 +320,7 @@
 /* Forzar siempre modo claro para el login */
 .login-card * {
     color-scheme: light !important;
-}/
+}
 * Estilos para campos con error */
 .field-error {
   border: 2px solid #ef4444 !important;
