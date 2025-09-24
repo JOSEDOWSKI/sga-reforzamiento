@@ -10,21 +10,24 @@ import Header from './components/Header';
 import SplashScreen from './components/SplashScreen';
 import SplashReset from './components/SplashReset';
 import ProtectedRoute from './components/ProtectedRoute';
+import TourOrchestrator from './tour/TourOrchestrator';
+
 import { AuthProvider } from './hooks/useAuth';
-import { SplashProvider, useSplashContext } from './contexts/SplashContext';
+import { SplashProvider } from './contexts/SplashContext';
+import { useSplashScreen } from './hooks/useSplashScreen'; 
 import './App.css';
 
-// Componente intermedio para acceder al contexto del Router
 function AppContent() {
   const location = useLocation();
-  const [isNavOpen, setIsNavOpen] = useState(false);
-  const { showSplash, hideSplash } = useSplashContext();
+  const [isNavOpen, setIsNavOpen] = useState(false);  
+  const { showSplash, isInitialized, hideSplash } = useSplashScreen();
 
   useEffect(() => {
     if (isNavOpen) {
       setIsNavOpen(false);
     }
-    const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const random = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
     const root = document.documentElement;
     root.style.setProperty('--aurora1-x', `${random(-30, 30)}vw`);
     root.style.setProperty('--aurora1-y', `${random(-30, 30)}vh`);
@@ -36,13 +39,17 @@ function AppContent() {
 
   return (
     <>
-      {/* SplashScreen overlay, solo cuando showSplash es true */}
-      {showSplash && <SplashScreen onComplete={hideSplash} />}
-      
+      {/* SplashScreen siempre por encima */}
+      {(!isInitialized || showSplash) && <SplashScreen onComplete={hideSplash} />}
+
       <ProtectedRoute>
         <div className={`app-container ${isNavOpen ? 'nav-open' : ''}`}>
           <Header onMenuClick={() => setIsNavOpen(!isNavOpen)} isNavOpen={isNavOpen} />
           <Navbar isNavOpen={isNavOpen} />
+
+          {/* Tour solo cuando ya inicializó y no está el splash */}
+          {!showSplash && isInitialized && <TourOrchestrator />}
+
           <main className="content-container">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
@@ -52,7 +59,10 @@ function AppContent() {
               <Route path="/estadisticas" element={<EstadisticasPage />} />
             </Routes>
           </main>
-          {isNavOpen && <div className="overlay" onClick={() => setIsNavOpen(false)}></div>}
+
+          {isNavOpen && (
+            <div className="overlay" onClick={() => setIsNavOpen(false)}></div>
+          )}
           <SplashReset />
         </div>
       </ProtectedRoute>
@@ -60,6 +70,7 @@ function AppContent() {
   );
 }
 
+// -------- App principal --------
 function App() {
   return (
     <Router>

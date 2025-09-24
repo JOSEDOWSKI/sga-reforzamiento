@@ -83,7 +83,20 @@ const DashboardPage: React.FC = () => {
 
   const [calendarTitle, setCalendarTitle] = useState("");
   const [currentView, setCurrentView] = useState("dayGridMonth");
-  const calendarRef = useRef<FullCalendar>(null);
+  const calendarRef = useRef<FullCalendar | null >(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      const start: Date = e?.detail?.start ?? new Date(Date.now() + 2 * 60 * 60 * 1000);
+      const durHrs: number = e?.detail?.durationHours ?? 1;
+      const end = new Date(start.getTime() + durHrs * 60 * 60 * 1000);
+      handleDateSelect({ start, end, allDay: false });
+    };
+
+    window.addEventListener("tour:open-reserva" as any, handler);
+    return () => window.removeEventListener("tour:open-reserva" as any, handler);
+  }, [cursos, profesores, temas]); // aseguramos que existan datos para prefills
+
 
   const fetchAllData = async () => {
     try {
@@ -126,6 +139,9 @@ const DashboardPage: React.FC = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    if (calendarRef.current) {
+      (window as any).calendarApi = calendarRef.current?.getApi();
+    }
   }, []);
 
   // --- Filtrar temas según el curso seleccionado ---
@@ -156,18 +172,36 @@ const DashboardPage: React.FC = () => {
       selectedTime: selectInfo.start,
       editingReserva: null,
     });
-    // Limpiar formulario
-    setSelectedCurso("");
-    setSelectedTema("");
-    setSelectedProfesor("");
-    setNombreAlumno("");
-    setTelefonoAlumno("");
+
+    // Prefills académicos (DEMO)
+    const defaultCursoId = cursos[0]?.id?.toString() || "";
+    const defaultProfesorId = profesores[0]?.id?.toString() || "";
+    const temasDeCurso = defaultCursoId
+      ? temas.filter((t) => t.curso_id === parseInt(defaultCursoId))
+      : [];
+
+    setSelectedCurso(defaultCursoId);
+    setSelectedTema(temasDeCurso[0]?.id?.toString() || "");
+    setSelectedProfesor(defaultProfesorId);
+
+    const d = new Date(selectInfo.start || Date.now() + 60 * 60 * 1000);
+    d.setMinutes(0, 0, 0);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const local =
+      `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+      `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+    setNombreAlumno("Alumno Demo");
+    setTelefonoAlumno("987654321");
     setDuracionHoras("1");
-    setPrecio("0");
+    setPrecio("50");
     setEstadoPago("Falta pagar");
+    setFechaHora(local);
+
     setError("");
     setSuccess("");
   };
+
 
   // --- Manejar clic en evento existente (editar reserva) ---
   const handleEventClick = (clickInfo: any) => {
@@ -378,7 +412,6 @@ const DashboardPage: React.FC = () => {
   return (
     <div>
       <h1>Dashboard de Reservas</h1>
-
       {/* Mensajes de éxito y error */}
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
@@ -387,6 +420,7 @@ const DashboardPage: React.FC = () => {
       <div className="filters-container">
         <div className="filters-header">
           <h3>Filtros</h3>
+
           <div className="filters-stats">
             <span>
               Mostrando {reservasFiltradas.length} de {reservas.length} reservas
@@ -403,6 +437,7 @@ const DashboardPage: React.FC = () => {
             <label>Filtrar por curso:</label>
             <div className="dropdown-container">
               <button
+                id="filter-curso-btn"
                 className={`dropdown-trigger ${
                   showCursoDropdown ? "active" : ""
                 }`}
@@ -421,7 +456,7 @@ const DashboardPage: React.FC = () => {
               </button>
               {showCursoDropdown && (
                 <div className="dropdown-menu">
-                  <button
+                  <button 
                     className="dropdown-item"
                     onClick={() => {
                       setFiltroCurso("");
@@ -450,7 +485,7 @@ const DashboardPage: React.FC = () => {
           <div className="filter-dropdown">
             <label>Filtrar por profesor:</label>
             <div className="dropdown-container">
-              <button
+              <button id="filter-profesor-btn"
                 className={`dropdown-trigger ${
                   showProfesorDropdown ? "active" : ""
                 }`}
@@ -540,33 +575,37 @@ const DashboardPage: React.FC = () => {
               </button>
             </div>
           </div>
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              listPlugin,
-              interactionPlugin,
-            ]}
-            headerToolbar={false}
-            datesSet={handleDatesSet}
-            initialView="dayGridMonth"
-            locale={esLocale}
-            events={calendarEvents}
-            eventContent={renderEventContent}
-            height="auto"
-            editable={true}
-            selectable={true}
-            select={handleDateSelect}
-            eventClick={handleEventClick}
-          />
+          <div id="dashboard-calendar">
+            <FullCalendar
+              ref={calendarRef}
+              plugins={[
+                dayGridPlugin,
+                timeGridPlugin,
+                listPlugin,
+                interactionPlugin,
+              ]}
+              headerToolbar={false}
+              datesSet={handleDatesSet}
+              initialView="dayGridMonth"
+              locale={esLocale}
+              events={calendarEvents}
+              eventContent={renderEventContent}
+              height="auto"
+              editable={true}
+              selectable={true}
+              select={handleDateSelect}
+              eventClick={handleEventClick}
+            />
+          </div>
+
         </div>
       </div>
+
 
       {/* Modal de Reserva */}
       {modalReserva.isOpen && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content"  id="modal-content" role="dialog" aria-modal="true" tabIndex={-1} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>
                 {modalReserva.editingReserva

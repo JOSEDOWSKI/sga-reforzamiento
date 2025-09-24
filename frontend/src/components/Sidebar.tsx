@@ -62,7 +62,7 @@ const Sidebar: React.FC = () => {
       <nav className="sidebar-nav">
         <ul>
           <li>
-            <Link 
+            <Link id="nav-dashboard"
               to="/" 
               className={isActive('/') ? 'active' : ''}
                 onClick={closeSidebar}
@@ -72,7 +72,7 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link 
+            <Link id="nav-cursos" 
               to="/cursos" 
               className={isActive('/cursos') ? 'active' : ''}
                 onClick={closeSidebar}
@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link 
+            <Link  id="nav-profesores"
               to="/profesores" 
               className={isActive('/profesores') ? 'active' : ''}
                 onClick={closeSidebar}
