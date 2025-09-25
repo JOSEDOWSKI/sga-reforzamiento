@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import DashboardPage from './pages/DashboardPage';
 import GestionCursos from './pages/GestionCursos';
 import GestionProfesores from './pages/GestionProfesores';
+import GestionAlumnos from './pages/GestionAlumnos';
 import GestionTemas from './pages/GestionTemas';
 import EstadisticasPage from './pages/EstadisticasPage';
 import Navbar from './components/Navbar';
@@ -54,6 +55,7 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/cursos" element={<GestionCursos />} />
+              <Route path="/alumnos" element={<GestionAlumnos />} />
               <Route path="/profesores" element={<GestionProfesores />} />
               <Route path="/temas" element={<GestionTemas />} />
               <Route path="/estadisticas" element={<EstadisticasPage />} />

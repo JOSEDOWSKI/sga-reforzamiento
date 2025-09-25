@@ -36,6 +36,9 @@ app.use('/api/cursos', cursoRoutes);
 const profesorRoutes = require('./routes/profesorRoutes');
 app.use('/api/profesores', profesorRoutes);
 
+const alumnoRoutes = require('./routes/alumnoRoutes');
+app.use('/api/alumnos', alumnoRoutes);
+
 const reservaRoutes = require('./routes/reservaRoutes');
 app.use('/api/reservas', reservaRoutes);
 

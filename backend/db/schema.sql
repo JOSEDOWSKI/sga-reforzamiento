@@ -51,6 +51,19 @@ CREATE TABLE profesores (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabla de Alumnos
+CREATE TABLE alumnos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
+    dni VARCHAR(50),
+    email VARCHAR(255),
+    activo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(dni, email)
+);
+
 -- Tabla de Temas (dependen de un curso)
 CREATE TABLE temas (
     id SERIAL PRIMARY KEY,

@@ -92,6 +92,16 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           <li>
+            <Link id="nav-alumnos"
+              to="/alumnos"
+              className={isActive('/alumnos') ? 'active' : ''}
+                onClick={closeSidebar}
+            >
+              <span className="sidebar-nav-icon">🎓</span>
+              Gestión Alumnos
+            </Link>
+          </li>
+          <li>
             <Link 
               to="/temas" 
               className={isActive('/temas') ? 'active' : ''}
