@@ -25,6 +25,13 @@ interface Profesor {
   id: number;
   nombre: string;
 }
+interface Alumno {
+  id: number;
+  nombre: string;
+  telefono: string;
+  email?: string;
+  dni?: string;
+}
 interface Reserva {
   id: number;
   fecha_hora_inicio: string;
@@ -51,6 +58,8 @@ const DashboardPage: React.FC = () => {
   const [temas, setTemas] = useState<Tema[]>([]);
   const [profesores, setProfesores] = useState<Profesor[]>([]);
   const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
+  const [alumnosSugeridos, setAlumnosSugeridos] = useState<Alumno[]>([]);
 
   // --- Estados para filtros ---
   const [filtroCurso, setFiltroCurso] = useState("");
@@ -68,6 +77,15 @@ const DashboardPage: React.FC = () => {
   const [duracionHoras, setDuracionHoras] = useState("1");
   const [precio, setPrecio] = useState("0");
   const [estadoPago, setEstadoPago] = useState("Falta pagar");
+
+  // --- Estados para el buscador de alumnos ---
+  const [busquedaAlumno, setBusquedaAlumno] = useState("");
+  const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(null);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [crearNuevoAlumno, setCrearNuevoAlumno] = useState(false);
+  const [nuevoAlumnoNombre, setNuevoAlumnoNombre] = useState("");
+  const [nuevoAlumnoTelefono, setNuevoAlumnoTelefono] = useState("");
+  const [buscandoAlumnos, setBuscandoAlumnos] = useState(false);
 
   // --- Estados para el modal ---
   const [modalReserva, setModalReserva] = useState<ModalReserva>({
@@ -101,16 +119,18 @@ const DashboardPage: React.FC = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const [cursosRes, profesRes, reservasRes, temasRes] = await Promise.all([
+      const [cursosRes, profesRes, reservasRes, temasRes, alumnosRes] = await Promise.all([
         apiClient.get("/cursos"),
         apiClient.get("/profesores"),
         apiClient.get("/reservas"),
         apiClient.get("/temas"),
+        apiClient.get("/alumnos"),
       ]);
       setCursos(cursosRes.data.data);
       setProfesores(profesRes.data.data);
       setReservas(reservasRes.data.data);
       setTemas(temasRes.data.data);
+      setAlumnos(alumnosRes.data.data);
       setError("");
     } catch (err) {
       setError("Error al cargar datos iniciales.");
@@ -120,10 +140,94 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  // --- Función para buscar alumnos optimizada ---
+  const buscarAlumnos = async (termino: string) => {
+    if (termino.length < 1) {
+      setAlumnosSugeridos([]);
+      setBuscandoAlumnos(false);
+      return;
+    }
+
+    setBuscandoAlumnos(true);
+    try {
+      const response = await apiClient.get(`/alumnos/search?q=${encodeURIComponent(termino)}`);
+      setAlumnosSugeridos(response.data.data);
+    } catch (err) {
+      console.error("Error buscando alumnos:", err);
+      setAlumnosSugeridos([]);
+    } finally {
+      setBuscandoAlumnos(false);
+    }
+  };
+
+  // --- Función para crear nuevo alumno ---
+  const crearAlumno = async () => {
+    if (!nuevoAlumnoNombre.trim() || !nuevoAlumnoTelefono.trim()) {
+      setError("Nombre y teléfono son obligatorios para crear un alumno");
+      return;
+    }
+
+    try {
+      const response = await apiClient.post("/alumnos", {
+        nombre: nuevoAlumnoNombre.trim(),
+        telefono: nuevoAlumnoTelefono.trim(),
+      });
+
+      const nuevoAlumno = response.data.data;
+      setAlumnos(prev => [...prev, nuevoAlumno]);
+      setAlumnoSeleccionado(nuevoAlumno);
+      setNombreAlumno(nuevoAlumno.nombre);
+      setTelefonoAlumno(nuevoAlumno.telefono);
+      setCrearNuevoAlumno(false);
+      setNuevoAlumnoNombre("");
+      setNuevoAlumnoTelefono("");
+      setBusquedaAlumno(""); // Limpiar búsqueda
+      setMostrarSugerencias(false);
+      setSuccess("Alumno creado con éxito");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || "Error al crear el alumno";
+      setError(errorMessage);
+    }
+  };
+
+  // --- Función para manejar clic en botón "+" ---
+  const handleCrearNuevoAlumno = () => {
+    setCrearNuevoAlumno(true);
+    setBusquedaAlumno(""); // Limpiar búsqueda
+    setAlumnoSeleccionado(null);
+    setMostrarSugerencias(false);
+    setNombreAlumno("");
+    setTelefonoAlumno("");
+  };
+
+  // --- Función para manejar selección de alumno existente ---
+  const handleSeleccionarAlumno = (alumno: Alumno) => {
+    setAlumnoSeleccionado(alumno);
+    setNombreAlumno(alumno.nombre);
+    setTelefonoAlumno(alumno.telefono);
+    setBusquedaAlumno(alumno.nombre);
+    setMostrarSugerencias(false);
+    setCrearNuevoAlumno(false); // Ocultar formulario de crear alumno
+  };
+
   // --- Cargar datos iniciales ---
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // --- Efecto para búsqueda de alumnos con debounce optimizado ---
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (busquedaAlumno.trim().length >= 1) {
+        buscarAlumnos(busquedaAlumno);
+      } else {
+        setAlumnosSugeridos([]);
+      }
+    }, 150); // Reducido de 300ms a 150ms para mayor rapidez
+
+    return () => clearTimeout(timeoutId);
+  }, [busquedaAlumno]);
 
   // --- Cerrar dropdowns al hacer click fuera ---
   useEffect(() => {
@@ -132,6 +236,9 @@ const DashboardPage: React.FC = () => {
       if (!target.closest(".dropdown-container")) {
         setShowCursoDropdown(false);
         setShowProfesorDropdown(false);
+      }
+      if (!target.closest(".alumno-search-container")) {
+        setMostrarSugerencias(false);
       }
     };
 
@@ -191,12 +298,22 @@ const DashboardPage: React.FC = () => {
       `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
       `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-    setNombreAlumno("Alumno Demo");
-    setTelefonoAlumno("987654321");
+    setNombreAlumno("");
+    setTelefonoAlumno("");
     setDuracionHoras("1");
     setPrecio("50");
     setEstadoPago("Falta pagar");
     setFechaHora(local);
+
+    // Limpiar estados del buscador de alumnos
+    setBusquedaAlumno("");
+    setAlumnoSeleccionado(null);
+    setMostrarSugerencias(false);
+    setCrearNuevoAlumno(false);
+    setNuevoAlumnoNombre("");
+    setNuevoAlumnoTelefono("");
+    setNombreAlumno("");
+    setTelefonoAlumno("");
 
     setError("");
     setSuccess("");
@@ -227,6 +344,12 @@ const DashboardPage: React.FC = () => {
       setDuracionHoras(reserva.duracion_horas?.toString() || "1");
       setPrecio(reserva.precio?.toString() || "0");
       setEstadoPago(reserva.estado_pago || "Falta pagar");
+      
+      // Configurar el buscador de alumnos para edición
+      setBusquedaAlumno(reserva.nombre_alumno);
+      setAlumnoSeleccionado(null); // Permitir edición libre
+      setMostrarSugerencias(false);
+      setCrearNuevoAlumno(false);
 
       // Calcular fecha y hora para el input
       const fechaInicio = new Date(reserva.fecha_hora_inicio);
@@ -242,6 +365,17 @@ const DashboardPage: React.FC = () => {
       selectedTime: null,
       editingReserva: null,
     });
+    // Limpiar estados del buscador de alumnos
+    setBusquedaAlumno("");
+    setAlumnoSeleccionado(null);
+    setMostrarSugerencias(false);
+    setCrearNuevoAlumno(false);
+    setNuevoAlumnoNombre("");
+    setNuevoAlumnoTelefono("");
+    setNombreAlumno("");
+    setTelefonoAlumno("");
+    setBuscandoAlumnos(false);
+    setAlumnosSugeridos([]);
     setError("");
     setSuccess("");
   };
@@ -263,11 +397,22 @@ const DashboardPage: React.FC = () => {
     if (!selectedProfesor) {
       camposFaltantes.push("Profesor");
     }
-    if (!nombreAlumno.trim()) {
-      camposFaltantes.push("Nombre del alumno");
-    }
     if (!fechaHora) {
       camposFaltantes.push("Fecha y hora");
+    }
+
+    // Validación inteligente de alumno
+    if (crearNuevoAlumno) {
+      // Si está en modo crear alumno, validar nombre y teléfono
+      if (!nuevoAlumnoNombre.trim()) {
+        camposFaltantes.push("Nombre del alumno");
+      }
+      if (!nuevoAlumnoTelefono.trim()) {
+        camposFaltantes.push("Teléfono del alumno");
+      }
+    } else if (!alumnoSeleccionado && !busquedaAlumno.trim()) {
+      // Si no está creando alumno y no hay búsqueda, es obligatorio
+      camposFaltantes.push("Alumno");
     }
 
     if (camposFaltantes.length > 0) {
@@ -298,6 +443,32 @@ const DashboardPage: React.FC = () => {
     }
 
     try {
+      let nombreAlumnoFinal = "";
+      let telefonoAlumnoFinal = "";
+
+      // Lógica inteligente para determinar qué datos usar
+      if (crearNuevoAlumno) {
+        // Crear alumno nuevo primero
+        const response = await apiClient.post("/alumnos", {
+          nombre: nuevoAlumnoNombre.trim(),
+          telefono: nuevoAlumnoTelefono.trim(),
+        });
+        
+        const nuevoAlumno = response.data.data;
+        setAlumnos(prev => [...prev, nuevoAlumno]);
+        
+        nombreAlumnoFinal = nuevoAlumno.nombre;
+        telefonoAlumnoFinal = nuevoAlumno.telefono;
+      } else if (alumnoSeleccionado) {
+        // Usar alumno existente seleccionado
+        nombreAlumnoFinal = alumnoSeleccionado.nombre;
+        telefonoAlumnoFinal = alumnoSeleccionado.telefono;
+      } else {
+        // Usar datos de búsqueda (alumno no registrado)
+        nombreAlumnoFinal = busquedaAlumno;
+        telefonoAlumnoFinal = telefonoAlumno;
+      }
+
       const fechaInicio = new Date(fechaHora);
       const fechaFin = new Date(
         fechaInicio.getTime() + duracion * 60 * 60 * 1000
@@ -307,8 +478,8 @@ const DashboardPage: React.FC = () => {
         curso_id: parseInt(selectedCurso),
         tema_id: parseInt(selectedTema),
         profesor_id: parseInt(selectedProfesor),
-        nombre_alumno: nombreAlumno,
-        telefono_alumno: telefonoAlumno,
+        nombre_alumno: nombreAlumnoFinal,
+        telefono_alumno: telefonoAlumnoFinal,
         fecha_hora_inicio: fechaInicio.toISOString(),
         fecha_hora_fin: fechaFin.toISOString(),
         precio: parseFloat(precio),
@@ -729,35 +900,128 @@ const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="modal-nombre-alumno">
-                    Nombre del Alumno:
-                  </label>
-                  <input
-                    id="modal-nombre-alumno"
-                    type="text"
-                    value={nombreAlumno}
-                    onChange={(e) => setNombreAlumno(e.target.value)}
-                    className={
-                      !nombreAlumno.trim() && error ? "field-error" : ""
-                    }
-                  />
-                  {!nombreAlumno.trim() && error && (
-                    <span className="field-error-message">
-                      Ingrese el nombre del alumno
-                    </span>
+                <div className="form-group form-group-full-width">
+                  {!crearNuevoAlumno ? (
+                    <>
+                      <label htmlFor="modal-busqueda-alumno">
+                        Buscar Alumno:
+                      </label>
+                      <div className="alumno-search-container">
+                        <div className="alumno-search-input-container">
+                          <input
+                            id="modal-busqueda-alumno"
+                            type="text"
+                            value={busquedaAlumno}
+                            onChange={(e) => {
+                              setBusquedaAlumno(e.target.value);
+                              setMostrarSugerencias(true);
+                              setAlumnoSeleccionado(null);
+                            }}
+                            onFocus={() => setMostrarSugerencias(true)}
+                            placeholder="Escriba el nombre del alumno..."
+                            className={
+                              (!alumnoSeleccionado && !busquedaAlumno.trim()) && error ? "field-error" : ""
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="add-alumno-btn"
+                            onClick={handleCrearNuevoAlumno}
+                            title="Crear nuevo alumno"
+                          >
+                            +
+                          </button>
+                        </div>
+                        
+                        {/* Sugerencias de alumnos */}
+                        {mostrarSugerencias && (
+                          <div className="alumno-suggestions">
+                            {buscandoAlumnos ? (
+                              <div className="alumno-suggestion-loading">
+                                <div className="loading-spinner"></div>
+                                <span>Buscando alumnos...</span>
+                              </div>
+                            ) : alumnosSugeridos.length > 0 ? (
+                              alumnosSugeridos.map((alumno) => (
+                                <div
+                                  key={alumno.id}
+                                  className="alumno-suggestion-item"
+                                  onClick={() => handleSeleccionarAlumno(alumno)}
+                                >
+                                  <div className="alumno-name">{alumno.nombre}</div>
+                                  <div className="alumno-phone">{alumno.telefono}</div>
+                                  {alumno.email && (
+                                    <div className="alumno-email">{alumno.email}</div>
+                                  )}
+                                </div>
+                              ))
+                            ) : busquedaAlumno.trim().length > 0 ? (
+                              <div className="alumno-suggestion-no-results">
+                                <span>No se encontraron alumnos</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+
+                        {(!alumnoSeleccionado && !busquedaAlumno.trim()) && error && (
+                          <span className="field-error-message">
+                            Seleccione o busque un alumno
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <label>Crear Nuevo Alumno:</label>
+                      <div className="nuevo-alumno-form">
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label>Nombre:</label>
+                            <input
+                              type="text"
+                              value={nuevoAlumnoNombre}
+                              onChange={(e) => setNuevoAlumnoNombre(e.target.value)}
+                              placeholder="Nombre del alumno"
+                              className={!nuevoAlumnoNombre.trim() && error ? "field-error" : ""}
+                            />
+                            {!nuevoAlumnoNombre.trim() && error && (
+                              <span className="field-error-message">
+                                Nombre es obligatorio
+                              </span>
+                            )}
+                          </div>
+                          <div className="form-group">
+                            <label>Teléfono:</label>
+                            <input
+                              type="tel"
+                              value={nuevoAlumnoTelefono}
+                              onChange={(e) => setNuevoAlumnoTelefono(e.target.value)}
+                              placeholder="Teléfono del alumno"
+                              className={!nuevoAlumnoTelefono.trim() && error ? "field-error" : ""}
+                            />
+                            {!nuevoAlumnoTelefono.trim() && error && (
+                              <span className="field-error-message">
+                                Teléfono es obligatorio
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="nuevo-alumno-actions">
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={() => {
+                              setCrearNuevoAlumno(false);
+                              setNuevoAlumnoNombre("");
+                              setNuevoAlumnoTelefono("");
+                            }}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="modal-telefono-alumno">
-                    Teléfono del Alumno:
-                  </label>
-                  <input
-                    id="modal-telefono-alumno"
-                    type="tel"
-                    value={telefonoAlumno}
-                    onChange={(e) => setTelefonoAlumno(e.target.value)}
-                  />
                 </div>
               </div>
               <div className="form-row">

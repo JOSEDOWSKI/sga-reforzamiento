@@ -11,7 +11,7 @@ async function run() {
     process.exit(1);
   }
 
-  const dbName = `${process.env.DB_NAME_PREFIX || 'agendate_'}${tenant}`;
+  const dbName = process.env.DB_NAME_PREFIX ? `${process.env.DB_NAME_PREFIX}${tenant}` : tenant;
   const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
     host: process.env.DB_HOST || 'localhost',

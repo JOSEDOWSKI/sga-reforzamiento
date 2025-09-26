@@ -42,13 +42,53 @@ exports.createAlumno = async (req, res) => {
     if (!nombre || !telefono) {
         return res.status(400).json({ error: 'Los campos nombre y telefono son obligatorios' });
     }
-    const sql = `
-        INSERT INTO alumnos (nombre, telefono, dni, email, updated_at)
-        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-        RETURNING *
-    `;
+    
     try {
-        const { rows } = await req.db.query(sql, [nombre, telefono, dni || null, email || null]);
+        // Verificar si ya existe un alumno con el mismo nombre
+        const checkSql = 'SELECT id FROM alumnos WHERE nombre = $1 AND activo = true';
+        const checkResult = await req.db.query(checkSql, [nombre.trim()]);
+        
+        if (checkResult.rows.length > 0) {
+            return res.status(409).json({ error: 'Ya existe un alumno con este nombre' });
+        }
+        
+        // Solo incluir dni y email si tienen valores válidos
+        const hasDni = dni && dni.trim() !== '';
+        const hasEmail = email && email.trim() !== '';
+        
+        let sql, params;
+        
+        if (hasDni && hasEmail) {
+            sql = `
+                INSERT INTO alumnos (nombre, telefono, dni, email, updated_at)
+                VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+                RETURNING *
+            `;
+            params = [nombre.trim(), telefono.trim(), dni.trim(), email.trim()];
+        } else if (hasDni) {
+            sql = `
+                INSERT INTO alumnos (nombre, telefono, dni, updated_at)
+                VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+                RETURNING *
+            `;
+            params = [nombre.trim(), telefono.trim(), dni.trim()];
+        } else if (hasEmail) {
+            sql = `
+                INSERT INTO alumnos (nombre, telefono, email, updated_at)
+                VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+                RETURNING *
+            `;
+            params = [nombre.trim(), telefono.trim(), email.trim()];
+        } else {
+            sql = `
+                INSERT INTO alumnos (nombre, telefono, updated_at)
+                VALUES ($1, $2, CURRENT_TIMESTAMP)
+                RETURNING *
+            `;
+            params = [nombre.trim(), telefono.trim()];
+        }
+        
+        const { rows } = await req.db.query(sql, params);
         res.status(201).json({ message: 'Alumno creado con éxito', data: rows[0] });
     } catch (err) {
         console.error('Error creating alumno:', err);
@@ -104,6 +144,55 @@ exports.deleteAlumno = async (req, res) => {
     } catch (err) {
         console.error('Error deleting alumno:', err);
         res.status(500).json({ error: 'Error interno del servidor', message: err.message });
+    }
+};
+
+// Buscar alumnos por nombre (búsqueda inteligente optimizada)
+exports.searchAlumnos = async (req, res) => {
+    const { q } = req.query;
+    
+    if (!q || q.trim().length < 1) {
+        return res.json({
+            message: 'Búsqueda de alumnos',
+            data: [],
+            tenant: req.tenant
+        });
+    }
+
+    try {
+        const searchTerm = `%${q.trim()}%`;
+        const exactTerm = q.trim();
+        
+        const { rows } = await req.db.query(
+            `SELECT id, nombre, telefono, email, dni 
+             FROM alumnos 
+             WHERE activo = true 
+             AND (nombre ILIKE $1 OR telefono ILIKE $1 OR email ILIKE $1 OR dni ILIKE $1)
+             ORDER BY 
+                 CASE 
+                     WHEN nombre ILIKE $2 THEN 1
+                     WHEN nombre ILIKE $3 THEN 2
+                     WHEN telefono ILIKE $2 THEN 3
+                     WHEN email ILIKE $2 THEN 4
+                     WHEN dni ILIKE $2 THEN 5
+                     ELSE 6
+                 END,
+                 nombre ASC
+             LIMIT 8`,
+            [searchTerm, `${exactTerm}%`, `%${exactTerm}%`]
+        );
+        
+        res.json({
+            message: 'Búsqueda de alumnos completada',
+            data: rows,
+            tenant: req.tenant
+        });
+    } catch (err) {
+        console.error('Error searching alumnos:', err);
+        res.status(500).json({ 
+            error: 'Error interno del servidor',
+            message: err.message 
+        });
     }
 };
 

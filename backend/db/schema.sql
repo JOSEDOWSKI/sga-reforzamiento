@@ -54,14 +54,13 @@ CREATE TABLE profesores (
 -- Tabla de Alumnos
 CREATE TABLE alumnos (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
+    nombre VARCHAR(255) NOT NULL UNIQUE,
     telefono VARCHAR(20) NOT NULL,
     dni VARCHAR(50),
     email VARCHAR(255),
     activo BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(dni, email)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla de Temas (dependen de un curso)

@@ -5,6 +5,9 @@ const alumnoController = require('../controllers/alumnoController');
 // GET /api/alumnos
 router.get('/', alumnoController.getAllAlumnos);
 
+// GET /api/alumnos/search?q=term
+router.get('/search', alumnoController.searchAlumnos);
+
 // GET /api/alumnos/:id
 router.get('/:id', alumnoController.getAlumnoById);
 
