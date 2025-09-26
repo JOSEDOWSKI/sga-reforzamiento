@@ -58,7 +58,6 @@ const DashboardPage: React.FC = () => {
   const [temas, setTemas] = useState<Tema[]>([]);
   const [profesores, setProfesores] = useState<Profesor[]>([]);
   const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
   const [alumnosSugeridos, setAlumnosSugeridos] = useState<Alumno[]>([]);
 
   // --- Estados para filtros ---
@@ -71,7 +70,6 @@ const DashboardPage: React.FC = () => {
   const [selectedCurso, setSelectedCurso] = useState("");
   const [selectedTema, setSelectedTema] = useState("");
   const [selectedProfesor, setSelectedProfesor] = useState("");
-  const [nombreAlumno, setNombreAlumno] = useState("");
   const [telefonoAlumno, setTelefonoAlumno] = useState("");
   const [fechaHora, setFechaHora] = useState("");
   const [duracionHoras, setDuracionHoras] = useState("1");
@@ -119,18 +117,16 @@ const DashboardPage: React.FC = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const [cursosRes, profesRes, reservasRes, temasRes, alumnosRes] = await Promise.all([
+      const [cursosRes, profesRes, reservasRes, temasRes] = await Promise.all([
         apiClient.get("/cursos"),
         apiClient.get("/profesores"),
         apiClient.get("/reservas"),
         apiClient.get("/temas"),
-        apiClient.get("/alumnos"),
       ]);
       setCursos(cursosRes.data.data);
       setProfesores(profesRes.data.data);
       setReservas(reservasRes.data.data);
       setTemas(temasRes.data.data);
-      setAlumnos(alumnosRes.data.data);
       setError("");
     } catch (err) {
       setError("Error al cargar datos iniciales.");
@@ -160,36 +156,6 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // --- Función para crear nuevo alumno ---
-  const crearAlumno = async () => {
-    if (!nuevoAlumnoNombre.trim() || !nuevoAlumnoTelefono.trim()) {
-      setError("Nombre y teléfono son obligatorios para crear un alumno");
-      return;
-    }
-
-    try {
-      const response = await apiClient.post("/alumnos", {
-        nombre: nuevoAlumnoNombre.trim(),
-        telefono: nuevoAlumnoTelefono.trim(),
-      });
-
-      const nuevoAlumno = response.data.data;
-      setAlumnos(prev => [...prev, nuevoAlumno]);
-      setAlumnoSeleccionado(nuevoAlumno);
-      setNombreAlumno(nuevoAlumno.nombre);
-      setTelefonoAlumno(nuevoAlumno.telefono);
-      setCrearNuevoAlumno(false);
-      setNuevoAlumnoNombre("");
-      setNuevoAlumnoTelefono("");
-      setBusquedaAlumno(""); // Limpiar búsqueda
-      setMostrarSugerencias(false);
-      setSuccess("Alumno creado con éxito");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || "Error al crear el alumno";
-      setError(errorMessage);
-    }
-  };
 
   // --- Función para manejar clic en botón "+" ---
   const handleCrearNuevoAlumno = () => {
@@ -197,14 +163,12 @@ const DashboardPage: React.FC = () => {
     setBusquedaAlumno(""); // Limpiar búsqueda
     setAlumnoSeleccionado(null);
     setMostrarSugerencias(false);
-    setNombreAlumno("");
     setTelefonoAlumno("");
   };
 
   // --- Función para manejar selección de alumno existente ---
   const handleSeleccionarAlumno = (alumno: Alumno) => {
     setAlumnoSeleccionado(alumno);
-    setNombreAlumno(alumno.nombre);
     setTelefonoAlumno(alumno.telefono);
     setBusquedaAlumno(alumno.nombre);
     setMostrarSugerencias(false);
@@ -298,7 +262,6 @@ const DashboardPage: React.FC = () => {
       `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
       `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-    setNombreAlumno("");
     setTelefonoAlumno("");
     setDuracionHoras("1");
     setPrecio("50");
@@ -312,7 +275,6 @@ const DashboardPage: React.FC = () => {
     setCrearNuevoAlumno(false);
     setNuevoAlumnoNombre("");
     setNuevoAlumnoTelefono("");
-    setNombreAlumno("");
     setTelefonoAlumno("");
 
     setError("");
@@ -339,7 +301,6 @@ const DashboardPage: React.FC = () => {
 
       setSelectedCurso(curso?.id.toString() || "");
       setSelectedProfesor(profesor?.id.toString() || "");
-      setNombreAlumno(reserva.nombre_alumno);
       setTelefonoAlumno(reserva.telefono_alumno || "");
       setDuracionHoras(reserva.duracion_horas?.toString() || "1");
       setPrecio(reserva.precio?.toString() || "0");
@@ -372,7 +333,6 @@ const DashboardPage: React.FC = () => {
     setCrearNuevoAlumno(false);
     setNuevoAlumnoNombre("");
     setNuevoAlumnoTelefono("");
-    setNombreAlumno("");
     setTelefonoAlumno("");
     setBuscandoAlumnos(false);
     setAlumnosSugeridos([]);
@@ -455,7 +415,6 @@ const DashboardPage: React.FC = () => {
         });
         
         const nuevoAlumno = response.data.data;
-        setAlumnos(prev => [...prev, nuevoAlumno]);
         
         nombreAlumnoFinal = nuevoAlumno.nombre;
         telefonoAlumnoFinal = nuevoAlumno.telefono;
