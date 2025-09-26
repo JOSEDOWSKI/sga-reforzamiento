@@ -24,14 +24,22 @@ const tenantMiddleware = async (req, res, next) => {
         // Lista blanca de tenants permitidos (para evitar creación automática de tenants aleatorios)
         const allowedTenants = (process.env.ALLOWED_TENANTS || 'demo,main,premier,api,www').split(',').map(t => t.trim());
         
+        // Log para debugging en producción
+        console.log(`🔍 Tenant detection: ${tenant} from host: ${host}`);
+        console.log(`📋 Allowed tenants: [${allowedTenants.join(', ')}]`);
+        console.log(`✅ Tenant authorized: ${allowedTenants.includes(tenant)}`);
+        
         // Si el tenant no está en la lista blanca, rechazar la request
         if (!allowedTenants.includes(tenant)) {
-            console.warn(`Unauthorized tenant access attempt: ${tenant} from host: ${host}`);
+            console.warn(`❌ UNAUTHORIZED tenant access attempt: ${tenant} from host: ${host}`);
+            console.warn(`🚫 Tenant ${tenant} is not in allowed list: [${allowedTenants.join(', ')}]`);
             return res.status(403).json({
                 error: 'Tenant not authorized',
                 message: 'This tenant is not authorized to access the system'
             });
         }
+        
+        console.log(`✅ Tenant ${tenant} is authorized`);
         
         // Obtener la conexión a la base de datos del tenant
         const tenantDb = await getTenantDatabase(tenant);
