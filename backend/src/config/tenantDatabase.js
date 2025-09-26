@@ -43,7 +43,10 @@ async function getTenantDatabase(tenant) {
     // Guardar en cache
     tenantPools.set(tenant, pool);
     
-    console.log(`Database connection established for tenant: ${tenant} (${dbName})`);
+    // Solo log en desarrollo o para tenants nuevos
+    if (process.env.NODE_ENV === 'development' || !tenantPools.has(tenant)) {
+        console.log(`Database connection established for tenant: ${tenant} (${dbName})`);
+    }
     return pool;
 }
 
@@ -92,8 +95,6 @@ async function ensureTenantDatabase(tenant, pool) {
 async function createTenantDatabase(tenant) {
     const dbName = `${process.env.DB_NAME_PREFIX || 'agendate_'}${tenant}`;
     
-    console.log(`Creating database for tenant: ${tenant} (${dbName})`);
-    
     // Conectar a la base de datos postgres por defecto para crear la nueva DB
     const adminPool = new Pool({
         ...baseConfig,
@@ -106,15 +107,14 @@ async function createTenantDatabase(tenant) {
         
         // Crear la base de datos
         await client.query(`CREATE DATABASE "${dbName}"`);
-        console.log(`✅ Database created successfully: ${dbName}`);
+        console.log(`✅ Database created: ${dbName}`);
         
     } catch (error) {
         if (!error.message.includes('already exists')) {
             console.error(`❌ Error creating database ${dbName}:`, error.message);
             throw error;
-        } else {
-            console.log(`ℹ️ Database already exists: ${dbName}`);
         }
+        // No log para "already exists" en producción
     } finally {
         if (client) {
             client.release();
