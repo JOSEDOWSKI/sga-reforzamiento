@@ -21,6 +21,18 @@ const tenantMiddleware = async (req, res, next) => {
             });
         }
         
+        // Lista blanca de tenants permitidos (para evitar creación automática de tenants aleatorios)
+        const allowedTenants = (process.env.ALLOWED_TENANTS || 'demo,main,premier,api,www').split(',').map(t => t.trim());
+        
+        // Si el tenant no está en la lista blanca, rechazar la request
+        if (!allowedTenants.includes(tenant)) {
+            console.warn(`Unauthorized tenant access attempt: ${tenant} from host: ${host}`);
+            return res.status(403).json({
+                error: 'Tenant not authorized',
+                message: 'This tenant is not authorized to access the system'
+            });
+        }
+        
         // Obtener la conexión a la base de datos del tenant
         const tenantDb = await getTenantDatabase(tenant);
         

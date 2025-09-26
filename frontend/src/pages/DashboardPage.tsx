@@ -897,7 +897,7 @@ const DashboardPage: React.FC = () => {
                           <div className="alumno-suggestions">
                             {buscandoAlumnos ? (
                               <div className="alumno-suggestion-loading">
-                                <div className="loading-spinner"></div>
+                                <div className="alumno-loading-spinner"></div>
                                 <span>Buscando alumnos...</span>
                               </div>
                             ) : alumnosSugeridos.length > 0 ? (
