@@ -13,6 +13,10 @@ const requestCounts = new Map();
  */
 function createRateLimit(windowMs = 15 * 60 * 1000, maxRequests = 100) {
     return (req, res, next) => {
+        // Permitir preflight CORS sin rate limiting
+        if (req.method === 'OPTIONS') {
+            return next();
+        }
         const key = `${req.ip}-${req.tenant || 'unknown'}`;
         const now = Date.now();
         

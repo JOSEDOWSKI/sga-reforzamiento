@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import apiClient from "../config/api";
+import FullscreenCalendar from "../components/FullscreenCalendar";
+import { useRealtimeData } from "../hooks/useRealtimeData";
+import useTenant from "../hooks/useTenant";
 import "./DashboardPage.css";
 
 // --- Imports para FullCalendar ---
@@ -53,6 +56,9 @@ interface ModalReserva {
 }
 
 const DashboardPage: React.FC = () => {
+  // --- Hook para obtener el tenant ---
+  const { id: tenant } = useTenant();
+  
   // --- Estados para los datos ---
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [temas, setTemas] = useState<Tema[]>([]);
@@ -96,6 +102,9 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // --- Estados para pantalla completa ---
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const [calendarTitle, setCalendarTitle] = useState("");
   const [currentView, setCurrentView] = useState("dayGridMonth");
@@ -175,9 +184,41 @@ const DashboardPage: React.FC = () => {
     setCrearNuevoAlumno(false); // Ocultar formulario de crear alumno
   };
 
+  // --- Configurar actualizaciones en tiempo real ---
+  const { isConnected } = useRealtimeData({
+    events: [
+      'reserva-created', 'reserva-updated', 'reserva-deleted', 'reserva-cancelled',
+      'alumno-created', 'alumno-updated', 'alumno-deleted',
+      'curso-created', 'curso-updated', 'curso-deleted',
+      'profesor-created', 'profesor-updated', 'profesor-deleted',
+      'tema-created', 'tema-updated', 'tema-deleted'
+    ],
+    onUpdate: fetchAllData,
+    enabled: true
+  });
+
   // --- Cargar datos iniciales ---
   useEffect(() => {
     fetchAllData();
+  }, []);
+
+  // Suscribirse a eventos globales de realtime y refrescar datos + pequeña animación
+  useEffect(() => {
+    const handler = (e: any) => {
+      const name = e?.detail?.eventName as string;
+      // Filtrar solo eventos que afectan al dashboard
+      if (!name) return;
+      // Refrescar datos del dashboard
+      fetchAllData();
+      // Marcar una animación breve en el título del calendario
+      const titleEl = document.querySelector('.calendar-title');
+      if (titleEl) {
+        titleEl.classList.add('pulse');
+        setTimeout(() => titleEl.classList.remove('pulse'), 600);
+      }
+    };
+    window.addEventListener('realtime:event', handler as any);
+    return () => window.removeEventListener('realtime:event', handler as any);
   }, []);
 
   // --- Efecto para búsqueda de alumnos con debounce optimizado ---
@@ -703,6 +744,16 @@ const DashboardPage: React.FC = () => {
               >
                 Agenda
               </button>
+              <button
+                onClick={() => setIsFullscreenOpen(true)}
+                className="fullscreen-button"
+                title="Pantalla completa"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+                Pantalla Completa
+              </button>
             </div>
           </div>
           <div id="dashboard-calendar">
@@ -1029,6 +1080,18 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Componente de pantalla completa */}
+      <FullscreenCalendar
+        isOpen={isFullscreenOpen}
+        onClose={() => setIsFullscreenOpen(false)}
+        reservas={reservasFiltradas}
+        cursos={cursos}
+        profesores={profesores}
+        temas={temas}
+        onRefreshData={fetchAllData}
+        tenant={tenant || 'default'}
+      />
     </div>
   );
 };

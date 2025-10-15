@@ -15,6 +15,7 @@ import TourOrchestrator from './tour/TourOrchestrator';
 
 import { AuthProvider } from './hooks/useAuth';
 import { SplashProvider } from './contexts/SplashContext';
+import { RealtimeProvider } from './contexts/RealtimeContext';
 import { useSplashScreen } from './hooks/useSplashScreen'; 
 import './App.css';
 
@@ -78,7 +79,9 @@ function App() {
     <Router>
       <SplashProvider>
         <AuthProvider>
-          <AppContent />
+          <RealtimeProvider>
+            <AppContent />
+          </RealtimeProvider>
         </AuthProvider>
       </SplashProvider>
     </Router>

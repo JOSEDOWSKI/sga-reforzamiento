@@ -1,4 +1,6 @@
 const express = require('express');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config(); // Cargar variables de entorno
 
 // Importar middlewares
@@ -7,16 +9,24 @@ const tenantMiddleware = require('./middleware/tenantMiddleware');
 const { defaultRateLimit } = require('./middleware/rateLimitMiddleware');
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
 const port = process.env.PORT || 4000;
 
 // Trust proxy para obtener la IP real detrás de proxies (Nginx, Cloudflare)
 app.set('trust proxy', true);
 
-// Middleware de rate limiting (aplicar antes que otros middlewares)
-app.use(defaultRateLimit);
-
-// Middleware para CORS
+// Middleware para CORS (aplicar antes de cualquier otro para asegurar headers en errores)
 app.use(corsMiddleware);
+
+// Middleware de rate limiting (aplicar después de CORS para no romper preflights)
+app.use(defaultRateLimit);
 
 // Middleware para parsear JSON
 app.use(express.json({ limit: '10mb' }));
@@ -109,8 +119,28 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-app.listen(port, () => {
+// Configurar WebSocket
+io.on('connection', (socket) => {
+  console.log('🔌 WebSocket: Cliente conectado:', socket.id);
+  
+  // Unirse a una sala específica del tenant
+  socket.on('join-tenant', (tenant) => {
+    socket.join(tenant);
+    console.log(`🏠 WebSocket: Cliente ${socket.id} se unió al tenant: ${tenant}`);
+    console.log(`📊 WebSocket: Clientes en tenant ${tenant}:`, io.sockets.adapter.rooms.get(tenant)?.size || 0);
+  });
+  
+  socket.on('disconnect', (reason) => {
+    console.log('🔌 WebSocket: Cliente desconectado:', socket.id, 'razón:', reason);
+  });
+});
+
+// Hacer io disponible globalmente para emitir eventos
+app.set('io', io);
+
+server.listen(port, () => {
   console.log(`🚀 AgendaTe SaaS API running on port ${port}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Health check: http://localhost:${port}/health`);
+  console.log(`🔌 WebSocket server running on ws://localhost:${port}`);
 });

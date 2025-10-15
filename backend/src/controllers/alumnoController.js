@@ -89,6 +89,18 @@ exports.createAlumno = async (req, res) => {
         }
         
         const { rows } = await req.db.query(sql, params);
+
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('alumno-created', {
+                type: 'created',
+                entity: 'alumno',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.status(201).json({ message: 'Alumno creado con éxito', data: rows[0] });
     } catch (err) {
         console.error('Error creating alumno:', err);
@@ -119,6 +131,17 @@ exports.updateAlumno = async (req, res) => {
         if (rowCount === 0) {
             return res.status(404).json({ error: 'Alumno no encontrado' });
         }
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('alumno-updated', {
+                type: 'updated',
+                entity: 'alumno',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.json({ message: 'Alumno actualizado con éxito', data: rows[0] });
     } catch (err) {
         console.error('Error updating alumno:', err);
@@ -140,6 +163,17 @@ exports.deleteAlumno = async (req, res) => {
         if (rowCount === 0) {
             return res.status(404).json({ error: 'Alumno no encontrado' });
         }
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('alumno-deleted', {
+                type: 'deleted',
+                entity: 'alumno',
+                data: { id: parseInt(id) },
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.json({ message: 'Alumno eliminado con éxito' });
     } catch (err) {
         console.error('Error deleting alumno:', err);

@@ -21,4 +21,7 @@ router.put('/:id', reservaController.updateReserva);
 // PATCH /api/reservas/:id/cancel - Cancelar una reserva (todos los usuarios autenticados)
 router.patch('/:id/cancel', reservaController.cancelReserva);
 
+// DELETE /api/reservas/:id - Eliminar una reserva permanentemente (todos los usuarios autenticados)
+router.delete('/:id', reservaController.deleteReserva);
+
 module.exports = router; 

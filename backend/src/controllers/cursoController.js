@@ -66,6 +66,22 @@ exports.createCurso = async (req, res) => {
             duracion_minutos || 60
         ]);
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            const eventData = {
+                type: 'created',
+                entity: 'curso',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            };
+            console.log(`📡 Emitiendo evento curso-created al tenant ${req.tenant}:`, eventData);
+            console.log(`📊 Clientes conectados al tenant ${req.tenant}:`, io.sockets.adapter.rooms.get(req.tenant)?.size || 0);
+            io.to(req.tenant).emit('curso-created', eventData);
+        } else {
+            console.log('❌ No se pudo emitir evento: io =', !!io, 'tenant =', req.tenant);
+        }
+
         res.status(201).json({
             message: 'Curso creado con éxito',
             data: rows[0]
@@ -112,6 +128,22 @@ exports.updateCurso = async (req, res) => {
             return res.status(404).json({ error: 'Curso no encontrado' });
         }
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            const eventData = {
+                type: 'updated',
+                entity: 'curso',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            };
+            console.log(`📡 Emitiendo evento curso-updated al tenant ${req.tenant}:`, eventData);
+            console.log(`📊 Clientes conectados al tenant ${req.tenant}:`, io.sockets.adapter.rooms.get(req.tenant)?.size || 0);
+            io.to(req.tenant).emit('curso-updated', eventData);
+        } else {
+            console.log('❌ No se pudo emitir evento: io =', !!io, 'tenant =', req.tenant);
+        }
+
         res.json({
             message: 'Curso actualizado con éxito',
             data: rows[0]
@@ -145,6 +177,22 @@ exports.deleteCurso = async (req, res) => {
             return res.status(404).json({ error: 'Curso no encontrado' });
         }
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            const eventData = {
+                type: 'deleted',
+                entity: 'curso',
+                data: { id: parseInt(id) },
+                timestamp: new Date().toISOString()
+            };
+            console.log(`📡 Emitiendo evento curso-deleted al tenant ${req.tenant}:`, eventData);
+            console.log(`📊 Clientes conectados al tenant ${req.tenant}:`, io.sockets.adapter.rooms.get(req.tenant)?.size || 0);
+            io.to(req.tenant).emit('curso-deleted', eventData);
+        } else {
+            console.log('❌ No se pudo emitir evento: io =', !!io, 'tenant =', req.tenant);
+        }
+
         res.json({ message: 'Curso eliminado con éxito' });
     } catch (err) {
         console.error('Error deleting curso:', err);

@@ -24,7 +24,7 @@ const apiClient = axios.create({
     headers: {
         'Content-Type': 'application/json'
     },
-    withCredentials: false // Deshabilitado completamente para evitar problemas CORS
+    withCredentials: true // Habilitado para permitir cookies y headers de autenticación
 });
 
 // Interceptor para agregar información del tenant

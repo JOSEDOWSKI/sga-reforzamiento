@@ -114,6 +114,17 @@ exports.createTema = async (req, res) => {
             orden || 1
         ]);
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('tema-created', {
+                type: 'created',
+                entity: 'tema',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.status(201).json({
             message: 'Tema creado con éxito',
             data: rows[0]
@@ -165,6 +176,17 @@ exports.updateTema = async (req, res) => {
             return res.status(404).json({ error: 'Tema no encontrado' });
         }
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('tema-updated', {
+                type: 'updated',
+                entity: 'tema',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.json({
             message: 'Tema actualizado con éxito',
             data: rows[0]
@@ -191,6 +213,17 @@ exports.deleteTema = async (req, res) => {
             return res.status(404).json({ error: 'Tema no encontrado' });
         }
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('tema-deleted', {
+                type: 'deleted',
+                entity: 'tema',
+                data: { id: parseInt(id) },
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.json({ message: 'Tema eliminado con éxito' });
     } catch (err) {
         console.error('Error deleting tema:', err);

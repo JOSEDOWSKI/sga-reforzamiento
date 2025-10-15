@@ -8,9 +8,15 @@ const corsOptions = {
         // Lista de orígenes permitidos desde variables de entorno
         const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
         
-        // En desarrollo, permitir requests sin origin (como Postman, curl)
-        if (!origin && process.env.NODE_ENV === 'development') {
-            return callback(null, true);
+        // En desarrollo, permitir localhost y requests sin origin
+        if (process.env.NODE_ENV === 'development') {
+            // Permitir localhost en cualquier puerto para desarrollo
+            if (!origin || 
+                origin.includes('localhost') || 
+                origin.includes('127.0.0.1') ||
+                origin.includes('0.0.0.0')) {
+                return callback(null, true);
+            }
         }
         
         // Para requests internos del servidor (health checks, curl localhost)

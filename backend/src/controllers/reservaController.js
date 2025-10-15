@@ -221,6 +221,16 @@ exports.createReserva = async (req, res) => {
 
         const { rows } = await req.db.query(sql, params);
         
+        // Emitir evento WebSocket para notificar a los clientes conectados
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('reserva-created', {
+                type: 'created',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+        
         res.status(201).json({
             message: 'Reserva creada con éxito',
             data: rows[0]
@@ -316,6 +326,16 @@ exports.updateReserva = async (req, res) => {
             return res.status(404).json({ error: 'Reserva no encontrada' });
         }
         
+        // Emitir evento WebSocket para notificar a los clientes conectados
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('reserva-updated', {
+                type: 'updated',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+        
         res.json({
             message: 'Reserva actualizada con éxito',
             data: rows[0]
@@ -342,9 +362,52 @@ exports.cancelReserva = async (req, res) => {
             return res.status(404).json({ error: 'Reserva no encontrada' });
         }
         
+        // Emitir evento WebSocket para notificar a los clientes conectados
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('reserva-cancelled', {
+                type: 'cancelled',
+                data: { id: parseInt(id) },
+                timestamp: new Date().toISOString()
+            });
+        }
+        
         res.json({ message: 'Reserva cancelada con éxito' });
     } catch (err) {
         console.error('Error canceling reserva:', err);
+        res.status(500).json({ 
+            error: 'Error interno del servidor',
+            message: err.message 
+        });
+    }
+};
+
+// Eliminar una reserva permanentemente
+exports.deleteReserva = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { rowCount } = await req.db.query(
+            'DELETE FROM reservas WHERE id = $1',
+            [id]
+        );
+        
+        if (rowCount === 0) {
+            return res.status(404).json({ error: 'Reserva no encontrada' });
+        }
+        
+        // Emitir evento WebSocket para notificar a los clientes conectados
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('reserva-deleted', {
+                type: 'deleted',
+                data: { id: parseInt(id) },
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        res.json({ message: 'Reserva eliminada con éxito' });
+    } catch (err) {
+        console.error('Error deleting reserva:', err);
         res.status(500).json({ 
             error: 'Error interno del servidor',
             message: err.message 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import { useRealtimeData } from '../hooks/useRealtimeData';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
 import './DashboardPage.css'; // Importar los estilos del dashboard para los dropdowns
@@ -48,6 +49,13 @@ const GestionTemas: React.FC = () => {
     // Estados para dropdowns personalizados
     const [showCursoDropdown, setShowCursoDropdown] = useState(false);
     const [showModalCursoDropdown, setShowModalCursoDropdown] = useState(false);
+
+    // Configurar actualizaciones en tiempo real
+    const { isConnected } = useRealtimeData({
+        events: ['tema-created', 'tema-updated', 'tema-deleted', 'curso-created', 'curso-updated', 'curso-deleted'],
+        onUpdate: fetchData,
+        enabled: true
+    });
 
     useEffect(() => {
         fetchData();

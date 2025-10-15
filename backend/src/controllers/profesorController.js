@@ -69,6 +69,17 @@ exports.createProfesor = async (req, res) => {
             tarifa_por_hora || null
         ]);
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('profesor-created', {
+                type: 'created',
+                entity: 'profesor',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.status(201).json({
             message: 'Profesor creado con éxito',
             data: rows[0]
@@ -116,6 +127,17 @@ exports.updateProfesor = async (req, res) => {
             return res.status(404).json({ error: 'Profesor no encontrado' });
         }
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('profesor-updated', {
+                type: 'updated',
+                entity: 'profesor',
+                data: rows[0],
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.json({
             message: 'Profesor actualizado con éxito',
             data: rows[0]
@@ -149,6 +171,17 @@ exports.deleteProfesor = async (req, res) => {
             return res.status(404).json({ error: 'Profesor no encontrado' });
         }
         
+        // Emitir evento tiempo real
+        const io = req.app.get('io');
+        if (io && req.tenant) {
+            io.to(req.tenant).emit('profesor-deleted', {
+                type: 'deleted',
+                entity: 'profesor',
+                data: { id: parseInt(id) },
+                timestamp: new Date().toISOString()
+            });
+        }
+
         res.json({ message: 'Profesor eliminado con éxito' });
     } catch (err) {
         console.error('Error deleting profesor:', err);

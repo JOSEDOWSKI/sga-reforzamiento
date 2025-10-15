@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import { useRealtimeData } from '../hooks/useRealtimeData';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
 
@@ -55,6 +56,13 @@ const GestionProfesores: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // Configurar actualizaciones en tiempo real
+    const { isConnected } = useRealtimeData({
+        events: ['profesor-created', 'profesor-updated', 'profesor-deleted'],
+        onUpdate: fetchProfesores,
+        enabled: true
+    });
 
     useEffect(() => {
         fetchProfesores();

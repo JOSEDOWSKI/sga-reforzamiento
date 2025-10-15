@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import { useRealtimeData } from '../hooks/useRealtimeData';
 import '../styles/GestionPage.css';
 import '../styles/Modal.css';
 
@@ -54,6 +55,13 @@ const GestionAlumnos: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // Configurar actualizaciones en tiempo real
+    const { isConnected } = useRealtimeData({
+        events: ['alumno-created', 'alumno-updated', 'alumno-deleted'],
+        onUpdate: fetchAlumnos,
+        enabled: true
+    });
 
     useEffect(() => {
         fetchAlumnos();
