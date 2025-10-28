@@ -21,7 +21,18 @@ const authMiddleware = (req, res, next) => {
         // Verificar token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        // Verificar que el tenant del token coincida con el tenant actual
+        // Para usuarios globales (super admin), no verificar tenant
+        if (decoded.userType === 'global') {
+            req.user = {
+                userId: decoded.userId,
+                email: decoded.email,
+                rol: decoded.rol,
+                userType: 'global'
+            };
+            return next();
+        }
+        
+        // Para usuarios de tenant, verificar que el tenant del token coincida
         if (decoded.tenant !== req.tenant) {
             return res.status(401).json({
                 error: 'Authentication Error',
@@ -34,7 +45,8 @@ const authMiddleware = (req, res, next) => {
             userId: decoded.userId,
             email: decoded.email,
             rol: decoded.rol,
-            tenant: decoded.tenant
+            tenant: decoded.tenant,
+            userType: 'tenant'
         };
         
         next();
