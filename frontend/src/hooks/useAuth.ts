@@ -7,9 +7,11 @@ interface User {
     email: string;
     nombre: string;
     rol: string;
-    activo: boolean;
-    ultimo_acceso: string;
-    created_at: string;
+    activo?: boolean;
+    ultimo_acceso?: string;
+    created_at?: string;
+    userType?: 'global' | 'tenant';
+    tenant?: string;
 }
 
 interface AuthContextType {
@@ -18,8 +20,10 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    loginGlobal: (email: string, password: string) => Promise<void>;
     logout: () => void;
     verifyToken: () => Promise<boolean>;
+    isGlobalUser: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,7 +56,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 password
             });
 
-            const { token: newToken, user: userData } = response.data;
+            const { data } = response.data;
+            const newToken = data?.token;
+            const userData = data?.user;
 
             setToken(newToken);
             setUser(userData);
@@ -73,11 +79,53 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
     };
 
-    const logout = () => {
+    const loginGlobal = async (email: string, password: string): Promise<void> => {
+        try {
+            setIsLoading(true);
+            
+            const response = await apiClient.post('/global-auth/login', {
+                email,
+                password
+            });
+
+            console.log('Response from global auth:', response.data);
+
+            const { data } = response.data;
+            const newToken = data?.token;
+            const userData = data?.user;
+
+            if (!newToken) {
+                throw new Error('Token no recibido del servidor');
+            }
+
+            setToken(newToken);
+            setUser(userData);
+            secureTokenStorage.set(newToken);
+            
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+
+        } catch (error: any) {
+            console.error('Error en login global:', error);
+            
+            logout();
+            
+            throw new Error(
+                error.response?.data?.message || 'Error al iniciar sesión'
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const logout = (): void => {
         setUser(null);
         setToken(null);
-        secureTokenStorage.clear();
+        secureTokenStorage.remove();
         delete apiClient.defaults.headers.common['Authorization'];
+    };
+
+    const isGlobalUser = (): boolean => {
+        return user?.userType === 'global' || user?.rol === 'super_admin';
     };
 
     const verifyToken = async (tokenToVerify?: string): Promise<boolean> => {
@@ -93,7 +141,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 apiClient.defaults.headers.common['Authorization'] = `Bearer ${tokenToVerify}`;
             }
 
-            const response = await apiClient.get('/auth/verify');
+            // Determinar el endpoint de verificación basado en el tipo de usuario
+            const verifyEndpoint = user?.userType === 'global' ? '/global-auth/verify' : '/auth/verify';
+            const response = await apiClient.get(verifyEndpoint);
             const { user: userData } = response.data;
             
             setUser(userData);
@@ -139,8 +189,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isAuthenticated,
         isLoading,
         login,
+        loginGlobal,
         logout,
-        verifyToken
+        verifyToken,
+        isGlobalUser
     };
 
     return React.createElement(

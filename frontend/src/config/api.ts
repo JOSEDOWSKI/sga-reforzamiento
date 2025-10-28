@@ -7,11 +7,16 @@ const getBaseURL = () => {
         return import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
     }
     
-    // En producción, usar la misma URL pero con puerto 4000
+    // En producción
     const currentHost = window.location.host;
     const protocol = window.location.protocol;
     
-    // Si estamos en un subdominio, mantenerlo
+    // Para el dominio getdevtools.com, usar el mismo dominio para la API
+    if (currentHost.includes('getdevtools.com')) {
+        return `${protocol}//${currentHost}/api`;
+    }
+    
+    // Para otros dominios, usar puerto 4000
     if (currentHost.includes('.')) {
         return `${protocol}//${currentHost.replace(':3000', ':4000').replace(':5173', ':4000')}/api`;
     }
@@ -33,8 +38,18 @@ apiClient.interceptors.request.use((config) => {
     const hostname = window.location.hostname;
     const parts = hostname.split('.');
     
-    // Solo agregar X-Tenant si NO estamos en localhost y hay subdominio
-    if (parts.length >= 3 && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
+    // Para getdevtools.com: admin.getdevtools.com -> "admin", cliente.getdevtools.com -> "cliente"
+    if (hostname.includes('getdevtools.com') && parts.length >= 3) {
+        const tenant = parts[0];
+        config.headers['X-Tenant'] = tenant;
+    }
+    // Para weekly (desarrollo): admin.weekly -> "admin", cliente.weekly -> "cliente"
+    else if (hostname.includes('weekly') && parts.length >= 2) {
+        const tenant = parts[0];
+        config.headers['X-Tenant'] = tenant;
+    }
+    // Para otros dominios con subdominios
+    else if (parts.length >= 3 && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
         const tenant = parts[0];
         config.headers['X-Tenant'] = tenant;
     }

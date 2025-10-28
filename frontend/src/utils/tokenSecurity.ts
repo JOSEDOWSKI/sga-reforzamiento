@@ -4,6 +4,10 @@
 
 // Generar un hash simple del token para verificar integridad
 const generateTokenHash = (token: string): string => {
+    if (!token) {
+        console.warn('generateTokenHash called with undefined/null token');
+        return '';
+    }
     let hash = 0;
     for (let i = 0; i < token.length; i++) {
         const char = token.charCodeAt(i);

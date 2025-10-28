@@ -1,28 +1,47 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useAuth } from './hooks/useAuth';
+
+// Páginas del tenant
 import DashboardPage from './pages/DashboardPage';
-import GestionCursos from './pages/GestionCursos';
-import GestionProfesores from './pages/GestionProfesores';
-import GestionAlumnos from './pages/GestionAlumnos';
-import GestionTemas from './pages/GestionTemas';
+import GestionServicios from './pages/GestionServicios';
+import GestionStaff from './pages/GestionStaff';
+import GestionClientes from './pages/GestionClientes';
+import GestionCategorias from './pages/GestionCategorias';
 import EstadisticasPage from './pages/EstadisticasPage';
+
+// Páginas del panel global
+import GlobalLoginPage from './pages/GlobalLoginPage';
+import GestionTenantsPage from './pages/GestionTenantsPage';
+
+// Landing page
+import LandingPage from './pages/LandingPage';
+
+// Componentes
 import Navbar from './components/Navbar';
 import Header from './components/Header';
+import GlobalNavbar from './components/GlobalNavbar';
 import SplashScreen from './components/SplashScreen';
 import SplashReset from './components/SplashReset';
 import ProtectedRoute from './components/ProtectedRoute';
 import TourOrchestrator from './tour/TourOrchestrator';
+import TutorialSettings from './components/TutorialSettings';
 
+// Contextos
 import { AuthProvider } from './hooks/useAuth';
 import { SplashProvider } from './contexts/SplashContext';
 import { RealtimeProvider } from './contexts/RealtimeContext';
 import { useSplashScreen } from './hooks/useSplashScreen'; 
+import { useTenantConfig } from './hooks/useTenantConfig';
 import './App.css';
+import './styles/GlobalPanel.css';
 
-function AppContent() {
+function TenantAppContent() {
   const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);  
   const { showSplash, isInitialized, hideSplash } = useSplashScreen();
+  const { isTutorialEnabled, config } = useTenantConfig();
+  const [tutorialEnabled, setTutorialEnabled] = useState(isTutorialEnabled);
 
   useEffect(() => {
     if (isNavOpen) {
@@ -39,6 +58,11 @@ function AppContent() {
     root.style.setProperty('--aurora2-r', `${random(-30, 30)}deg`);
   }, [location.pathname]);
 
+  // Sincronizar el estado del tutorial con la configuración del tenant
+  useEffect(() => {
+    setTutorialEnabled(isTutorialEnabled);
+  }, [isTutorialEnabled]);
+
   return (
     <>
       {/* SplashScreen siempre por encima */}
@@ -49,16 +73,22 @@ function AppContent() {
           <Header onMenuClick={() => setIsNavOpen(!isNavOpen)} isNavOpen={isNavOpen} />
           <Navbar isNavOpen={isNavOpen} />
 
-          {/* Tour solo cuando ya inicializó y no está el splash */}
-          {!showSplash && isInitialized && <TourOrchestrator />}
+          {/* Tour solo cuando ya inicializó, no está el splash y el tutorial está habilitado */}
+          {!showSplash && isInitialized && tutorialEnabled && <TourOrchestrator />}
+
+          {/* Configuración de tutorial (siempre visible para administradores) */}
+          {!showSplash && isInitialized && <TutorialSettings 
+            isTutorialEnabled={tutorialEnabled}
+            onToggleTutorial={() => setTutorialEnabled(!tutorialEnabled)}
+          />}
 
           <main className="content-container">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/cursos" element={<GestionCursos />} />
-              <Route path="/alumnos" element={<GestionAlumnos />} />
-              <Route path="/profesores" element={<GestionProfesores />} />
-              <Route path="/temas" element={<GestionTemas />} />
+              <Route path="/servicios" element={<GestionServicios />} />
+              <Route path="/clientes" element={<GestionClientes />} />
+              <Route path="/staff" element={<GestionStaff />} />
+              <Route path="/categorias" element={<GestionCategorias />} />
               <Route path="/estadisticas" element={<EstadisticasPage />} />
             </Routes>
           </main>
@@ -71,6 +101,55 @@ function AppContent() {
       </ProtectedRoute>
     </>
   );
+}
+
+function GlobalAppContent() {
+  const { isAuthenticated, isGlobalUser } = useAuth();
+
+  if (!isAuthenticated || !isGlobalUser()) {
+    return <GlobalLoginPage />;
+  }
+
+  return (
+    <div className="global-app-container">
+      <GlobalNavbar />
+      <main className="global-main-content">
+        <Routes>
+          <Route path="/" element={<GestionTenantsPage />} />
+          <Route path="/super-admin/tenants" element={<GestionTenantsPage />} />
+          <Route path="/super-admin/users" element={<div>Gestión de Usuarios Globales (Próximamente)</div>} />
+          <Route path="/super-admin/billing" element={<div>Facturación (Próximamente)</div>} />
+          <Route path="/super-admin/support" element={<div>Soporte (Próximamente)</div>} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
+function AppContent() {
+  const { user } = useAuth();
+  
+  // Detectar el dominio actual
+  const hostname = window.location.hostname;
+  
+  // Si es weekly.pe, mostrar landing page
+  if (hostname === 'weekly.pe') {
+    return <LandingPage />;
+  }
+  
+  // Si es panel.weekly, mostrar panel global directamente
+  if (hostname === 'panel.weekly') {
+    return <GlobalAppContent />;
+  }
+  
+  // Determinar si es panel global o tenant basado en el usuario
+  const isGlobalPanel = user?.userType === 'global' || user?.rol === 'super_admin';
+  
+  if (isGlobalPanel) {
+    return <GlobalAppContent />;
+  }
+  
+  return <TenantAppContent />;
 }
 
 // -------- App principal --------

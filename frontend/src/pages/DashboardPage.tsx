@@ -15,20 +15,20 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 
 // --- Definición de Tipos ---
-interface Curso {
+interface Servicio {
   id: number;
   nombre: string;
 }
-interface Tema {
+interface Categoria {
   id: number;
   nombre: string;
   curso_id: number;
 }
-interface Profesor {
+interface Staff {
   id: number;
   nombre: string;
 }
-interface Alumno {
+interface Cliente {
   id: number;
   nombre: string;
   telefono: string;
@@ -60,36 +60,36 @@ const DashboardPage: React.FC = () => {
   const { id: tenant } = useTenant();
   
   // --- Estados para los datos ---
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [temas, setTemas] = useState<Tema[]>([]);
-  const [profesores, setProfesores] = useState<Profesor[]>([]);
+  const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [staff, setStaff] = useState<Staff[]>([]);
   const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [alumnosSugeridos, setAlumnosSugeridos] = useState<Alumno[]>([]);
+  const [clientesSugeridos, setClientesSugeridos] = useState<Cliente[]>([]);
 
   // --- Estados para filtros ---
-  const [filtroCurso, setFiltroCurso] = useState("");
-  const [filtroProfesor, setFiltroProfesor] = useState("");
-  const [showCursoDropdown, setShowCursoDropdown] = useState(false);
-  const [showProfesorDropdown, setShowProfesorDropdown] = useState(false);
+  const [filtroServicio, setFiltroServicio] = useState("");
+  const [filtroStaff, setFiltroStaff] = useState("");
+  const [showServicioDropdown, setShowServicioDropdown] = useState(false);
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
 
   // --- Estados para el formulario ---
-  const [selectedCurso, setSelectedCurso] = useState("");
-  const [selectedTema, setSelectedTema] = useState("");
-  const [selectedProfesor, setSelectedProfesor] = useState("");
-  const [telefonoAlumno, setTelefonoAlumno] = useState("");
+  const [selectedServicio, setSelectedServicio] = useState("");
+  const [selectedCategoria, setSelectedCategoria] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState("");
+  const [telefonoCliente, setTelefonoCliente] = useState("");
   const [fechaHora, setFechaHora] = useState("");
   const [duracionHoras, setDuracionHoras] = useState("1");
   const [precio, setPrecio] = useState("0");
   const [estadoPago, setEstadoPago] = useState("Falta pagar");
 
-  // --- Estados para el buscador de alumnos ---
-  const [busquedaAlumno, setBusquedaAlumno] = useState("");
-  const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(null);
+  // --- Estados para el buscador de clientes ---
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  const [crearNuevoAlumno, setCrearNuevoAlumno] = useState(false);
-  const [nuevoAlumnoNombre, setNuevoAlumnoNombre] = useState("");
-  const [nuevoAlumnoTelefono, setNuevoAlumnoTelefono] = useState("");
-  const [buscandoAlumnos, setBuscandoAlumnos] = useState(false);
+  const [crearNuevoCliente, setCrearNuevoCliente] = useState(false);
+  const [nuevoClienteNombre, setNuevoClienteNombre] = useState("");
+  const [nuevoClienteTelefono, setNuevoClienteTelefono] = useState("");
+  const [buscandoClientes, setBuscandoClientes] = useState(false);
 
   // --- Estados para el modal ---
   const [modalReserva, setModalReserva] = useState<ModalReserva>({
@@ -120,22 +120,22 @@ const DashboardPage: React.FC = () => {
 
     window.addEventListener("tour:open-reserva" as any, handler);
     return () => window.removeEventListener("tour:open-reserva" as any, handler);
-  }, [cursos, profesores, temas]); // aseguramos que existan datos para prefills
+  }, [servicios, staff, categorias]); // aseguramos que existan datos para prefills
 
 
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const [cursosRes, profesRes, reservasRes, temasRes] = await Promise.all([
+      const [serviciosRes, staffRes, reservasRes, categoriasRes] = await Promise.all([
         apiClient.get("/cursos"),
         apiClient.get("/profesores"),
         apiClient.get("/reservas"),
         apiClient.get("/temas"),
       ]);
-      setCursos(cursosRes.data.data);
-      setProfesores(profesRes.data.data);
+      setServicios(serviciosRes.data.data);
+      setStaff(staffRes.data.data);
       setReservas(reservasRes.data.data);
-      setTemas(temasRes.data.data);
+      setCategorias(categoriasRes.data.data);
       setError("");
     } catch (err) {
       setError("Error al cargar datos iniciales.");
@@ -145,53 +145,53 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // --- Función para buscar alumnos optimizada ---
-  const buscarAlumnos = async (termino: string) => {
+  // --- Función para buscar clientes optimizada ---
+  const buscarClientes = async (termino: string) => {
     if (termino.length < 1) {
-      setAlumnosSugeridos([]);
-      setBuscandoAlumnos(false);
+      setClientesSugeridos([]);
+      setBuscandoClientes(false);
       return;
     }
 
-    setBuscandoAlumnos(true);
+    setBuscandoClientes(true);
     try {
       const response = await apiClient.get(`/alumnos/search?q=${encodeURIComponent(termino)}`);
-      setAlumnosSugeridos(response.data.data);
+      setClientesSugeridos(response.data.data);
     } catch (err) {
-      console.error("Error buscando alumnos:", err);
-      setAlumnosSugeridos([]);
+      console.error("Error buscando clientes:", err);
+      setClientesSugeridos([]);
     } finally {
-      setBuscandoAlumnos(false);
+      setBuscandoClientes(false);
     }
   };
 
 
   // --- Función para manejar clic en botón "+" ---
-  const handleCrearNuevoAlumno = () => {
-    setCrearNuevoAlumno(true);
-    setBusquedaAlumno(""); // Limpiar búsqueda
-    setAlumnoSeleccionado(null);
+  const handleCrearNuevoCliente = () => {
+    setCrearNuevoCliente(true);
+    setBusquedaCliente(""); // Limpiar búsqueda
+    setClienteSeleccionado(null);
     setMostrarSugerencias(false);
-    setTelefonoAlumno("");
+    setTelefonoCliente("");
   };
 
-  // --- Función para manejar selección de alumno existente ---
-  const handleSeleccionarAlumno = (alumno: Alumno) => {
-    setAlumnoSeleccionado(alumno);
-    setTelefonoAlumno(alumno.telefono);
-    setBusquedaAlumno(alumno.nombre);
+  // --- Función para manejar selección de cliente existente ---
+  const handleSeleccionarCliente = (cliente: Cliente) => {
+    setClienteSeleccionado(cliente);
+    setTelefonoCliente(cliente.telefono);
+    setBusquedaCliente(cliente.nombre);
     setMostrarSugerencias(false);
-    setCrearNuevoAlumno(false); // Ocultar formulario de crear alumno
+    setCrearNuevoCliente(false); // Ocultar formulario de crear cliente
   };
 
   // --- Configurar actualizaciones en tiempo real ---
   const { isConnected } = useRealtimeData({
     events: [
       'reserva-created', 'reserva-updated', 'reserva-deleted', 'reserva-cancelled',
-      'alumno-created', 'alumno-updated', 'alumno-deleted',
-      'curso-created', 'curso-updated', 'curso-deleted',
-      'profesor-created', 'profesor-updated', 'profesor-deleted',
-      'tema-created', 'tema-updated', 'tema-deleted'
+      'cliente-created', 'cliente-updated', 'cliente-deleted',
+      'servicio-created', 'servicio-updated', 'servicio-deleted',
+      'staff-created', 'staff-updated', 'staff-deleted',
+      'categoria-created', 'categoria-updated', 'categoria-deleted'
     ],
     onUpdate: fetchAllData,
     enabled: true

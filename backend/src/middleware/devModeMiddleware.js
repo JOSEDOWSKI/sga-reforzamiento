@@ -40,12 +40,13 @@ const devModeMiddleware = async (req, res, next) => {
                 
                 // Queries para usuarios globales (super admin)
                 if (sql.includes('usuarios_global') && sql.includes('email')) {
+                    console.log(`[DEV MODE] Login global intentado para: ${params[0]}`);
                     return {
                         rows: [
                             {
                                 id: 1,
                                 email: 'admin@weekly.com',
-                                password_hash: '$2b$10$FPuiZ88vpb307B6Pl467s.ir/aNT7tRYcXPtHwSMowlMYD9pZUc0i',
+                                password_hash: '$2b$10$FPuiZ88vpb307B6Pl467s.ir/aNT7tRYcXPtHwSMowlMYD9pZUc0i', // password: "password"
                                 nombre: 'Super Administrador',
                                 rol: 'super_admin',
                                 activo: true,
@@ -360,6 +361,166 @@ const devModeMiddleware = async (req, res, next) => {
                                 servicio_descripcion: 'Consulta general',
                                 estado: 'confirmada',
                                 precio: 40.00
+                            }
+                        ]
+                    };
+                }
+                
+                // Simulaciones para tablas antiguas (compatibilidad con frontend)
+                if (sql.includes('SELECT') && sql.includes('cursos')) {
+                    return {
+                        rows: [
+                            {
+                                id: 1,
+                                nombre: 'Corte de Cabello',
+                                descripcion: 'Corte profesional para damas y caballeros',
+                                precio: 25.00,
+                                duracion_minutos: 60
+                            },
+                            {
+                                id: 2,
+                                nombre: 'Coloración',
+                                descripcion: 'Tintura y mechas profesionales',
+                                precio: 45.00,
+                                duracion_minutos: 120
+                            },
+                            {
+                                id: 3,
+                                nombre: 'Tratamiento Capilar',
+                                descripcion: 'Hidratación y nutrición del cabello',
+                                precio: 35.00,
+                                duracion_minutos: 90
+                            },
+                            {
+                                id: 4,
+                                nombre: 'Matemáticas',
+                                descripcion: 'Clases de matemáticas nivel secundaria',
+                                precio: 30.00,
+                                duracion_minutos: 60
+                            },
+                            {
+                                id: 5,
+                                nombre: 'Física',
+                                descripcion: 'Clases de física nivel secundaria',
+                                precio: 30.00,
+                                duracion_minutos: 60
+                            }
+                        ]
+                    };
+                }
+                
+                if (sql.includes('SELECT') && sql.includes('profesores')) {
+                    return {
+                        rows: [
+                            {
+                                id: 1,
+                                nombre: 'María González',
+                                email: 'maria@peluqueria.com',
+                                especialidad: 'Estilista Senior',
+                                telefono: '+51 987 111 111'
+                            },
+                            {
+                                id: 2,
+                                nombre: 'Carlos Mendoza',
+                                email: 'carlos@peluqueria.com',
+                                especialidad: 'Colorista',
+                                telefono: '+51 987 222 222'
+                            },
+                            {
+                                id: 3,
+                                nombre: 'Prof. Juan Pérez',
+                                email: 'juan@academia.com',
+                                especialidad: 'Matemáticas',
+                                telefono: '+51 987 333 333'
+                            },
+                            {
+                                id: 4,
+                                nombre: 'Prof. Ana García',
+                                email: 'ana@academia.com',
+                                especialidad: 'Física',
+                                telefono: '+51 987 444 444'
+                            }
+                        ]
+                    };
+                }
+                
+                if (sql.includes('SELECT') && sql.includes('alumnos')) {
+                    return {
+                        rows: [
+                            {
+                                id: 1,
+                                nombre: 'Ana López',
+                                telefono: '+51 987 111 111',
+                                dni: '12345678',
+                                email: 'ana@example.com'
+                            },
+                            {
+                                id: 2,
+                                nombre: 'Carlos Ruiz',
+                                telefono: '+51 987 222 222',
+                                dni: '87654321',
+                                email: 'carlos@example.com'
+                            },
+                            {
+                                id: 3,
+                                nombre: 'María Fernández',
+                                telefono: '+51 987 333 333',
+                                dni: '11223344',
+                                email: 'maria@example.com'
+                            },
+                            {
+                                id: 4,
+                                nombre: 'Luis Torres',
+                                telefono: '+51 987 444 444',
+                                dni: '55667788',
+                                email: 'luis@example.com'
+                            }
+                        ]
+                    };
+                }
+                
+                if (sql.includes('SELECT') && sql.includes('temas')) {
+                    return {
+                        rows: [
+                            {
+                                id: 1,
+                                nombre: 'Corte Clásico',
+                                curso_id: 1
+                            },
+                            {
+                                id: 2,
+                                nombre: 'Corte Moderno',
+                                curso_id: 1
+                            },
+                            {
+                                id: 3,
+                                nombre: 'Mechas',
+                                curso_id: 2
+                            },
+                            {
+                                id: 4,
+                                nombre: 'Tintura Completa',
+                                curso_id: 2
+                            },
+                            {
+                                id: 5,
+                                nombre: 'Álgebra',
+                                curso_id: 4
+                            },
+                            {
+                                id: 6,
+                                nombre: 'Geometría',
+                                curso_id: 4
+                            },
+                            {
+                                id: 7,
+                                nombre: 'Mecánica',
+                                curso_id: 5
+                            },
+                            {
+                                id: 8,
+                                nombre: 'Termodinámica',
+                                curso_id: 5
                             }
                         ]
                     };

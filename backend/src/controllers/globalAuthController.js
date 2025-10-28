@@ -13,6 +13,8 @@ class GlobalAuthController {
         try {
             const { email, password } = req.body;
             
+            console.log(`[GLOBAL AUTH] Login intentado para: ${email}`);
+            
             if (!email || !password) {
                 return res.status(400).json({
                     success: false,
@@ -26,6 +28,8 @@ class GlobalAuthController {
                 [email]
             );
             
+            console.log(`[GLOBAL AUTH] Usuario encontrado: ${result.rows.length > 0 ? 'Sí' : 'No'}`);
+            
             if (result.rows.length === 0) {
                 return res.status(401).json({
                     success: false,
@@ -37,6 +41,8 @@ class GlobalAuthController {
             
             // Verificar contraseña
             const isValidPassword = await bcrypt.compare(password, user.password_hash);
+            
+            console.log(`[GLOBAL AUTH] Contraseña válida: ${isValidPassword ? 'Sí' : 'No'}`);
             
             if (!isValidPassword) {
                 return res.status(401).json({
