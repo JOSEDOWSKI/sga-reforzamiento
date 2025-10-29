@@ -141,50 +141,118 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-/* Leyenda del mapa */
-.map-legend {
-  margin-top: 30px;
+/* Leyenda interactiva del mapa */
+.interactive-legend {
+  margin-bottom: 30px;
   text-align: center;
   position: relative;
   z-index: 2;
 }
 
-.map-legend h4 {
-  font-size: 1.2rem;
-  color: #ffffff;
-  margin-bottom: 16px;
-  font-weight: 600;
+.legend-controls {
+  margin-bottom: 20px;
 }
 
-.legend-items {
+.legend-toggle-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.legend-toggle-btn:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.legend-toggle-btn.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.legend-toggle-btn.active:hover {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.legend-buttons {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
-.legend-item {
+.legend-button {
   display: flex;
   align-items: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-}
-
-.legend-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.legend-item span {
   font-size: 0.9rem;
+  font-weight: 600;
   color: #cbd5e1;
+  position: relative;
+  overflow: hidden;
+}
+
+.legend-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.legend-button:hover::before {
+  left: 100%;
+}
+
+.legend-button.active {
+  background: var(--category-color);
+  border-color: var(--category-color);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.legend-button.inactive {
+  opacity: 0.4;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.legend-button.inactive:hover {
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.legend-icon {
+  font-size: 1.1rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.legend-text {
+  font-weight: 600;
+}
+
+.legend-count {
+  font-size: 0.8rem;
+  opacity: 0.8;
   font-weight: 500;
 }
 
@@ -212,12 +280,18 @@
     height: 400px !important;
   }
 
-  .legend-items {
-    gap: 16px;
+  .legend-buttons {
+    gap: 12px;
   }
 
-  .legend-item {
-    padding: 6px 12px;
+  .legend-button {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+
+  .legend-toggle-btn {
+    padding: 10px 20px;
+    font-size: 0.8rem;
   }
 
   .popup-content {
@@ -235,10 +309,22 @@
     height: 350px !important;
   }
 
-  .legend-items {
+  .legend-buttons {
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .legend-button {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    width: 200px;
+    justify-content: center;
+  }
+
+  .legend-toggle-btn {
+    padding: 8px 16px;
+    font-size: 0.75rem;
   }
 
   .popup-content {

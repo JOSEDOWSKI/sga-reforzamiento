@@ -300,6 +300,14 @@ const devModeMiddleware = async (req, res, next) => {
                         rows: [
                             { 
                                 id: 1, 
+                                email: 'admin@demo.weekly', 
+                                password_hash: '$2b$10$FPuiZ88vpb307B6Pl467s.ir/aNT7tRYcXPtHwSMowlMYD9pZUc0i', // password: "password"
+                                nombre: 'Admin Demo', 
+                                rol: 'admin', 
+                                activo: true 
+                            },
+                            { 
+                                id: 2, 
                                 email: 'admin@peluqueria.weekly', 
                                 password_hash: '$2b$10$FPuiZ88vpb307B6Pl467s.ir/aNT7tRYcXPtHwSMowlMYD9pZUc0i', // password: "password"
                                 nombre: 'Admin Peluquería', 
@@ -307,7 +315,7 @@ const devModeMiddleware = async (req, res, next) => {
                                 activo: true 
                             },
                             { 
-                                id: 2, 
+                                id: 3, 
                                 email: 'supervisor@peluqueria.weekly', 
                                 password_hash: '$2b$10$FPuiZ88vpb307B6Pl467s.ir/aNT7tRYcXPtHwSMowlMYD9pZUc0i', // password: "password"
                                 nombre: 'Supervisor Peluquería', 
@@ -315,7 +323,7 @@ const devModeMiddleware = async (req, res, next) => {
                                 activo: true 
                             },
                             { 
-                                id: 3, 
+                                id: 4, 
                                 email: 'admin@academia.weekly', 
                                 password_hash: '$2b$10$FPuiZ88vpb307B6Pl467s.ir/aNT7tRYcXPtHwSMowlMYD9pZUc0i', // password: "password"
                                 nombre: 'Admin Academia', 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Users, MapPin, CheckCircle, ArrowRight, Star, Phone, Mail } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, CheckCircle, ArrowRight, Star, Phone, Mail, Play } from "lucide-react";
 import InteractiveMap from "../components/InteractiveMap";
+import LandingNavbar from "../components/LandingNavbar";
+import AnimatedBackground from "../components/AnimatedBackground";
 import "./LandingPage.css";
 
 const LandingPage = () => {
@@ -10,26 +12,41 @@ const LandingPage = () => {
         setIsVisible(true);
     }, []);
 
+    // Siempre mostrar el mes actual
+    const currentDate = new Date();
+    const currentMonth = currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const currentDay = currentDate.getDate();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const daysInMonth = lastDayOfMonth.getDate();
+    const startingDayOfWeek = firstDayOfMonth.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+    
+    // Generar días del mes
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    
+    // Días anteriores al primer día del mes (para completar la primera semana)
+    const emptyDays = Array.from({ length: startingDayOfWeek }, (_, i) => i);
+
     const features = [
         {
             icon: <Calendar className="feature-icon" />,
-            title: "Gestión de Citas",
-            description: "Calendario inteligente que organiza automáticamente tus citas y reservas."
+            title: "Calendario Inteligente",
+            description: "Búsqueda inteligente de clientes con sugerencias automáticas y filtrado dinámico de servicios. Actualización en tiempo real con múltiples usuarios."
         },
         {
             icon: <Users className="feature-icon" />,
             title: "Gestión de Clientes",
-            description: "Base de datos completa de clientes con historial de servicios y preferencias."
+            description: "Base de datos completa de clientes con historial de servicios y preferencias. Búsqueda rápida con autocompletado inteligente."
         },
         {
             icon: <Clock className="feature-icon" />,
             title: "Horarios Flexibles",
-            description: "Configura horarios de trabajo, días libres y disponibilidad por servicio."
+            description: "Configura horarios de trabajo, días libres y disponibilidad por servicio. Validación automática de conflictos de horarios."
         },
         {
             icon: <CheckCircle className="feature-icon" />,
-            title: "Confirmaciones Automáticas",
-            description: "Recordatorios por WhatsApp y email para reducir las faltas."
+            title: "Automatización Inteligente",
+            description: "Próximamente: IA para registro automático de reservas desde mensajes y automatización con n8n para flujos de trabajo avanzados."
         }
     ];
 
@@ -56,8 +73,12 @@ const LandingPage = () => {
 
     return (
         <div className={`landing-page ${isVisible ? 'visible' : ''}`}>
+            {/* Navigation */}
+            <LandingNavbar />
+            
             {/* Hero Section */}
             <section className="hero-section">
+                <AnimatedBackground />
                 <div className="hero-background">
                     <div className="hero-gradient"></div>
                 </div>
@@ -66,10 +87,11 @@ const LandingPage = () => {
                         <h1 className="hero-title">
                             <span className="weekly-text">WEEKLY</span>
                             <br />
-                            Tu Sistema de Agendamiento Inteligente
+                            <span className="hero-subtitle">Tu Sistema de Agendamiento Inteligente</span>
                         </h1>
                         <p className="hero-description">
-                            Simplifica la gestión de citas, clientes y horarios de tu negocio con nuestra plataforma SaaS completa. 
+                            Simplifica la gestión de citas con búsqueda inteligente, filtrado automático y actualización en tiempo real. 
+                            Próximamente integración con IA para registro automático de reservas y automatización con n8n.
                             Diseñada para peluquerías, academias, clínicas y más.
                         </p>
                         <div className="hero-buttons">
@@ -103,19 +125,35 @@ const LandingPage = () => {
                         <div className="calendar-preview">
                             <div className="calendar-header">
                                 <div className="calendar-nav">
-                                    <button>‹</button>
-                                    <span>Enero 2024</span>
-                                    <button>›</button>
+                                    <span>{currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1)}</span>
                                 </div>
                             </div>
                             <div className="calendar-grid">
-                                {Array.from({ length: 21 }, (_, i) => (
-                                    <div key={i} className={`calendar-day ${i === 15 ? 'today' : ''} ${i > 10 && i < 16 ? 'has-events' : ''}`}>
-                                        <span>{i + 1}</span>
-                                        {i === 12 && <div className="event-dot"></div>}
-                                        {i === 15 && <div className="event-dot today-event"></div>}
-                                    </div>
+                                {/* Días de la semana */}
+                                <div className="calendar-weekdays">
+                                    <div>Dom</div>
+                                    <div>Lun</div>
+                                    <div>Mar</div>
+                                    <div>Mié</div>
+                                    <div>Jue</div>
+                                    <div>Vie</div>
+                                    <div>Sáb</div>
+                                </div>
+                                {/* Días vacíos al inicio */}
+                                {emptyDays.map((_, i) => (
+                                    <div key={`empty-${i}`} className="calendar-day empty"></div>
                                 ))}
+                                {/* Días del mes */}
+                                {days.map((day) => {
+                                    const isToday = day === currentDay;
+                                    const hasEvent = day % 7 === 0 || day === currentDay - 3 || day === currentDay + 3;
+                                    return (
+                                        <div key={day} className={`calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-events' : ''}`}>
+                                            <span>{day}</span>
+                                            {hasEvent && <div className={`event-dot ${isToday ? 'today-event' : ''}`}></div>}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -141,7 +179,8 @@ const LandingPage = () => {
                     <div className="section-header">
                         <h2 className="section-title">¿Por qué elegir WEEKLY?</h2>
                         <p className="section-description">
-                            Una plataforma completa diseñada específicamente para negocios de servicios
+                            Una plataforma inteligente con búsqueda avanzada, filtrado automático y actualización en tiempo real. 
+                            Próximamente con IA para automatización completa de reservas.
                         </p>
                     </div>
                     <div className="features-grid">

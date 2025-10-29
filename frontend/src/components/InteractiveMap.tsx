@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -92,7 +92,47 @@ const createCustomIcon = (category: string) => {
   });
 };
 
+// Categorías disponibles
+const categories = [
+  { name: 'Peluquería', color: '#ff6b6b', icon: '✂️' },
+  { name: 'Academia', color: '#4ecdc4', icon: '🎓' },
+  { name: 'Clínica', color: '#45b7d1', icon: '🏥' },
+  { name: 'Gimnasio', color: '#96ceb4', icon: '💪' },
+  { name: 'Spa', color: '#feca57', icon: '🧘' }
+];
+
 const InteractiveMap: React.FC = () => {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(categories.map(cat => cat.name));
+  const [showAll, setShowAll] = useState(true);
+
+  // Función para alternar categoría
+  const toggleCategory = (categoryName: string) => {
+    setSelectedCategories(prev => {
+      const newSelection = prev.includes(categoryName)
+        ? prev.filter(cat => cat !== categoryName)
+        : [...prev, categoryName];
+      
+      setShowAll(newSelection.length === categories.length);
+      return newSelection;
+    });
+  };
+
+  // Función para mostrar/ocultar todas las categorías
+  const toggleShowAll = () => {
+    if (showAll) {
+      setSelectedCategories([]);
+      setShowAll(false);
+    } else {
+      setSelectedCategories(categories.map(cat => cat.name));
+      setShowAll(true);
+    }
+  };
+
+  // Filtrar negocios basado en categorías seleccionadas
+  const filteredBusinesses = businessLocations.filter(business => 
+    selectedCategories.includes(business.category)
+  );
+
   useEffect(() => {
     // Fix para iconos de Leaflet en React
     delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -109,6 +149,36 @@ const InteractiveMap: React.FC = () => {
         <h3>Negocios que confían en WEEKLY</h3>
         <p>Descubre los establecimientos en Arequipa que ya gestionan sus citas de manera inteligente</p>
       </div>
+
+      {/* Leyenda interactiva en la parte superior */}
+      <div className="interactive-legend">
+        <div className="legend-controls">
+          <button 
+            className={`legend-toggle-btn ${showAll ? 'active' : ''}`}
+            onClick={toggleShowAll}
+          >
+            {showAll ? 'Ocultar Todo' : 'Mostrar Todo'}
+          </button>
+        </div>
+        <div className="legend-buttons">
+          {categories.map((category) => (
+            <button
+              key={category.name}
+              className={`legend-button ${selectedCategories.includes(category.name) ? 'active' : 'inactive'}`}
+              onClick={() => toggleCategory(category.name)}
+              style={{
+                '--category-color': category.color
+              } as React.CSSProperties}
+            >
+              <span className="legend-icon">{category.icon}</span>
+              <span className="legend-text">{category.name}</span>
+              <span className="legend-count">
+                ({businessLocations.filter(b => b.category === category.name).length})
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
       
       <div className="map-wrapper">
         <MapContainer
@@ -122,7 +192,7 @@ const InteractiveMap: React.FC = () => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           
-          {businessLocations.map((business) => (
+          {filteredBusinesses.map((business) => (
             <Marker
               key={business.id}
               position={business.coordinates}
@@ -146,32 +216,6 @@ const InteractiveMap: React.FC = () => {
             </Marker>
           ))}
         </MapContainer>
-      </div>
-
-      <div className="map-legend">
-        <h4>Leyenda</h4>
-        <div className="legend-items">
-          <div className="legend-item">
-            <div className="legend-color" style={{ backgroundColor: '#ff6b6b' }}></div>
-            <span>Peluquerías</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-color" style={{ backgroundColor: '#4ecdc4' }}></div>
-            <span>Academias</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-color" style={{ backgroundColor: '#45b7d1' }}></div>
-            <span>Clínicas</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-color" style={{ backgroundColor: '#96ceb4' }}></div>
-            <span>Gimnasios</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-color" style={{ backgroundColor: '#feca57' }}></div>
-            <span>Spas</span>
-          </div>
-        </div>
       </div>
     </div>
   );
