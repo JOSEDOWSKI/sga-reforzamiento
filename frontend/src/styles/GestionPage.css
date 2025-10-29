@@ -3,6 +3,7 @@
   animation-fill-mode: backwards;
   max-width: 100%;
   overflow-x: hidden;
+  color: #ffffff;
 }
 
 @keyframes contentFadeIn {
@@ -24,26 +25,30 @@
 }
 
 .form-section, .list-section {
-  background-color: var(--card);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 2.5rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .form-section:hover, .list-section:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .form-section h2, .list-section h2 {
   margin-top: 0;
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .form-section form {
@@ -61,16 +66,16 @@
 .form-section label {
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--card-foreground);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .form-group input, .form-group select {
   width: 100%;
   padding: 0.85rem 1rem;
-  border: 1px solid var(--border);
-  background-color: var(--muted);
-  color: var(--foreground);
-  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -88,9 +93,9 @@
 
 .form-group input:focus, .form-group select:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent);
-  background-color: var(--background);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .form-group select:disabled {
@@ -1274,4 +1279,51 @@ IDE PARA DROPDOWN - ESTILOS ESPECÍFICOS CON ALTA PRIORIDAD */
   background: var(--primary) !important;
   color: var(--primary-foreground) !important;
   box-shadow: none !important;
+}
+
+/* Estilos específicos para la gestión de tenants */
+.platform-url {
+  color: #667eea;
+  font-family: monospace;
+  font-size: 0.8em;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.action-buttons .btn {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
 }

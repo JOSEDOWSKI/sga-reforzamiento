@@ -23,23 +23,23 @@ const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
         <nav className={`navbar ${isNavOpen ? 'is-open' : ''}`}>
             <div className="nav-header">
                 <LogoPlaceholder />
-                <NavLink to="/" className="nav-brand">SGA Reforzamiento</NavLink>
+                <NavLink to="/" className="nav-brand">WEEKLY</NavLink>
             </div>
             <div className="nav-links">
                 <NavLink id="nav-dashboard" to="/" data-tooltip="Página principal">
                     <DashboardIcon /> Dashboard
                 </NavLink>
-                <NavLink  id="nav-cursos" to="/cursos" data-tooltip="Administrar cursos">
-                    <CoursesIcon /> Cursos
+                <NavLink  id="nav-servicios" to="/servicios" data-tooltip="Administrar servicios">
+                    <CoursesIcon /> Servicios
                 </NavLink>
-                <NavLink  id="nav-profesores" to="/profesores" data-tooltip="Administrar profesores">
-                    <ProfessorsIcon /> Profesores
+                <NavLink  id="nav-staff" to="/staff" data-tooltip="Administrar personal">
+                    <ProfessorsIcon /> Staff
                 </NavLink>
-                <NavLink  id="nav-alumnos" to="/alumnos" data-tooltip="Administrar alumnos">
-                    <StudentsIcon /> Alumnos
+                <NavLink  id="nav-clientes" to="/clientes" data-tooltip="Administrar clientes">
+                    <StudentsIcon /> Clientes
                 </NavLink>
-                <NavLink id="nav-temas" to="/temas" data-tooltip="Administrar temas">
-                    <TopicsIcon /> Temas
+                <NavLink id="nav-categorias" to="/categorias" data-tooltip="Administrar categorías">
+                    <TopicsIcon /> Categorías
                 </NavLink>
                 <NavLink id="nav-estadisticas" to="/estadisticas" data-tooltip="Ver estadísticas del sistema">
                     <StatsIcon /> Estadísticas

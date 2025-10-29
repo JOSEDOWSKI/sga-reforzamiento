@@ -1,0 +1,339 @@
+/* Interactive Map Styles */
+.interactive-map-container {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%);
+  padding: 60px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive-map-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(139, 69, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.map-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.map-header h3 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.map-header p {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.map-wrapper {
+  position: relative;
+  z-index: 2;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-container {
+  border-radius: 20px;
+  background: #1a1a1a;
+}
+
+/* Estilos para los popups personalizados */
+.custom-popup .leaflet-popup-content-wrapper {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+}
+
+.popup-content {
+  padding: 20px;
+  min-width: 250px;
+}
+
+.popup-content h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content .category {
+  font-size: 0.9rem;
+  color: #4ecdc4;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.popup-content .address {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.popup-content .phone {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.popup-content .stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.popup-content .rating {
+  font-size: 0.9rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.popup-content .clients {
+  font-size: 0.9rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.visit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.visit-button:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Leyenda interactiva del mapa */
+.interactive-legend {
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.legend-controls {
+  margin-bottom: 20px;
+}
+
+.legend-toggle-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.legend-toggle-btn:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.legend-toggle-btn.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.legend-toggle-btn.active:hover {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.legend-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  position: relative;
+  overflow: hidden;
+}
+
+.legend-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.legend-button:hover::before {
+  left: 100%;
+}
+
+.legend-button.active {
+  background: var(--category-color);
+  border-color: var(--category-color);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.legend-button.inactive {
+  opacity: 0.4;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.legend-button.inactive:hover {
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.legend-icon {
+  font-size: 1.1rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.legend-text {
+  font-weight: 600;
+}
+
+.legend-count {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .interactive-map-container {
+    padding: 40px 0;
+  }
+
+  .map-header h3 {
+    font-size: 2rem;
+  }
+
+  .map-header p {
+    font-size: 1rem;
+    padding: 0 20px;
+  }
+
+  .map-wrapper {
+    margin: 0 20px;
+    border-radius: 16px;
+  }
+
+  .map-container {
+    height: 400px !important;
+  }
+
+  .legend-buttons {
+    gap: 12px;
+  }
+
+  .legend-button {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+
+  .legend-toggle-btn {
+    padding: 10px 20px;
+    font-size: 0.8rem;
+  }
+
+  .popup-content {
+    min-width: 200px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-header h3 {
+    font-size: 1.8rem;
+  }
+
+  .map-container {
+    height: 350px !important;
+  }
+
+  .legend-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legend-button {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    width: 200px;
+    justify-content: center;
+  }
+
+  .legend-toggle-btn {
+    padding: 8px 16px;
+    font-size: 0.75rem;
+  }
+
+  .popup-content {
+    min-width: 180px;
+    padding: 12px;
+  }
+
+  .popup-content .stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

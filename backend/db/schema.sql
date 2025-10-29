@@ -1,16 +1,8 @@
--- Tabla de configuración del tenant
-CREATE TABLE tenant_config (
-    id SERIAL PRIMARY KEY,
-    tenant_name VARCHAR(100) NOT NULL,
-    display_name VARCHAR(255) NOT NULL,
-    logo_url VARCHAR(500),
-    primary_color VARCHAR(7) DEFAULT '#007bff',
-    secondary_color VARCHAR(7) DEFAULT '#6c757d',
-    timezone VARCHAR(50) DEFAULT 'UTC',
-    locale VARCHAR(10) DEFAULT 'es-ES',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- =============================================
+-- WEEKLY - Sistema de Agendamiento Universal
+-- Esquema de Base de Datos por TENANT
+-- Dominio: cliente.weekly
+-- =============================================
 
 -- Tabla de usuarios del sistema (administradores, vendedores, etc.)
 CREATE TABLE usuarios (
@@ -18,43 +10,46 @@ CREATE TABLE usuarios (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     nombre VARCHAR(255) NOT NULL,
-    rol VARCHAR(50) NOT NULL DEFAULT 'vendedor', -- admin, vendedor, profesor
+    rol VARCHAR(50) NOT NULL DEFAULT 'vendedor', -- admin, vendedor, colaborador
     activo BOOLEAN DEFAULT true,
     ultimo_acceso TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de Cursos
-CREATE TABLE cursos (
+-- Tabla de Establecimientos (reemplaza cursos)
+CREATE TABLE establecimientos (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
-    precio DECIMAL(10,2),
-    duracion_minutos INTEGER DEFAULT 60,
+    tipo_negocio VARCHAR(100) NOT NULL, -- peluqueria, clases_reforzamiento, cancha_futbol, veterinaria, odontologia, etc.
+    direccion TEXT,
+    telefono VARCHAR(20),
+    email VARCHAR(255),
     activo BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(nombre)
 );
 
--- Tabla de Profesores
-CREATE TABLE profesores (
+-- Tabla de Colaboradores (reemplaza profesores)
+CREATE TABLE colaboradores (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     telefono VARCHAR(20),
     especialidades TEXT[],
     tarifa_por_hora DECIMAL(10,2),
+    establecimiento_id INTEGER REFERENCES establecimientos(id) ON DELETE CASCADE,
     activo BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de Alumnos
-CREATE TABLE alumnos (
+-- Tabla de Clientes (reemplaza alumnos)
+CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL UNIQUE,
+    nombre VARCHAR(255) NOT NULL,
     telefono VARCHAR(20) NOT NULL,
     dni VARCHAR(50),
     email VARCHAR(255),
@@ -63,45 +58,50 @@ CREATE TABLE alumnos (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de Temas (dependen de un curso)
-CREATE TABLE temas (
+-- Tabla de horarios de atención (flexible por día de la semana)
+CREATE TABLE horarios_atencion (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    descripcion TEXT,
-    curso_id INT NOT NULL,
-    orden INTEGER DEFAULT 1,
+    establecimiento_id INTEGER REFERENCES establecimientos(id) ON DELETE CASCADE,
+    dia_semana INTEGER NOT NULL CHECK (dia_semana >= 0 AND dia_semana <= 6), -- 0=domingo, 1=lunes, etc.
+    hora_apertura TIME NOT NULL,
+    hora_cierre TIME NOT NULL,
+    intervalo_minutos INTEGER DEFAULT 30, -- Intervalo entre citas (30 min, 1 hora, etc.)
     activo BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(establecimiento_id, dia_semana)
 );
 
--- Tabla de Reservas
+-- Tabla de Reservas (actualizada)
 CREATE TABLE reservas (
     id SERIAL PRIMARY KEY,
     fecha_hora_inicio TIMESTAMP NOT NULL,
     fecha_hora_fin TIMESTAMP NOT NULL,
-    profesor_id INT NOT NULL,
-    curso_id INT NOT NULL,
-    tema_id INT NOT NULL,
-    nombre_alumno VARCHAR(255) NOT NULL,
-    email_alumno VARCHAR(255),
-    telefono_alumno VARCHAR(20),
+    colaborador_id INT NOT NULL,
+    establecimiento_id INT NOT NULL,
+    cliente_id INT NOT NULL,
+    servicio_descripcion TEXT, -- Descripción del servicio (en lugar de tema específico)
     notas TEXT,
     precio DECIMAL(10,2),
     estado VARCHAR(20) DEFAULT 'confirmada', -- confirmada, cancelada, completada, no_asistio
     creado_por INT, -- ID del usuario que crea la reserva
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (profesor_id) REFERENCES profesores(id),
-    FOREIGN KEY (curso_id) REFERENCES cursos(id),
-    FOREIGN KEY (tema_id) REFERENCES temas(id),
+    FOREIGN KEY (colaborador_id) REFERENCES colaboradores(id),
+    FOREIGN KEY (establecimiento_id) REFERENCES establecimientos(id),
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
     FOREIGN KEY (creado_por) REFERENCES usuarios(id)
 );
 
 -- Índices para mejorar performance
 CREATE INDEX idx_reservas_fecha ON reservas(fecha_hora_inicio);
-CREATE INDEX idx_reservas_profesor ON reservas(profesor_id);
+CREATE INDEX idx_reservas_colaborador ON reservas(colaborador_id);
+CREATE INDEX idx_reservas_establecimiento ON reservas(establecimiento_id);
+CREATE INDEX idx_reservas_cliente ON reservas(cliente_id);
 CREATE INDEX idx_reservas_estado ON reservas(estado);
-CREATE INDEX idx_temas_curso ON temas(curso_id);
+CREATE INDEX idx_colaboradores_establecimiento ON colaboradores(establecimiento_id);
+CREATE INDEX idx_horarios_establecimiento ON horarios_atencion(establecimiento_id);
+CREATE INDEX idx_horarios_dia_semana ON horarios_atencion(dia_semana);
+CREATE INDEX idx_horarios_activo ON horarios_atencion(activo);
 CREATE INDEX idx_usuarios_email ON usuarios(email);
 CREATE INDEX idx_usuarios_rol ON usuarios(rol); 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../components/Tourlauncher.css";
 
-type Phase = "dashboard" | "cursos" | "profesores" | "temas" | "estadisticas";
+type Phase = "dashboard" | "servicios" | "staff" | "categorias" | "estadisticas";
 const CMD_KEY = "__tour_cmd_v1";
 const MASTER_ONCE = "tour_master_once_v1";
 

@@ -79,9 +79,10 @@ function cleanExpiredEntries(now, windowMs) {
 }
 
 // Rate limit por defecto usando variables de entorno
+// TEMPORAL: Aumentado para desarrollo
 const defaultRateLimit = createRateLimit(
     parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos
-    parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100 // 100 requests
+    parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 10000 // 10000 requests (desarrollo)
 );
 
 module.exports = {

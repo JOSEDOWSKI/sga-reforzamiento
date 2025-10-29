@@ -7,7 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-    const { isAuthenticated, isLoading } = useAuth();
+    // TEMPORAL: Bypass de autenticación para debug
+    const isAuthenticated = true;
+    const isLoading = false;
 
     if (isLoading) {
         return (

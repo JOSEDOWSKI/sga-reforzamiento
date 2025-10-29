@@ -6,6 +6,7 @@ require('dotenv').config(); // Cargar variables de entorno
 // Importar middlewares
 const corsMiddleware = require('./middleware/corsMiddleware');
 const tenantMiddleware = require('./middleware/tenantMiddleware');
+const devModeMiddleware = require('./middleware/devModeMiddleware');
 const { defaultRateLimit } = require('./middleware/rateLimitMiddleware');
 
 const app = express();
@@ -33,11 +34,21 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Middleware para detectar tenant (aplicar a todas las rutas de API)
-app.use('/api', tenantMiddleware);
+// En modo desarrollo, usar devModeMiddleware si hay problemas con la base de datos
+if (process.env.NODE_ENV === 'development' && process.env.USE_DEV_MODE === 'true') {
+  console.log('🔧 Usando modo de desarrollo (sin base de datos)');
+  app.use('/api', devModeMiddleware);
+} else {
+  app.use('/api', tenantMiddleware);
+}
 
 // Rutas de autenticación (no requieren autenticación previa)
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
+
+// Rutas de autenticación global (super admin)
+const globalAuthRoutes = require('./routes/globalAuthRoutes');
+app.use('/api/global-auth', globalAuthRoutes);
 
 // Rutas de la API
 const cursoRoutes = require('./routes/cursoRoutes');
@@ -55,9 +66,30 @@ app.use('/api/reservas', reservaRoutes);
 const temaDirectRoutes = require('./routes/temaDirectRoutes');
 app.use('/api/temas', temaDirectRoutes);
 
+// Nuevas rutas para WEEKLY
+const establecimientoRoutes = require('./routes/establecimientoRoutes');
+app.use('/api/establecimientos', establecimientoRoutes);
+
+const colaboradorRoutes = require('./routes/colaboradorRoutes');
+app.use('/api/colaboradores', colaboradorRoutes);
+
+const clienteRoutes = require('./routes/clienteRoutes');
+app.use('/api/clientes', clienteRoutes);
+
+const horarioRoutes = require('./routes/horarioRoutes');
+app.use('/api/horarios', horarioRoutes);
+
 // Rutas de administración del sistema SaaS
 const adminRoutes = require('./routes/adminRoutes');
 app.use('/api/admin', adminRoutes);
+
+// Rutas de super administración (panel global)
+const tenantRoutes = require('./routes/tenantRoutes');
+app.use('/api/super-admin/tenants', tenantRoutes);
+
+// Rutas de configuración de tenant
+const tenantConfigRoutes = require('./routes/tenantConfigRoutes');
+app.use('/api/tenants', tenantConfigRoutes);
 
 // Ruta de salud del sistema
 app.get('/health', (req, res) => {

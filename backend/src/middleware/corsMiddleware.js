@@ -14,7 +14,8 @@ const corsOptions = {
             if (!origin || 
                 origin.includes('localhost') || 
                 origin.includes('127.0.0.1') ||
-                origin.includes('0.0.0.0')) {
+                origin.includes('0.0.0.0') ||
+                origin.includes('.weekly:5173')) {
                 return callback(null, true);
             }
         }

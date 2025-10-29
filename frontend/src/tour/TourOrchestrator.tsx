@@ -4,9 +4,9 @@ import GuidedTourIsland, { TourStep } from "./GuidedTourIsland";
 
 type Phase =
   | "dashboard"
-  | "cursos"
-  | "profesores"
-  | "temas"
+  | "servicios"
+  | "staff"
+  | "categorias"
   | "estadisticas"
   | "done"
   | null;
@@ -17,9 +17,9 @@ const MASTER_ONCE = "tour_master_once_v1";
 // onceKeys por sección
 const ONCE_KEYS = [
   "tour_dashboard_v1",
-  "tour_cursos_v1",
-  "tour_profesores_v1",
-  "tour_temas_v1",
+  "tour_servicios_v1",
+  "tour_staff_v1",
+  "tour_categorias_v1",
   "tour_estadisticas_v1",
 ];
 
@@ -30,9 +30,9 @@ type Cmd = { phase?: Phase; forceReset?: boolean; nonce?: number | string };
 function navigateTo(path: string) {
   const map: Record<string, string> = {
     "/": "#nav-dashboard",
-    "/cursos": "#nav-cursos",
-    "/profesores": "#nav-profesores",
-    "/temas": "#nav-temas",
+    "/servicios": "#nav-servicios",
+    "/staff": "#nav-staff",
+    "/categorias": "#nav-categorias",
     "/estadisticas": "#nav-estadisticas",
   };
   const sel = map[path];
@@ -42,9 +42,9 @@ function navigateTo(path: string) {
 
 function phaseToPath(phase: Phase) {
   if (phase === "dashboard") return "/";
-  if (phase === "cursos") return "/cursos";
-  if (phase === "profesores") return "/profesores";
-  if (phase === "temas") return "/temas";
+  if (phase === "servicios") return "/servicios";
+  if (phase === "staff") return "/staff";
+  if (phase === "categorias") return "/categorias";
   if (phase === "estadisticas") return "/estadisticas";
   return "/";
 }
@@ -292,13 +292,13 @@ export default function TourOrchestrator() {
         onEnter: () => setSelectFirst("modal-estado-pago"),
       },
       {
-        selector: "#nav-cursos",
-        title: "Ahora, Cursos",
-        content: "Conozcamos cómo crear un curso. (Puedes reiniciar el tutorial cuando quieras.)",
+        selector: "#nav-servicios",
+        title: "Ahora, Servicios",
+        content: "Conozcamos cómo crear un servicio. (Puedes reiniciar el tutorial cuando quieras.)",
         placement: "right",
         onEnter: () => {
-          localStorage.setItem(PHASE_KEY, "cursos");
-          navigateTo("/cursos");
+          localStorage.setItem(PHASE_KEY, "servicios");
+          navigateTo("/servicios");
         },
       },
     ],
@@ -401,13 +401,13 @@ export default function TourOrchestrator() {
         },
       },
       {
-        selector: "#nav-profesores",
-        title: "Vamos a Profesores",
-        content: "Registremos profesores y su especialidad.",
+        selector: "#nav-staff",
+        title: "Vamos a Staff",
+        content: "Registremos personal y su especialidad.",
         placement: "right",
         onEnter: () => {
-          localStorage.setItem(PHASE_KEY, "profesores");
-          navigateTo("/profesores");
+          localStorage.setItem(PHASE_KEY, "staff");
+          navigateTo("/staff");
         },
       },
     ],
@@ -495,13 +495,13 @@ export default function TourOrchestrator() {
         },
       },
       {
-        selector: "#nav-temas",
-        title: "Ahora, Temas",
-        content: "Creemos y asociemos temas a un curso.",
+        selector: "#nav-categorias",
+        title: "Ahora, Categorías",
+        content: "Creemos y asociemos categorías a un servicio.",
         placement: "right",
         onEnter: () => {
-          localStorage.setItem(PHASE_KEY, "temas");
-          navigateTo("/temas");
+          localStorage.setItem(PHASE_KEY, "categorias");
+          navigateTo("/categorias");
         },
       },
     ],

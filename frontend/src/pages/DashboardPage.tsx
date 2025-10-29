@@ -15,20 +15,20 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 
 // --- Definición de Tipos ---
-interface Curso {
+interface Servicio {
   id: number;
   nombre: string;
 }
-interface Tema {
+interface Categoria {
   id: number;
   nombre: string;
   curso_id: number;
 }
-interface Profesor {
+interface Staff {
   id: number;
   nombre: string;
 }
-interface Alumno {
+interface Cliente {
   id: number;
   nombre: string;
   telefono: string;
@@ -60,36 +60,36 @@ const DashboardPage: React.FC = () => {
   const { id: tenant } = useTenant();
   
   // --- Estados para los datos ---
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [temas, setTemas] = useState<Tema[]>([]);
-  const [profesores, setProfesores] = useState<Profesor[]>([]);
+  const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [staff, setStaff] = useState<Staff[]>([]);
   const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [alumnosSugeridos, setAlumnosSugeridos] = useState<Alumno[]>([]);
+  const [clientesSugeridos, setClientesSugeridos] = useState<Cliente[]>([]);
 
   // --- Estados para filtros ---
-  const [filtroCurso, setFiltroCurso] = useState("");
-  const [filtroProfesor, setFiltroProfesor] = useState("");
-  const [showCursoDropdown, setShowCursoDropdown] = useState(false);
-  const [showProfesorDropdown, setShowProfesorDropdown] = useState(false);
+  const [filtroServicio, setFiltroServicio] = useState("");
+  const [filtroStaff, setFiltroStaff] = useState("");
+  const [showServicioDropdown, setShowServicioDropdown] = useState(false);
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
 
   // --- Estados para el formulario ---
-  const [selectedCurso, setSelectedCurso] = useState("");
-  const [selectedTema, setSelectedTema] = useState("");
-  const [selectedProfesor, setSelectedProfesor] = useState("");
-  const [telefonoAlumno, setTelefonoAlumno] = useState("");
+  const [selectedServicio, setSelectedServicio] = useState("");
+  const [selectedCategoria, setSelectedCategoria] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState("");
+  const [telefonoCliente, setTelefonoCliente] = useState("");
   const [fechaHora, setFechaHora] = useState("");
   const [duracionHoras, setDuracionHoras] = useState("1");
   const [precio, setPrecio] = useState("0");
   const [estadoPago, setEstadoPago] = useState("Falta pagar");
 
-  // --- Estados para el buscador de alumnos ---
-  const [busquedaAlumno, setBusquedaAlumno] = useState("");
-  const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(null);
+  // --- Estados para el buscador de clientes ---
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  const [crearNuevoAlumno, setCrearNuevoAlumno] = useState(false);
-  const [nuevoAlumnoNombre, setNuevoAlumnoNombre] = useState("");
-  const [nuevoAlumnoTelefono, setNuevoAlumnoTelefono] = useState("");
-  const [buscandoAlumnos, setBuscandoAlumnos] = useState(false);
+  const [crearNuevoCliente, setCrearNuevoCliente] = useState(false);
+  const [nuevoClienteNombre, setNuevoClienteNombre] = useState("");
+  const [nuevoClienteTelefono, setNuevoClienteTelefono] = useState("");
+  const [buscandoClientes, setBuscandoClientes] = useState(false);
 
   // --- Estados para el modal ---
   const [modalReserva, setModalReserva] = useState<ModalReserva>({
@@ -120,22 +120,22 @@ const DashboardPage: React.FC = () => {
 
     window.addEventListener("tour:open-reserva" as any, handler);
     return () => window.removeEventListener("tour:open-reserva" as any, handler);
-  }, [cursos, profesores, temas]); // aseguramos que existan datos para prefills
+  }, [servicios, staff, categorias]); // aseguramos que existan datos para prefills
 
 
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const [cursosRes, profesRes, reservasRes, temasRes] = await Promise.all([
-        apiClient.get("/cursos"),
-        apiClient.get("/profesores"),
+      const [serviciosRes, staffRes, reservasRes, categoriasRes] = await Promise.all([
+        apiClient.get("/cursos"), // Still using old API endpoints
+        apiClient.get("/profesores"), // Still using old API endpoints
         apiClient.get("/reservas"),
-        apiClient.get("/temas"),
+        apiClient.get("/temas"), // Still using old API endpoints
       ]);
-      setCursos(cursosRes.data.data);
-      setProfesores(profesRes.data.data);
+      setServicios(serviciosRes.data.data);
+      setStaff(staffRes.data.data);
       setReservas(reservasRes.data.data);
-      setTemas(temasRes.data.data);
+      setCategorias(categoriasRes.data.data);
       setError("");
     } catch (err) {
       setError("Error al cargar datos iniciales.");
@@ -145,53 +145,53 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // --- Función para buscar alumnos optimizada ---
-  const buscarAlumnos = async (termino: string) => {
+  // --- Función para buscar clientes optimizada ---
+  const buscarClientes = async (termino: string) => {
     if (termino.length < 1) {
-      setAlumnosSugeridos([]);
-      setBuscandoAlumnos(false);
+      setClientesSugeridos([]);
+      setBuscandoClientes(false);
       return;
     }
 
-    setBuscandoAlumnos(true);
+    setBuscandoClientes(true);
     try {
-      const response = await apiClient.get(`/alumnos/search?q=${encodeURIComponent(termino)}`);
-      setAlumnosSugeridos(response.data.data);
+      const response = await apiClient.get(`/alumnos/search?q=${encodeURIComponent(termino)}`); // Still using old API endpoint
+      setClientesSugeridos(response.data.data);
     } catch (err) {
-      console.error("Error buscando alumnos:", err);
-      setAlumnosSugeridos([]);
+      console.error("Error buscando clientes:", err);
+      setClientesSugeridos([]);
     } finally {
-      setBuscandoAlumnos(false);
+      setBuscandoClientes(false);
     }
   };
 
 
   // --- Función para manejar clic en botón "+" ---
-  const handleCrearNuevoAlumno = () => {
-    setCrearNuevoAlumno(true);
-    setBusquedaAlumno(""); // Limpiar búsqueda
-    setAlumnoSeleccionado(null);
+  const handleCrearNuevoCliente = () => {
+    setCrearNuevoCliente(true);
+    setBusquedaCliente(""); // Limpiar búsqueda
+    setClienteSeleccionado(null);
     setMostrarSugerencias(false);
-    setTelefonoAlumno("");
+    setTelefonoCliente("");
   };
 
-  // --- Función para manejar selección de alumno existente ---
-  const handleSeleccionarAlumno = (alumno: Alumno) => {
-    setAlumnoSeleccionado(alumno);
-    setTelefonoAlumno(alumno.telefono);
-    setBusquedaAlumno(alumno.nombre);
+  // --- Función para manejar selección de cliente existente ---
+  const handleSeleccionarCliente = (cliente: Cliente) => {
+    setClienteSeleccionado(cliente);
+    setTelefonoCliente(cliente.telefono);
+    setBusquedaCliente(cliente.nombre);
     setMostrarSugerencias(false);
-    setCrearNuevoAlumno(false); // Ocultar formulario de crear alumno
+    setCrearNuevoCliente(false); // Ocultar formulario de crear cliente
   };
 
   // --- Configurar actualizaciones en tiempo real ---
   const { isConnected } = useRealtimeData({
     events: [
       'reserva-created', 'reserva-updated', 'reserva-deleted', 'reserva-cancelled',
-      'alumno-created', 'alumno-updated', 'alumno-deleted',
-      'curso-created', 'curso-updated', 'curso-deleted',
-      'profesor-created', 'profesor-updated', 'profesor-deleted',
-      'tema-created', 'tema-updated', 'tema-deleted'
+      'cliente-created', 'cliente-updated', 'cliente-deleted',
+      'servicio-created', 'servicio-updated', 'servicio-deleted',
+      'staff-created', 'staff-updated', 'staff-deleted',
+      'categoria-created', 'categoria-updated', 'categoria-deleted'
     ],
     onUpdate: fetchAllData,
     enabled: true
@@ -221,26 +221,26 @@ const DashboardPage: React.FC = () => {
     return () => window.removeEventListener('realtime:event', handler as any);
   }, []);
 
-  // --- Efecto para búsqueda de alumnos con debounce optimizado ---
+  // --- Efecto para búsqueda de clientes con debounce optimizado ---
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (busquedaAlumno.trim().length >= 1) {
-        buscarAlumnos(busquedaAlumno);
+      if (busquedaCliente.trim().length >= 1) {
+        buscarClientes(busquedaCliente);
       } else {
-        setAlumnosSugeridos([]);
+        setClientesSugeridos([]);
       }
     }, 150); // Reducido de 300ms a 150ms para mayor rapidez
 
     return () => clearTimeout(timeoutId);
-  }, [busquedaAlumno]);
+  }, [busquedaCliente]);
 
   // --- Cerrar dropdowns al hacer click fuera ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest(".dropdown-container")) {
-        setShowCursoDropdown(false);
-        setShowProfesorDropdown(false);
+        setShowServicioDropdown(false);
+        setShowStaffDropdown(false);
       }
       if (!target.closest(".alumno-search-container")) {
         setMostrarSugerencias(false);
@@ -248,33 +248,35 @@ const DashboardPage: React.FC = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    
     if (calendarRef.current) {
       (window as any).calendarApi = calendarRef.current?.getApi();
     }
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
-  // --- Filtrar temas según el curso seleccionado ---
-  const temasFiltrados = selectedCurso
-    ? temas.filter((tema) => tema.curso_id === parseInt(selectedCurso))
+  // --- Filtrar categorías según el servicio seleccionado ---
+  const categoriasFiltradas = selectedServicio
+    ? categorias.filter((categoria) => categoria.curso_id === parseInt(selectedServicio))
     : [];
 
   // --- Filtrar reservas según filtros seleccionados ---
   const reservasFiltradas = reservas.filter((reserva) => {
     const cumpleFiltro =
-      (!filtroCurso || reserva.curso_nombre === filtroCurso) &&
-      (!filtroProfesor || reserva.profesor_nombre === filtroProfesor);
+      (!filtroServicio || reserva.curso_nombre === filtroServicio) &&
+      (!filtroStaff || reserva.profesor_nombre === filtroStaff);
     return cumpleFiltro;
   });
 
   // --- Limpiar filtros ---
   const clearFilters = () => {
-    setFiltroCurso("");
-    setFiltroProfesor("");
-    setShowCursoDropdown(false);
-    setShowProfesorDropdown(false);
+    setFiltroServicio("");
+    setFiltroStaff("");
+    setShowServicioDropdown(false);
+    setShowStaffDropdown(false);
   };
 
   // --- Manejar clic en slot del calendario (crear nueva reserva) ---
@@ -286,15 +288,15 @@ const DashboardPage: React.FC = () => {
     });
 
     // Prefills académicos (DEMO)
-    const defaultCursoId = cursos[0]?.id?.toString() || "";
-    const defaultProfesorId = profesores[0]?.id?.toString() || "";
-    const temasDeCurso = defaultCursoId
-      ? temas.filter((t) => t.curso_id === parseInt(defaultCursoId))
+    const defaultServicioId = servicios[0]?.id?.toString() || "";
+    const defaultStaffId = staff[0]?.id?.toString() || "";
+    const categoriasDeServicio = defaultServicioId
+      ? categorias.filter((c) => c.curso_id === parseInt(defaultServicioId))
       : [];
 
-    setSelectedCurso(defaultCursoId);
-    setSelectedTema(temasDeCurso[0]?.id?.toString() || "");
-    setSelectedProfesor(defaultProfesorId);
+    setSelectedServicio(defaultServicioId);
+    setSelectedCategoria(categoriasDeServicio[0]?.id?.toString() || "");
+    setSelectedStaff(defaultStaffId);
 
     const d = new Date(selectInfo.start || Date.now() + 60 * 60 * 1000);
     d.setMinutes(0, 0, 0);
@@ -335,23 +337,23 @@ const DashboardPage: React.FC = () => {
         editingReserva: reserva,
       });
       // Llenar formulario con datos de la reserva
-      const curso = cursos.find((c) => c.nombre === reserva.curso_nombre);
-      const profesor = profesores.find(
-        (p) => p.nombre === reserva.profesor_nombre
+      const servicio = servicios.find((s) => s.nombre === reserva.curso_nombre);
+      const staffMember = staff.find(
+        (s) => s.nombre === reserva.profesor_nombre
       );
 
-      setSelectedCurso(curso?.id.toString() || "");
-      setSelectedProfesor(profesor?.id.toString() || "");
-      setTelefonoAlumno(reserva.telefono_alumno || "");
+      setSelectedServicio(servicio?.id.toString() || "");
+      setSelectedStaff(staffMember?.id.toString() || "");
+      setTelefonoCliente(reserva.telefono_alumno || "");
       setDuracionHoras(reserva.duracion_horas?.toString() || "1");
       setPrecio(reserva.precio?.toString() || "0");
       setEstadoPago(reserva.estado_pago || "Falta pagar");
       
-      // Configurar el buscador de alumnos para edición
-      setBusquedaAlumno(reserva.nombre_alumno);
-      setAlumnoSeleccionado(null); // Permitir edición libre
+      // Configurar el buscador de clientes para edición
+      setBusquedaCliente(reserva.nombre_alumno);
+      setClienteSeleccionado(null); // Permitir edición libre
       setMostrarSugerencias(false);
-      setCrearNuevoAlumno(false);
+      setCrearNuevoCliente(false);
 
       // Calcular fecha y hora para el input
       const fechaInicio = new Date(reserva.fecha_hora_inicio);
@@ -367,16 +369,16 @@ const DashboardPage: React.FC = () => {
       selectedTime: null,
       editingReserva: null,
     });
-    // Limpiar estados del buscador de alumnos
-    setBusquedaAlumno("");
-    setAlumnoSeleccionado(null);
+    // Limpiar estados del buscador de clientes
+    setBusquedaCliente("");
+    setClienteSeleccionado(null);
     setMostrarSugerencias(false);
-    setCrearNuevoAlumno(false);
-    setNuevoAlumnoNombre("");
-    setNuevoAlumnoTelefono("");
-    setTelefonoAlumno("");
-    setBuscandoAlumnos(false);
-    setAlumnosSugeridos([]);
+    setCrearNuevoCliente(false);
+    setNuevoClienteNombre("");
+    setNuevoClienteTelefono("");
+    setTelefonoCliente("");
+    setBuscandoClientes(false);
+    setClientesSugeridos([]);
     setError("");
     setSuccess("");
   };
@@ -389,31 +391,31 @@ const DashboardPage: React.FC = () => {
     // Validaciones específicas por campo
     const camposFaltantes = [];
 
-    if (!selectedCurso) {
-      camposFaltantes.push("Curso");
+    if (!selectedServicio) {
+      camposFaltantes.push("Servicio");
     }
-    if (!selectedTema) {
-      camposFaltantes.push("Tema");
+    if (!selectedCategoria) {
+      camposFaltantes.push("Categoría");
     }
-    if (!selectedProfesor) {
-      camposFaltantes.push("Profesor");
+    if (!selectedStaff) {
+      camposFaltantes.push("Staff");
     }
     if (!fechaHora) {
       camposFaltantes.push("Fecha y hora");
     }
 
-    // Validación inteligente de alumno
-    if (crearNuevoAlumno) {
-      // Si está en modo crear alumno, validar nombre y teléfono
-      if (!nuevoAlumnoNombre.trim()) {
-        camposFaltantes.push("Nombre del alumno");
+    // Validación inteligente de cliente
+    if (crearNuevoCliente) {
+      // Si está en modo crear cliente, validar nombre y teléfono
+      if (!nuevoClienteNombre.trim()) {
+        camposFaltantes.push("Nombre del cliente");
       }
-      if (!nuevoAlumnoTelefono.trim()) {
-        camposFaltantes.push("Teléfono del alumno");
+      if (!nuevoClienteTelefono.trim()) {
+        camposFaltantes.push("Teléfono del cliente");
       }
-    } else if (!alumnoSeleccionado && !busquedaAlumno.trim()) {
-      // Si no está creando alumno y no hay búsqueda, es obligatorio
-      camposFaltantes.push("Alumno");
+    } else if (!clienteSeleccionado && !busquedaCliente.trim()) {
+      // Si no está creando cliente y no hay búsqueda, es obligatorio
+      camposFaltantes.push("Cliente");
     }
 
     if (camposFaltantes.length > 0) {
@@ -444,29 +446,29 @@ const DashboardPage: React.FC = () => {
     }
 
     try {
-      let nombreAlumnoFinal = "";
-      let telefonoAlumnoFinal = "";
+      let nombreClienteFinal = "";
+      let telefonoClienteFinal = "";
 
       // Lógica inteligente para determinar qué datos usar
-      if (crearNuevoAlumno) {
-        // Crear alumno nuevo primero
-        const response = await apiClient.post("/alumnos", {
-          nombre: nuevoAlumnoNombre.trim(),
-          telefono: nuevoAlumnoTelefono.trim(),
+      if (crearNuevoCliente) {
+        // Crear cliente nuevo primero
+        const response = await apiClient.post("/alumnos", { // Still using old API endpoint
+          nombre: nuevoClienteNombre.trim(),
+          telefono: nuevoClienteTelefono.trim(),
         });
         
-        const nuevoAlumno = response.data.data;
+        const nuevoCliente = response.data.data;
         
-        nombreAlumnoFinal = nuevoAlumno.nombre;
-        telefonoAlumnoFinal = nuevoAlumno.telefono;
-      } else if (alumnoSeleccionado) {
-        // Usar alumno existente seleccionado
-        nombreAlumnoFinal = alumnoSeleccionado.nombre;
-        telefonoAlumnoFinal = alumnoSeleccionado.telefono;
+        nombreClienteFinal = nuevoCliente.nombre;
+        telefonoClienteFinal = nuevoCliente.telefono;
+      } else if (clienteSeleccionado) {
+        // Usar cliente existente seleccionado
+        nombreClienteFinal = clienteSeleccionado.nombre;
+        telefonoClienteFinal = clienteSeleccionado.telefono;
       } else {
-        // Usar datos de búsqueda (alumno no registrado)
-        nombreAlumnoFinal = busquedaAlumno;
-        telefonoAlumnoFinal = telefonoAlumno;
+        // Usar datos de búsqueda (cliente no registrado)
+        nombreClienteFinal = busquedaCliente;
+        telefonoClienteFinal = telefonoCliente;
       }
 
       const fechaInicio = new Date(fechaHora);
@@ -475,11 +477,11 @@ const DashboardPage: React.FC = () => {
       );
 
       const reservaData = {
-        curso_id: parseInt(selectedCurso),
-        tema_id: parseInt(selectedTema),
-        profesor_id: parseInt(selectedProfesor),
-        nombre_alumno: nombreAlumnoFinal,
-        telefono_alumno: telefonoAlumnoFinal,
+        curso_id: parseInt(selectedServicio),
+        tema_id: parseInt(selectedCategoria),
+        profesor_id: parseInt(selectedStaff),
+        nombre_alumno: nombreClienteFinal,
+        telefono_alumno: telefonoClienteFinal,
         fecha_hora_inicio: fechaInicio.toISOString(),
         fecha_hora_fin: fechaFin.toISOString(),
         precio: parseFloat(precio),
@@ -596,7 +598,7 @@ const DashboardPage: React.FC = () => {
             <span>
               Mostrando {reservasFiltradas.length} de {reservas.length} reservas
             </span>
-            {(filtroCurso || filtroProfesor) && (
+            {(filtroServicio || filtroStaff) && (
               <button className="clear-filters-btn" onClick={clearFilters}>
                 Limpiar filtros
               </button>
@@ -605,16 +607,16 @@ const DashboardPage: React.FC = () => {
         </div>
         <div className="filters-row">
           <div className="filter-dropdown">
-            <label>Filtrar por curso:</label>
+            <label>Filtrar por servicio:</label>
             <div className="dropdown-container">
               <button
-                id="filter-curso-btn"
+                id="filter-servicio-btn"
                 className={`dropdown-trigger ${
-                  showCursoDropdown ? "active" : ""
+                  showServicioDropdown ? "active" : ""
                 }`}
-                onClick={() => setShowCursoDropdown(!showCursoDropdown)}
+                onClick={() => setShowServicioDropdown(!showServicioDropdown)}
               >
-                {filtroCurso || "Todos los cursos"}
+                {filtroServicio || "Todos los servicios"}
                 <svg
                   className="dropdown-icon"
                   viewBox="0 0 24 24"
@@ -625,27 +627,27 @@ const DashboardPage: React.FC = () => {
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </button>
-              {showCursoDropdown && (
+              {showServicioDropdown && (
                 <div className="dropdown-menu">
                   <button 
                     className="dropdown-item"
                     onClick={() => {
-                      setFiltroCurso("");
-                      setShowCursoDropdown(false);
+                      setFiltroServicio("");
+                      setShowServicioDropdown(false);
                     }}
                   >
-                    Todos los cursos
+                    Todos los servicios
                   </button>
-                  {cursos.map((curso) => (
+                  {servicios.map((servicio) => (
                     <button
-                      key={curso.id}
+                      key={servicio.id}
                       className="dropdown-item"
                       onClick={() => {
-                        setFiltroCurso(curso.nombre);
-                        setShowCursoDropdown(false);
+                        setFiltroServicio(servicio.nombre);
+                        setShowServicioDropdown(false);
                       }}
                     >
-                      {curso.nombre}
+                      {servicio.nombre}
                     </button>
                   ))}
                 </div>
@@ -654,15 +656,15 @@ const DashboardPage: React.FC = () => {
           </div>
 
           <div className="filter-dropdown">
-            <label>Filtrar por profesor:</label>
+            <label>Filtrar por staff:</label>
             <div className="dropdown-container">
-              <button id="filter-profesor-btn"
+              <button id="filter-staff-btn"
                 className={`dropdown-trigger ${
-                  showProfesorDropdown ? "active" : ""
+                  showStaffDropdown ? "active" : ""
                 }`}
-                onClick={() => setShowProfesorDropdown(!showProfesorDropdown)}
+                onClick={() => setShowStaffDropdown(!showStaffDropdown)}
               >
-                {filtroProfesor || "Todos los profesores"}
+                {filtroStaff || "Todos los staff"}
                 <svg
                   className="dropdown-icon"
                   viewBox="0 0 24 24"
@@ -673,27 +675,27 @@ const DashboardPage: React.FC = () => {
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </button>
-              {showProfesorDropdown && (
+              {showStaffDropdown && (
                 <div className="dropdown-menu">
                   <button
                     className="dropdown-item"
                     onClick={() => {
-                      setFiltroProfesor("");
-                      setShowProfesorDropdown(false);
+                      setFiltroStaff("");
+                      setShowStaffDropdown(false);
                     }}
                   >
-                    Todos los profesores
+                    Todos los staff
                   </button>
-                  {profesores.map((profesor) => (
+                  {staff.map((staffMember) => (
                     <button
-                      key={profesor.id}
+                      key={staffMember.id}
                       className="dropdown-item"
                       onClick={() => {
-                        setFiltroProfesor(profesor.nombre);
-                        setShowProfesorDropdown(false);
+                        setFiltroStaff(staffMember.nombre);
+                        setShowStaffDropdown(false);
                       }}
                     >
-                      {profesor.nombre}
+                      {staffMember.nombre}
                     </button>
                   ))}
                 </div>
@@ -800,68 +802,68 @@ const DashboardPage: React.FC = () => {
             <form onSubmit={handleBooking} className="modal-form" noValidate>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="modal-curso">Curso:</label>
+                  <label htmlFor="modal-servicio">Servicio:</label>
                   <select
-                    id="modal-curso"
-                    value={selectedCurso}
-                    onChange={(e) => setSelectedCurso(e.target.value)}
-                    className={!selectedCurso && error ? "field-error" : ""}
+                    id="modal-servicio"
+                    value={selectedServicio}
+                    onChange={(e) => setSelectedServicio(e.target.value)}
+                    className={!selectedServicio && error ? "field-error" : ""}
                   >
-                    <option value="">Seleccione un curso</option>
-                    {cursos.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre}
+                    <option value="">Seleccione un servicio</option>
+                    {servicios.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nombre}
                       </option>
                     ))}
                   </select>
-                  {!selectedCurso && error && (
+                  {!selectedServicio && error && (
                     <span className="field-error-message">
-                      Seleccione un curso
+                      Seleccione un servicio
                     </span>
                   )}
                 </div>
                 <div className="form-group">
-                  <label htmlFor="modal-tema">Tema:</label>
+                  <label htmlFor="modal-categoria">Categoría:</label>
                   <select
-                    id="modal-tema"
-                    value={selectedTema}
-                    onChange={(e) => setSelectedTema(e.target.value)}
-                    className={!selectedTema && error ? "field-error" : ""}
-                    disabled={!selectedCurso || temasFiltrados.length === 0}
+                    id="modal-categoria"
+                    value={selectedCategoria}
+                    onChange={(e) => setSelectedCategoria(e.target.value)}
+                    className={!selectedCategoria && error ? "field-error" : ""}
+                    disabled={!selectedServicio || categoriasFiltradas.length === 0}
                   >
-                    <option value="">Seleccione un tema</option>
-                    {temasFiltrados.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.nombre}
+                    <option value="">Seleccione una categoría</option>
+                    {categoriasFiltradas.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        {categoria.nombre}
                       </option>
                     ))}
                   </select>
-                  {!selectedTema && error && selectedCurso && (
+                  {!selectedCategoria && error && selectedServicio && (
                     <span className="field-error-message">
-                      Seleccione un tema
+                      Seleccione una categoría
                     </span>
                   )}
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="modal-profesor">Profesor:</label>
+                  <label htmlFor="modal-staff">Staff:</label>
                   <select
-                    id="modal-profesor"
-                    value={selectedProfesor}
-                    onChange={(e) => setSelectedProfesor(e.target.value)}
-                    className={!selectedProfesor && error ? "field-error" : ""}
+                    id="modal-staff"
+                    value={selectedStaff}
+                    onChange={(e) => setSelectedStaff(e.target.value)}
+                    className={!selectedStaff && error ? "field-error" : ""}
                   >
-                    <option value="">Seleccione un profesor</option>
-                    {profesores.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nombre}
+                    <option value="">Seleccione un staff</option>
+                    {staff.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nombre}
                       </option>
                     ))}
                   </select>
-                  {!selectedProfesor && error && (
+                  {!selectedStaff && error && (
                     <span className="field-error-message">
-                      Seleccione un profesor
+                      Seleccione un staff
                     </span>
                   )}
                 </div>
@@ -911,90 +913,90 @@ const DashboardPage: React.FC = () => {
               </div>
               <div className="form-row">
                 <div className="form-group form-group-full-width">
-                  {!crearNuevoAlumno ? (
+                  {!crearNuevoCliente ? (
                     <>
-                      <label htmlFor="modal-busqueda-alumno">
-                        Buscar Alumno:
+                      <label htmlFor="modal-busqueda-cliente">
+                        Buscar Cliente:
                       </label>
-                      <div className="alumno-search-container">
-                        <div className="alumno-search-input-container">
+                      <div className="cliente-search-container">
+                        <div className="cliente-search-input-container">
                           <input
-                            id="modal-busqueda-alumno"
+                            id="modal-busqueda-cliente"
                             type="text"
-                            value={busquedaAlumno}
+                            value={busquedaCliente}
                             onChange={(e) => {
-                              setBusquedaAlumno(e.target.value);
+                              setBusquedaCliente(e.target.value);
                               setMostrarSugerencias(true);
-                              setAlumnoSeleccionado(null);
+                              setClienteSeleccionado(null);
                             }}
                             onFocus={() => setMostrarSugerencias(true)}
-                            placeholder="Escriba el nombre del alumno..."
+                            placeholder="Escriba el nombre del cliente..."
                             className={
-                              (!alumnoSeleccionado && !busquedaAlumno.trim()) && error ? "field-error" : ""
+                              (!clienteSeleccionado && !busquedaCliente.trim()) && error ? "field-error" : ""
                             }
                           />
                           <button
                             type="button"
-                            className="add-alumno-btn"
-                            onClick={handleCrearNuevoAlumno}
-                            title="Crear nuevo alumno"
+                            className="add-cliente-btn"
+                            onClick={handleCrearNuevoCliente}
+                            title="Crear nuevo cliente"
                           >
                             +
                           </button>
                         </div>
                         
-                        {/* Sugerencias de alumnos */}
+                        {/* Sugerencias de clientes */}
                         {mostrarSugerencias && (
-                          <div className="alumno-suggestions">
-                            {buscandoAlumnos ? (
-                              <div className="alumno-suggestion-loading">
-                                <div className="alumno-loading-spinner"></div>
-                                <span>Buscando alumnos...</span>
+                          <div className="cliente-suggestions">
+                            {buscandoClientes ? (
+                              <div className="cliente-suggestion-loading">
+                                <div className="cliente-loading-spinner"></div>
+                                <span>Buscando clientes...</span>
                               </div>
-                            ) : alumnosSugeridos.length > 0 ? (
-                              alumnosSugeridos.map((alumno) => (
+                            ) : clientesSugeridos.length > 0 ? (
+                              clientesSugeridos.map((cliente) => (
                                 <div
-                                  key={alumno.id}
-                                  className="alumno-suggestion-item"
-                                  onClick={() => handleSeleccionarAlumno(alumno)}
+                                  key={cliente.id}
+                                  className="cliente-suggestion-item"
+                                  onClick={() => handleSeleccionarCliente(cliente)}
                                 >
-                                  <div className="alumno-name">{alumno.nombre}</div>
-                                  <div className="alumno-phone">{alumno.telefono}</div>
-                                  {alumno.email && (
-                                    <div className="alumno-email">{alumno.email}</div>
+                                  <div className="cliente-name">{cliente.nombre}</div>
+                                  <div className="cliente-phone">{cliente.telefono}</div>
+                                  {cliente.email && (
+                                    <div className="cliente-email">{cliente.email}</div>
                                   )}
                                 </div>
                               ))
-                            ) : busquedaAlumno.trim().length > 0 ? (
-                              <div className="alumno-suggestion-no-results">
-                                <span>No se encontraron alumnos</span>
+                            ) : busquedaCliente.trim().length > 0 ? (
+                              <div className="cliente-suggestion-no-results">
+                                <span>No se encontraron clientes</span>
                               </div>
                             ) : null}
                           </div>
                         )}
 
-                        {(!alumnoSeleccionado && !busquedaAlumno.trim()) && error && (
+                        {(!clienteSeleccionado && !busquedaCliente.trim()) && error && (
                           <span className="field-error-message">
-                            Seleccione o busque un alumno
+                            Seleccione o busque un cliente
                           </span>
                         )}
                       </div>
                     </>
                   ) : (
                     <>
-                      <label>Crear Nuevo Alumno:</label>
+                      <label>Crear Nuevo Cliente:</label>
                       <div className="nuevo-alumno-form">
                         <div className="form-row">
                           <div className="form-group">
                             <label>Nombre:</label>
                             <input
                               type="text"
-                              value={nuevoAlumnoNombre}
-                              onChange={(e) => setNuevoAlumnoNombre(e.target.value)}
-                              placeholder="Nombre del alumno"
-                              className={!nuevoAlumnoNombre.trim() && error ? "field-error" : ""}
+                              value={nuevoClienteNombre}
+                              onChange={(e) => setNuevoClienteNombre(e.target.value)}
+                              placeholder="Nombre del cliente"
+                              className={!nuevoClienteNombre.trim() && error ? "field-error" : ""}
                             />
-                            {!nuevoAlumnoNombre.trim() && error && (
+                            {!nuevoClienteNombre.trim() && error && (
                               <span className="field-error-message">
                                 Nombre es obligatorio
                               </span>
@@ -1004,26 +1006,26 @@ const DashboardPage: React.FC = () => {
                             <label>Teléfono:</label>
                             <input
                               type="tel"
-                              value={nuevoAlumnoTelefono}
-                              onChange={(e) => setNuevoAlumnoTelefono(e.target.value)}
-                              placeholder="Teléfono del alumno"
-                              className={!nuevoAlumnoTelefono.trim() && error ? "field-error" : ""}
+                              value={nuevoClienteTelefono}
+                              onChange={(e) => setNuevoClienteTelefono(e.target.value)}
+                              placeholder="Teléfono del cliente"
+                              className={!nuevoClienteTelefono.trim() && error ? "field-error" : ""}
                             />
-                            {!nuevoAlumnoTelefono.trim() && error && (
+                            {!nuevoClienteTelefono.trim() && error && (
                               <span className="field-error-message">
                                 Teléfono es obligatorio
                               </span>
                             )}
                           </div>
                         </div>
-                        <div className="nuevo-alumno-actions">
+                        <div className="nuevo-cliente-actions">
                           <button
                             type="button"
                             className="btn-secondary"
                             onClick={() => {
-                              setCrearNuevoAlumno(false);
-                              setNuevoAlumnoNombre("");
-                              setNuevoAlumnoTelefono("");
+                              setCrearNuevoCliente(false);
+                              setNuevoClienteNombre("");
+                              setNuevoClienteTelefono("");
                             }}
                           >
                             Cancelar
@@ -1086,9 +1088,9 @@ const DashboardPage: React.FC = () => {
         isOpen={isFullscreenOpen}
         onClose={() => setIsFullscreenOpen(false)}
         reservas={reservasFiltradas}
-        cursos={cursos}
-        profesores={profesores}
-        temas={temas}
+        servicios={servicios}
+        staff={staff}
+        categorias={categorias}
         onRefreshData={fetchAllData}
         tenant={tenant || 'default'}
       />

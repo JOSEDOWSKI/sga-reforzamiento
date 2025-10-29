@@ -50,6 +50,24 @@ const GestionTemas: React.FC = () => {
     const [showCursoDropdown, setShowCursoDropdown] = useState(false);
     const [showModalCursoDropdown, setShowModalCursoDropdown] = useState(false);
 
+    // Función para obtener datos
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const [temasResponse, cursosResponse] = await Promise.all([
+                apiClient.get('/temas'),
+                apiClient.get('/cursos')
+            ]);
+            setTemas(temasResponse.data.data);
+            setCursos(cursosResponse.data.data);
+        } catch (err: any) {
+            console.error('Error obteniendo datos:', err);
+            setError('Error al cargar los datos');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Configurar actualizaciones en tiempo real
     const { isConnected } = useRealtimeData({
         events: ['tema-created', 'tema-updated', 'tema-deleted', 'curso-created', 'curso-updated', 'curso-deleted'],
@@ -77,23 +95,6 @@ const GestionTemas: React.FC = () => {
         };
     }, []);
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [temasResponse, cursosResponse] = await Promise.all([
-                apiClient.get('/temas'),
-                apiClient.get('/cursos')
-            ]);
-            
-            setTemas(temasResponse.data.data);
-            setCursos(cursosResponse.data.data);
-            setError('');
-        } catch (err: any) {
-            setError('Error al cargar los datos');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Función para manejar el envío del formulario de creación
     const handleSubmit = async (e: React.FormEvent) => {
