@@ -58,7 +58,10 @@ const GestionClientes: React.FC = () => {
     };
 
     // Hook para datos en tiempo real
-    useRealtimeData('alumnos', fetchClientes);
+    useRealtimeData({
+        events: ['cliente-created', 'cliente-updated', 'cliente-deleted'],
+        onUpdate: fetchClientes
+    });
 
     // Cargar clientes al montar el componente
     useEffect(() => {

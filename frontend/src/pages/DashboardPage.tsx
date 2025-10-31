@@ -185,7 +185,7 @@ const DashboardPage: React.FC = () => {
   };
 
   // --- Configurar actualizaciones en tiempo real ---
-  const { isConnected } = useRealtimeData({
+  const { isConnected: _isConnected } = useRealtimeData({
     events: [
       'reserva-created', 'reserva-updated', 'reserva-deleted', 'reserva-cancelled',
       'cliente-created', 'cliente-updated', 'cliente-deleted',
@@ -305,20 +305,20 @@ const DashboardPage: React.FC = () => {
       `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
       `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-    setTelefonoAlumno("");
+    setTelefonoCliente("");
     setDuracionHoras("1");
     setPrecio("50");
     setEstadoPago("Falta pagar");
     setFechaHora(local);
 
-    // Limpiar estados del buscador de alumnos
-    setBusquedaAlumno("");
-    setAlumnoSeleccionado(null);
+    // Limpiar estados del buscador de clientes
+    setBusquedaCliente("");
+    setClienteSeleccionado(null);
     setMostrarSugerencias(false);
-    setCrearNuevoAlumno(false);
-    setNuevoAlumnoNombre("");
-    setNuevoAlumnoTelefono("");
-    setTelefonoAlumno("");
+    setCrearNuevoCliente(false);
+    setNuevoClienteNombre("");
+    setNuevoClienteTelefono("");
+    setTelefonoCliente("");
 
     setError("");
     setSuccess("");

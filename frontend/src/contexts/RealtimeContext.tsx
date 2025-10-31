@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
-import { connectSocket, getSocket } from '../config/socket';
+import { connectSocket } from '../config/socket';
 import { useTenant } from '../hooks/useTenant';
 
 type RealtimeContextType = {
@@ -27,7 +27,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsConnected(true);
     };
     
-    const onDisconnect = (reason: string) => {
+    const onDisconnect = (_reason: string) => {
       setIsConnected(false);
     };
 

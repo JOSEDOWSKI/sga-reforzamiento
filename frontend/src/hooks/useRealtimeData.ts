@@ -14,7 +14,7 @@ interface UseRealtimeDataOptions {
  * @param enabled - Si está habilitado (por defecto true)
  */
 export const useRealtimeData = ({ events, onUpdate, enabled = true }: UseRealtimeDataOptions) => {
-  const { socket, isConnected } = useRealtime();
+  const { socket: _socket, isConnected } = useRealtime();
 
   const handleRealtimeEvent = useCallback((event: CustomEvent) => {
     const { eventName } = event.detail;

@@ -62,7 +62,10 @@ const GestionServicios: React.FC = () => {
     };
 
     // Hook para datos en tiempo real
-    useRealtimeData('cursos', fetchServicios);
+    useRealtimeData({
+        events: ['servicio-created', 'servicio-updated', 'servicio-deleted'],
+        onUpdate: fetchServicios
+    });
 
     // Cargar servicios al montar el componente
     useEffect(() => {

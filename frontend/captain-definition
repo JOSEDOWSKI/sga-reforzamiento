@@ -1,17 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile",
-  "dockerfileLines": [
-    "FROM node:18-alpine as builder",
-    "WORKDIR /app",
-    "COPY frontend/package*.json ./",
-    "RUN npm ci",
-    "COPY frontend/ ./",
-    "RUN npm run build",
-    "FROM nginx:alpine",
-    "COPY frontend/nginx.conf /etc/nginx/nginx.conf",
-    "COPY --from=builder /app/dist /usr/share/nginx/html",
-    "EXPOSE 80",
-    "CMD [\"nginx\", \"-g\", \"daemon off;\"]"
-  ]
+  "dockerfilePath": "./Dockerfile"
 }

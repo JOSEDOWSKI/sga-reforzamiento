@@ -1,18 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile",
-  "dockerfileLines": [
-    "FROM node:18-alpine",
-    "RUN apk add --no-cache postgresql-client curl bash",
-    "WORKDIR /app",
-    "COPY backend/package*.json ./",
-    "RUN npm ci --only=production",
-    "COPY backend/ ./",
-    "RUN mkdir -p logs",
-    "EXPOSE 4000",
-    "ENV NODE_ENV=production",
-    "ENV PORT=4000",
-    "ENV USE_DEV_MODE=false",
-    "CMD [\"node\", \"src/index.js\"]"
-  ]
+  "dockerfilePath": "./Dockerfile"
 }

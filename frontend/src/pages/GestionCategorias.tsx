@@ -70,7 +70,10 @@ const GestionCategorias: React.FC = () => {
     };
 
     // Hook para datos en tiempo real
-    useRealtimeData('temas', fetchData);
+    useRealtimeData({
+        events: ['categoria-created', 'categoria-updated', 'categoria-deleted'],
+        onUpdate: fetchData
+    });
 
     // Cargar datos al montar el componente
     useEffect(() => {

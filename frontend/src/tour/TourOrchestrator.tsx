@@ -644,12 +644,12 @@ export default function TourOrchestrator() {
   if (!phase) return null;
   if (phase === "dashboard" && path === "/")
     return <GuidedTourIsland onceKey="tour_dashboard_v1" steps={dashSteps} />;
-  if (phase === "cursos" && path === "/cursos")
-    return <GuidedTourIsland onceKey="tour_cursos_v1" steps={cursosSteps} />;
-  if (phase === "profesores" && path === "/profesores")
-    return <GuidedTourIsland onceKey="tour_profesores_v1" steps={profesoresSteps} />;
-  if (phase === "temas" && path === "/temas")
-    return <GuidedTourIsland onceKey="tour_temas_v1" steps={temasSteps} />;
+  if (phase === "servicios" && path === "/servicios")
+    return <GuidedTourIsland onceKey="tour_servicios_v1" steps={cursosSteps} />;
+  if (phase === "staff" && path === "/staff")
+    return <GuidedTourIsland onceKey="tour_staff_v1" steps={profesoresSteps} />;
+  if (phase === "categorias" && path === "/categorias")
+    return <GuidedTourIsland onceKey="tour_categorias_v1" steps={temasSteps} />;
   if (phase === "estadisticas" && path === "/estadisticas")
     return <GuidedTourIsland onceKey="tour_estadisticas_v1" steps={statsSteps} />;
 

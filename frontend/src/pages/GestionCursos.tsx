@@ -55,8 +55,8 @@ const GestionCursos: React.FC = () => {
     };
 
     // Configurar actualizaciones en tiempo real
-    const { isConnected } = useRealtimeData({
-        events: ['curso-created', 'curso-updated', 'curso-deleted'],
+    const { isConnected: _isConnected } = useRealtimeData({
+        events: ['servicio-created', 'servicio-updated', 'servicio-deleted'],
         onUpdate: fetchCursos,
         enabled: true
     });

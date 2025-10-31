@@ -38,15 +38,24 @@ const GestionTenantsPage: React.FC = () => {
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        tenant_name: string;
+        display_name: string;
+        cliente_nombre: string;
+        cliente_email: string;
+        cliente_telefono: string;
+        cliente_direccion: string;
+        plan: 'basico' | 'premium' | 'enterprise';
+        estado: 'activo' | 'suspendido' | 'cancelado';
+    }>({
         tenant_name: '',
         display_name: '',
         cliente_nombre: '',
         cliente_email: '',
         cliente_telefono: '',
         cliente_direccion: '',
-        plan: 'basico' as const,
-        estado: 'activo' as const
+        plan: 'basico',
+        estado: 'activo'
     });
 
     useEffect(() => {
@@ -154,7 +163,6 @@ const GestionTenantsPage: React.FC = () => {
     };
 
     const handleMarkAsPaid = async (tenant: Tenant) => {
-        const fechaPago = new Date();
         const fechaVencimiento = new Date();
         fechaVencimiento.setMonth(fechaVencimiento.getMonth() + 1);
         

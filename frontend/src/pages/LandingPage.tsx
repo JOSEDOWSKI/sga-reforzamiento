@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Users, MapPin, CheckCircle, ArrowRight, Star, Phone, Mail, Play } from "lucide-react";
+import { Calendar, Clock, Users, CheckCircle, ArrowRight, Star, Phone, Mail } from "lucide-react";
 import InteractiveMap from "../components/InteractiveMap";
 import LandingNavbar from "../components/LandingNavbar";
 import AnimatedBackground from "../components/AnimatedBackground";
