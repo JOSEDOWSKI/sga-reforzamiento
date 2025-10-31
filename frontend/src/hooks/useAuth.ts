@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const logout = (): void => {
         setUser(null);
         setToken(null);
-        secureTokenStorage.remove();
+        secureTokenStorage.clear();
         delete apiClient.defaults.headers.common['Authorization'];
     };
 

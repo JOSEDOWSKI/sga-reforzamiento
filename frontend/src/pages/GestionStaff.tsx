@@ -60,7 +60,10 @@ const GestionStaff: React.FC = () => {
     };
 
     // Hook para datos en tiempo real
-    useRealtimeData('profesores', fetchStaff);
+    useRealtimeData({
+        events: ['staff-created', 'staff-updated', 'staff-deleted'],
+        onUpdate: fetchStaff
+    });
 
     // Cargar staff al montar el componente
     useEffect(() => {

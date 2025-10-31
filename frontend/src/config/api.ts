@@ -8,15 +8,25 @@ const getBaseURL = () => {
     }
     
     // En producción
-    const currentHost = window.location.host;
+    const currentHost = window.location.hostname;
     const protocol = window.location.protocol;
+    
+    // Si hay variable de entorno VITE_API_URL configurada, usarla
+    if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL;
+    }
+    
+    // Para dominios weekly.pe, usar api.weekly.pe
+    if (currentHost.includes('weekly.pe')) {
+        return `${protocol}//api.weekly.pe/api`;
+    }
     
     // Para el dominio getdevtools.com, usar el mismo dominio para la API
     if (currentHost.includes('getdevtools.com')) {
         return `${protocol}//${currentHost}/api`;
     }
     
-    // Para otros dominios, usar puerto 4000
+    // Para otros dominios, intentar usar el mismo dominio con puerto 4000
     if (currentHost.includes('.')) {
         return `${protocol}//${currentHost.replace(':3000', ':4000').replace(':5173', ':4000')}/api`;
     }

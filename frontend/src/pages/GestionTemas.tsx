@@ -69,8 +69,8 @@ const GestionTemas: React.FC = () => {
     };
 
     // Configurar actualizaciones en tiempo real
-    const { isConnected } = useRealtimeData({
-        events: ['tema-created', 'tema-updated', 'tema-deleted', 'curso-created', 'curso-updated', 'curso-deleted'],
+    const { isConnected: _isConnected } = useRealtimeData({
+        events: ['categoria-created', 'categoria-updated', 'categoria-deleted', 'servicio-created', 'servicio-updated', 'servicio-deleted'],
         onUpdate: fetchData,
         enabled: true
     });

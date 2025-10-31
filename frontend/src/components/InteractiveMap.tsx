@@ -5,10 +5,19 @@ import 'leaflet/dist/leaflet.css';
 import './InteractiveMap.css';
 
 // Coordenadas de Arequipa, Perú
-const AREQUIPA_CENTER = [-16.4090, -71.5375];
+const AREQUIPA_CENTER: [number, number] = [-16.4090, -71.5375];
 
 // Datos de ejemplo de negocios en Arequipa
-const businessLocations = [
+const businessLocations: Array<{
+  id: number;
+  name: string;
+  category: string;
+  address: string;
+  coordinates: [number, number];
+  phone: string;
+  rating: number;
+  clients: number;
+}> = [
   {
     id: 1,
     name: "Peluquería Elegance",

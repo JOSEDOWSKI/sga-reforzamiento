@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { useAuth } from '../hooks/useAuth';
 import LoginPage from '../pages/LoginPage';
 
 interface ProtectedRouteProps {

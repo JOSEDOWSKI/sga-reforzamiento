@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import { DatesSetArg } from "@fullcalendar/core";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
@@ -72,7 +70,7 @@ const FullscreenCalendar: React.FC<FullscreenCalendarProps> = ({
   reservas,
   servicios,
   staff,
-  categorias,
+  categorias: _categorias,
   onRefreshData,
   tenant
 }) => {
@@ -189,22 +187,22 @@ const FullscreenCalendar: React.FC<FullscreenCalendarProps> = ({
       });
 
       // Eventos de reservas con notificaciones
-      socket.on('reserva-created', (data) => {
+      socket.on('reserva-created', () => {
         addNotification('success', 'Nuevo turno creado');
         onRefreshData();
       });
 
-      socket.on('reserva-updated', (data) => {
+      socket.on('reserva-updated', () => {
         addNotification('info', 'Turno actualizado');
         onRefreshData();
       });
 
-      socket.on('reserva-deleted', (data) => {
+      socket.on('reserva-deleted', () => {
         addNotification('warning', 'Turno eliminado');
         onRefreshData();
       });
 
-      socket.on('reserva-cancelled', (data) => {
+      socket.on('reserva-cancelled', () => {
         addNotification('warning', 'Turno cancelado');
         onRefreshData();
       });

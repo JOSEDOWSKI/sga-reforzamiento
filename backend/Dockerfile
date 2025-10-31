@@ -11,13 +11,13 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Copiar archivos de dependencias
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Instalar dependencias
 RUN npm ci --only=production
 
 # Copiar código fuente
-COPY backend/ ./
+COPY . ./
 
 # Crear directorio para logs
 RUN mkdir -p logs

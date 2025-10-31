@@ -58,8 +58,8 @@ const GestionProfesores: React.FC = () => {
     };
 
     // Configurar actualizaciones en tiempo real
-    const { isConnected } = useRealtimeData({
-        events: ['profesor-created', 'profesor-updated', 'profesor-deleted'],
+    const { isConnected: _isConnected } = useRealtimeData({
+        events: ['staff-created', 'staff-updated', 'staff-deleted'],
         onUpdate: fetchProfesores,
         enabled: true
     });

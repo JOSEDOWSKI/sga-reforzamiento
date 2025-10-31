@@ -57,8 +57,8 @@ const GestionAlumnos: React.FC = () => {
     };
 
     // Configurar actualizaciones en tiempo real
-    const { isConnected } = useRealtimeData({
-        events: ['alumno-created', 'alumno-updated', 'alumno-deleted'],
+    const { isConnected: _isConnected } = useRealtimeData({
+        events: ['cliente-created', 'cliente-updated', 'cliente-deleted'],
         onUpdate: fetchAlumnos,
         enabled: true
     });

@@ -40,7 +40,7 @@ function TenantAppContent() {
   const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);  
   const { showSplash, isInitialized, hideSplash } = useSplashScreen();
-  const { isTutorialEnabled, config } = useTenantConfig();
+  const { isTutorialEnabled } = useTenantConfig();
   const [tutorialEnabled, setTutorialEnabled] = useState(isTutorialEnabled);
 
   useEffect(() => {
@@ -127,18 +127,25 @@ function GlobalAppContent() {
 }
 
 function AppContent() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   
   // Detectar el dominio actual
   const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
   
-  // Si es weekly.pe, mostrar landing page
-  if (hostname === 'weekly.pe') {
+  // Si es weekly.pe o viene del redirect, mostrar landing page
+  // Solo mostrar landing si NO hay usuario autenticado Y NO está cargando
+  const isLandingPage = 
+    hostname === 'weekly.pe' || 
+    hostname === 'www.weekly.pe' ||
+    (hostname === 'weekly-frontend.panel.getdevtools.com' && !isLoading && !user && pathname === '/');
+  
+  if (isLandingPage) {
     return <LandingPage />;
   }
   
-  // Si es panel.weekly, mostrar panel global directamente
-  if (hostname === 'panel.weekly') {
+  // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
+  if (hostname === 'panel.weekly' || hostname === 'panel.weekly.pe') {
     return <GlobalAppContent />;
   }
   
