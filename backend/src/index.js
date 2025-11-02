@@ -50,6 +50,14 @@ app.use('/api/auth', authRoutes);
 const globalAuthRoutes = require('./routes/globalAuthRoutes');
 app.use('/api/global-auth', globalAuthRoutes);
 
+// Rutas públicas (calendario público, sin autenticación)
+const publicRoutes = require('./routes/publicRoutes');
+app.use('/api/public', publicRoutes);
+
+// Rutas DEMO (acceso público solo lectura para demo.weekly.pe)
+const demoRoutes = require('./routes/demoRoutes');
+app.use('/api/demo', demoRoutes);
+
 // Rutas de la API
 const cursoRoutes = require('./routes/cursoRoutes');
 app.use('/api/cursos', cursoRoutes);
@@ -65,13 +73,16 @@ app.use('/api/reservas', reservaRoutes);
 
 const temaDirectRoutes = require('./routes/temaDirectRoutes');
 app.use('/api/temas', temaDirectRoutes);
+app.use('/api/categorias', temaDirectRoutes); // Alias para compatibilidad
 
 // Nuevas rutas para WEEKLY
 const establecimientoRoutes = require('./routes/establecimientoRoutes');
 app.use('/api/establecimientos', establecimientoRoutes);
+app.use('/api/servicios', establecimientoRoutes); // Alias para compatibilidad
 
 const colaboradorRoutes = require('./routes/colaboradorRoutes');
 app.use('/api/colaboradores', colaboradorRoutes);
+app.use('/api/staff', colaboradorRoutes); // Alias para compatibilidad
 
 const clienteRoutes = require('./routes/clienteRoutes');
 app.use('/api/clientes', clienteRoutes);

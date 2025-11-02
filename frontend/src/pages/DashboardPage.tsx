@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import apiClient from "../config/api";
+import demoApiClient from "../utils/demoApiClient";
+import { useDemoMode } from "./DemoView";
 import FullscreenCalendar from "../components/FullscreenCalendar";
 import { useRealtimeData } from "../hooks/useRealtimeData";
 import useTenant from "../hooks/useTenant";
@@ -58,6 +60,8 @@ interface ModalReserva {
 const DashboardPage: React.FC = () => {
   // --- Hook para obtener el tenant ---
   const { id: tenant } = useTenant();
+  const isDemoMode = useDemoMode();
+  const client = isDemoMode ? demoApiClient : apiClient;
   
   // --- Estados para los datos ---
   const [servicios, setServicios] = useState<Servicio[]>([]);
@@ -127,10 +131,10 @@ const DashboardPage: React.FC = () => {
     try {
       setLoading(true);
       const [serviciosRes, staffRes, reservasRes, categoriasRes] = await Promise.all([
-        apiClient.get("/cursos"), // Still using old API endpoints
-        apiClient.get("/profesores"), // Still using old API endpoints
-        apiClient.get("/reservas"),
-        apiClient.get("/temas"), // Still using old API endpoints
+        client.get("/servicios"),
+        client.get("/staff"),
+        client.get("/reservas"),
+        client.get("/categorias"),
       ]);
       setServicios(serviciosRes.data.data);
       setStaff(staffRes.data.data);
@@ -155,7 +159,7 @@ const DashboardPage: React.FC = () => {
 
     setBuscandoClientes(true);
     try {
-      const response = await apiClient.get(`/alumnos/search?q=${encodeURIComponent(termino)}`); // Still using old API endpoint
+      const response = await client.get(`/alumnos/search?q=${encodeURIComponent(termino)}`); // Still using old API endpoint
       setClientesSugeridos(response.data.data);
     } catch (err) {
       console.error("Error buscando clientes:", err);
@@ -382,6 +386,18 @@ const DashboardPage: React.FC = () => {
     setError("");
     setSuccess("");
   };
+
+  // Cerrar modal con tecla Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && modalReserva.isOpen) {
+        closeModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [modalReserva.isOpen]);
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -28,6 +28,29 @@
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Liquid glass shine effect for booking form and calendar view */
+.booking-form::before,
+.calendar-view::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 70%);
+  animation: liquidMove 9s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.booking-form > *,
+.calendar-view > * {
+  position: relative;
+  z-index: 1;
 }
 
 .calendar-view-fullwidth {
@@ -44,6 +67,26 @@
   min-height: 800px;
   position: relative;
   z-index: 10;
+  overflow: hidden;
+}
+
+/* Liquid glass shine effect for calendar view */
+.calendar-view-fullwidth::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 70%);
+  animation: liquidMove 10s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.calendar-view-fullwidth > * {
+  position: relative;
+  z-index: 1;
 }
 
 .booking-form:hover,
@@ -751,6 +794,26 @@
   transition: all 0.3s ease;
   position: relative;
   z-index: 500;
+  overflow: hidden;
+}
+
+/* Liquid glass shine effect for filters container */
+.filters-container::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 70%);
+  animation: liquidMove 8s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.filters-container > * {
+  position: relative;
+  z-index: 1;
 }
 
 .filters-container:hover {
@@ -1852,6 +1915,19 @@
   .alumno-name {
     font-size: 0.95rem;
   }
+
+/* Liquid glass animation */
+@keyframes liquidMove {
+  0% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+  50% {
+    transform: rotate(180deg) translate(50px, 50px);
+  }
+  100% {
+    transform: rotate(360deg) translate(0, 0);
+  }
+}
 
   .alumno-phone,
   .alumno-email {

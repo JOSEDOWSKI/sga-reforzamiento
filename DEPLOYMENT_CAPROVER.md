@@ -208,6 +208,18 @@ BASE_URL=https://weekly.pe
 
 # Tenants Permitidos (opcional, para seguridad adicional)
 ALLOWED_TENANTS=demo,peluqueria,academia,cancha,veterinaria,odontologia,gimnasio
+
+# Cloudflare (para automatización de DNS)
+CLOUDFLARE_API_TOKEN=tu_token_aqui
+CLOUDFLARE_ZONE_ID=tu_zone_id_aqui
+CLOUDFLARE_DOMAIN=weekly.pe
+CLOUDFLARE_TARGET=weekly-frontend.panel.getdevtools.com
+
+# CapRover (para automatización de dominios - OPCIONAL)
+# Ver OBTENER_TOKEN_CAPROVER.md para obtener el token
+CAPROVER_API_TOKEN=tu_token_aqui
+CAPROVER_SERVER_URL=https://panel.getdevtools.com
+CAPROVER_FRONTEND_APP=weekly-frontend
 ```
 
 ### 4. Configurar DNS en Cloudflare
@@ -672,12 +684,36 @@ configuracion_global  (Configuración del sistema)
 
 ## 🐛 Troubleshooting
 
-### Problema: "Database does not exist"
+### Problema: "Database does not exist" o Base de datos no inicializada
 
-**Solución**: El sistema crea automáticamente. Si falla, verificar:
-1. PostgreSQL accesible desde backend
-2. Usuario `postgres` tiene permisos de CREATE DATABASE
-3. Variables de entorno `DB_*` correctas
+**Solución 1: Usar script de inicialización (Recomendado)**
+
+Ejecuta el script de inicialización dentro del contenedor del backend:
+
+```bash
+# Opción A: Desde CapRover (One-Click App Terminal)
+# 1. Ve a CapRover → weekly-backend → App Logs
+# 2. Haz clic en "One-Click App Terminal"
+# 3. Ejecuta:
+npm run init-db
+
+# Opción B: Desde SSH al servidor
+docker exec -it srv-captain--weekly-backend npm run init-db
+```
+
+El script hará:
+- ✅ Crear `weekly_global` si no existe
+- ✅ Inicializar esquema global
+- ✅ Crear tenants básicos (demo, panel)
+- ✅ Verificar e inicializar esquemas de tenants
+
+**Solución 2: Manualmente**
+
+Si el script falla, verificar manualmente:
+1. PostgreSQL accesible desde backend: `DB_HOST=srv-captain--weekly-postgres`
+2. Usuario tiene permisos de CREATE DATABASE
+3. Variables de entorno `DB_*` correctas en CapRover
+4. Ejecutar SQL manualmente desde psql
 
 ### Problema: "Connection refused" desde Backend a PostgreSQL
 

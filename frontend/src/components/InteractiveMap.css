@@ -55,12 +55,55 @@
   background: #1a1a1a;
 }
 
-/* Estilos para los popups personalizados */
+/* Estilos para los popups personalizados con Liquid Glass */
 .custom-popup .leaflet-popup-content-wrapper {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(26, 26, 26, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-popup .leaflet-popup-content-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    transparent 70%
+  );
+  animation: liquidMove 10s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.custom-popup .leaflet-popup-content-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 70% 70%,
+    rgba(139, 92, 246, 0.12) 0%,
+    rgba(59, 130, 246, 0.08) 25%,
+    transparent 65%
+  );
+  animation: liquidMove 14s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: 0;
+  animation-delay: -3s;
 }
 
 .custom-popup .leaflet-popup-content {
@@ -72,6 +115,8 @@
 .popup-content {
   padding: 20px;
   min-width: 250px;
+  position: relative;
+  z-index: 1;
 }
 
 .popup-content h4 {
@@ -122,20 +167,45 @@
   font-weight: 600;
 }
 
-.visit-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 8px 16px;
+.popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.map-link-button,
+.calendar-link-button {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding: 10px 16px;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
+  border: none;
 }
 
-.visit-button:hover {
+.map-link-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.map-link-button:hover {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.calendar-link-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.calendar-link-button:hover {
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);

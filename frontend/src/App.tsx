@@ -9,13 +9,21 @@ import GestionStaff from './pages/GestionStaff';
 import GestionClientes from './pages/GestionClientes';
 import GestionCategorias from './pages/GestionCategorias';
 import EstadisticasPage from './pages/EstadisticasPage';
+import UserCalendarView from './pages/UserCalendarView';
 
 // Páginas del panel global
 import GlobalLoginPage from './pages/GlobalLoginPage';
 import GestionTenantsPage from './pages/GestionTenantsPage';
 
+// Login de tenant
+import LoginPage from './pages/LoginPage';
+
 // Landing page
 import LandingPage from './pages/LandingPage';
+
+// Calendario público (sin autenticación)
+import PublicCalendarPage from './pages/PublicCalendarPage';
+import DemoView from './pages/DemoView';
 
 // Componentes
 import Navbar from './components/Navbar';
@@ -42,6 +50,10 @@ function TenantAppContent() {
   const { showSplash, isInitialized, hideSplash } = useSplashScreen();
   const { isTutorialEnabled } = useTenantConfig();
   const [tutorialEnabled, setTutorialEnabled] = useState(isTutorialEnabled);
+  const { user } = useAuth();
+  
+  // Determinar si el usuario es administrador
+  const isAdmin = user?.rol === 'admin';
 
   useEffect(() => {
     if (isNavOpen) {
@@ -63,6 +75,30 @@ function TenantAppContent() {
     setTutorialEnabled(isTutorialEnabled);
   }, [isTutorialEnabled]);
 
+  // Si el usuario no es admin, mostrar solo la vista de calendario
+  if (!isAdmin) {
+    return (
+      <>
+        {/* SplashScreen siempre por encima */}
+        {(!isInitialized || showSplash) && <SplashScreen onComplete={hideSplash} />}
+
+        <ProtectedRoute>
+          <div className="app-container">
+            <Header onMenuClick={() => setIsNavOpen(!isNavOpen)} isNavOpen={isNavOpen} />
+            <main className="content-container">
+              <Routes>
+                <Route path="/" element={<UserCalendarView />} />
+                <Route path="/calendario" element={<UserCalendarView />} />
+              </Routes>
+            </main>
+            <SplashReset />
+          </div>
+        </ProtectedRoute>
+      </>
+    );
+  }
+
+  // Vista completa para administradores
   return (
     <>
       {/* SplashScreen siempre por encima */}
@@ -85,11 +121,13 @@ function TenantAppContent() {
           <main className="content-container">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/servicios" element={<GestionServicios />} />
               <Route path="/clientes" element={<GestionClientes />} />
               <Route path="/staff" element={<GestionStaff />} />
               <Route path="/categorias" element={<GestionCategorias />} />
               <Route path="/estadisticas" element={<EstadisticasPage />} />
+              <Route path="/calendario" element={<UserCalendarView />} />
             </Routes>
           </main>
 
@@ -133,29 +171,67 @@ function AppContent() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // Si es weekly.pe o viene del redirect, mostrar landing page
-  // Solo mostrar landing si NO hay usuario autenticado Y NO está cargando
-  const isLandingPage = 
+  // Extraer subdominio si existe
+  const parts = hostname.split('.');
+  const subdomain = parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
+  
+  // Si es demo.weekly.pe, mostrar DemoView (acceso libre sin login)
+  if (hostname === 'demo.weekly.pe' || subdomain === 'demo') {
+    if (pathname === '/' || pathname === '/demo') {
+      return <DemoView />;
+    }
+  }
+  
+  // Si es /demo en cualquier dominio, mostrar DemoView
+  if (pathname === '/demo') {
+    return <DemoView />;
+  }
+  
+  // Si es weekly.pe o www.weekly.pe, mostrar landing page principal
+  const isMainLanding = 
     hostname === 'weekly.pe' || 
     hostname === 'www.weekly.pe' ||
     (hostname === 'weekly-frontend.panel.getdevtools.com' && !isLoading && !user && pathname === '/');
   
-  if (isLandingPage) {
+  if (isMainLanding) {
     return <LandingPage />;
   }
   
   // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
-  if (hostname === 'panel.weekly' || hostname === 'panel.weekly.pe') {
+  if (hostname === 'panel.weekly' || hostname === 'panel.weekly.pe' || subdomain === 'panel') {
     return <GlobalAppContent />;
   }
   
   // Determinar si es panel global o tenant basado en el usuario
   const isGlobalPanel = user?.userType === 'global' || user?.rol === 'super_admin';
   
-  if (isGlobalPanel) {
+  if (isGlobalPanel && !subdomain) {
     return <GlobalAppContent />;
   }
   
+  // Si hay un subdominio y no es demo ni panel, es un tenant
+  if (subdomain && subdomain !== 'demo' && subdomain !== 'panel' && subdomain !== 'api') {
+    // Si la ruta es /agendar, mostrar calendario público
+    if (pathname === '/agendar') {
+      return <PublicCalendarPage />;
+    }
+    
+    // Si la ruta es /login y no está autenticado, mostrar login
+    if (pathname === '/login' && !user && !isLoading) {
+      return <LoginPage />;
+    }
+    
+    // Si está en la raíz del tenant y no está autenticado, redirigir a weekly.pe/agendar
+    if (pathname === '/' && !user && !isLoading) {
+      window.location.href = 'https://weekly.pe/agendar';
+      return <div>Cargando...</div>;
+    }
+    
+    // Para rutas autenticadas, usar TenantAppContent
+    return <TenantAppContent />;
+  }
+  
+  // Default: TenantAppContent para rutas autenticadas
   return <TenantAppContent />;
 }
 
@@ -166,7 +242,14 @@ function App() {
       <SplashProvider>
         <AuthProvider>
           <RealtimeProvider>
-            <AppContent />
+            <Routes>
+              {/* Rutas públicas (sin autenticación) */}
+              <Route path="/demo" element={<DemoView />} />
+              <Route path="/calendario-publico" element={<PublicCalendarPage />} />
+              
+              {/* Rutas con autenticación */}
+              <Route path="/*" element={<AppContent />} />
+            </Routes>
           </RealtimeProvider>
         </AuthProvider>
       </SplashProvider>

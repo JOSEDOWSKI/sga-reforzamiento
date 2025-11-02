@@ -23,16 +23,16 @@ const LandingNavbar: React.FC = () => {
         {/* Desktop Navigation */}
         <div className="navbar-links">
           <a href="#features" className="nav-link">Características</a>
-          <a href="#pricing" className="nav-link">Precios</a>
-          <a href="#integrations" className="nav-link">Integraciones</a>
-          <a href="#support" className="nav-link">Soporte</a>
+          <a href="#map" className="nav-link">Ubicaciones</a>
+          <a href="/demo" className="nav-link">Demo</a>
+          <a href="#contact" className="nav-link">Contacto</a>
         </div>
 
         {/* Desktop Actions */}
         <div className="navbar-actions">
-          <a href="http://panel.weekly.pe:5173" className="nav-link">Iniciar Sesión</a>
-          <a href="http://demo.weekly.pe:5173" className="btn-nav-primary">
-            Probar Gratis
+          <a href="https://panel.weekly.pe" className="nav-link">Panel Admin</a>
+          <a href="/demo" className="btn-nav-primary">
+            Probar Demo
             <ArrowRight size={16} />
           </a>
         </div>
@@ -50,21 +50,21 @@ const LandingNavbar: React.FC = () => {
             <a href="#features" className="mobile-nav-link" onClick={toggleMenu}>
               Características
             </a>
-            <a href="#pricing" className="mobile-nav-link" onClick={toggleMenu}>
-              Precios
+            <a href="#map" className="mobile-nav-link" onClick={toggleMenu}>
+              Ubicaciones
             </a>
-            <a href="#integrations" className="mobile-nav-link" onClick={toggleMenu}>
-              Integraciones
+            <a href="/demo" className="mobile-nav-link" onClick={toggleMenu}>
+              Demo
             </a>
-            <a href="#support" className="mobile-nav-link" onClick={toggleMenu}>
-              Soporte
+            <a href="#contact" className="mobile-nav-link" onClick={toggleMenu}>
+              Contacto
             </a>
             <div className="mobile-menu-actions">
-              <a href="http://panel.weekly.pe:5173" className="mobile-nav-link" onClick={toggleMenu}>
-                Iniciar Sesión
+              <a href="https://panel.weekly.pe" className="mobile-nav-link" onClick={toggleMenu}>
+                Panel Admin
               </a>
-              <a href="http://demo.weekly.pe:5173" className="btn-mobile-primary" onClick={toggleMenu}>
-                Probar Gratis
+              <a href="/demo" className="btn-mobile-primary" onClick={toggleMenu}>
+                Probar Demo
                 <ArrowRight size={16} />
               </a>
             </div>

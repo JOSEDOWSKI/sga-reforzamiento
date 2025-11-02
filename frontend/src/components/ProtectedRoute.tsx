@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import LoginPage from '../pages/LoginPage';
 
 interface ProtectedRouteProps {
@@ -6,10 +7,31 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-    // TEMPORAL: Bypass de autenticación para debug
-    const isAuthenticated = true;
-    const isLoading = false;
+    const { user, isLoading, isAuthenticated } = useAuth();
 
+    // Timeout de seguridad: si carga más de 5 segundos, mostrar login
+    const [showLogin, setShowLogin] = React.useState(false);
+
+    React.useEffect(() => {
+        if (isLoading) {
+            const timer = setTimeout(() => {
+                console.warn('Timeout en verificación de autenticación, mostrando login');
+                setShowLogin(true);
+            }, 5000); // 5 segundos máximo (reducido para mejor UX)
+
+            return () => clearTimeout(timer);
+        } else {
+            setShowLogin(false);
+        }
+    }, [isLoading]);
+
+    // Si está cargando mucho tiempo, mostrar login directamente
+    if (isLoading && showLogin) {
+        console.log('Mostrando login por timeout');
+        return <LoginPage />;
+    }
+
+    // Si está cargando, mostrar loading
     if (isLoading) {
         return (
             <div className="loading-container">
@@ -21,10 +43,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         );
     }
 
-    if (!isAuthenticated) {
+    // Si no está autenticado, mostrar página de login
+    if (!isAuthenticated || !user) {
         return <LoginPage />;
     }
 
+    // Si está autenticado, mostrar el contenido protegido
     return <>{children}</>;
 };
 

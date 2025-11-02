@@ -31,6 +31,26 @@
   position: relative;
 }
 
+/* Liquid glass shine effect for modal */
+.modal-content::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 70%);
+  animation: liquidMove 7s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.modal-content > .modal-header,
+.modal-content > .modal-form {
+  position: relative;
+  z-index: 1;
+}
+
 .modal-content::before {
   content: "";
   position: absolute;
@@ -86,6 +106,91 @@
   z-index: 1;
 }
 
+/* Mejorar contraste del texto en el modal */
+.modal-form,
+.modal-body {
+  color: #e5e7eb; /* Cambiado: texto claro para fondo oscuro */
+  background: rgba(17, 24, 39, 0.95) !important; /* Fondo oscuro semitransparente */
+}
+
+.modal-form small,
+.modal-body small {
+  color: #d1d5db !important; /* Cambiado: texto secundario claro */
+  font-weight: 500;
+}
+
+/* Estilos para form-row (usado en modal) */
+.modal-form .form-row,
+.modal-body .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .modal-form .form-row,
+  .modal-body .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Checkbox en modal */
+.modal-form input[type="checkbox"],
+.modal-body input[type="checkbox"] {
+  width: auto !important;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+/* Label del checkbox también debe ser claro */
+.modal-form label:has(input[type="checkbox"]),
+.modal-body label:has(input[type="checkbox"]) {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Texto small dentro de label o form-group */
+.modal-form label small,
+.modal-body label small,
+.modal-form .form-group small,
+.modal-body .form-group small {
+  color: #d1d5db !important;
+  font-weight: 400;
+  text-transform: none; /* No usar uppercase en texto secundario */
+}
+
+/* Sobrescribir estilos inline de small */
+.modal-body small[style*="color"] {
+  color: #d1d5db !important;
+}
+
+/* Modal footer */
+.modal-footer {
+  padding-top: 2rem;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* H3 en modal */
+.modal-form h3,
+.modal-body h3 {
+  color: #ffffff !important; /* Cambiado: títulos blancos para fondo oscuro */
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* HR en modal */
+.modal-form hr,
+.modal-body hr {
+  border-color: rgba(255, 255, 255, 0.3) !important; /* Cambiado: separadores claros */
+  margin: 2rem 0 !important; /* Más espacio alrededor del separador */
+}
+
 .modal-close {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -118,6 +223,14 @@
   max-height: calc(90vh - 120px);
 }
 
+/* Agregar padding-top al modal-body para que los primeros campos tengan espacio */
+.modal-body {
+  padding: 2.5rem !important;
+  padding-top: 3rem !important; /* Más espacio arriba */
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+}
+
 .modal-form .form-group {
   display: flex;
   flex-direction: column;
@@ -126,23 +239,28 @@
   position: relative;
 }
 
-.modal-form .form-group label {
+.modal-form .form-group label,
+.modal-body .form-group label {
   font-weight: 600;
-  color: var(--foreground);
+  color: #ffffff !important; /* Cambiado: labels blancos para contraste con fondo oscuro */
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem; /* Aumentado: más espacio entre label e input */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Sombra para mejor legibilidad */
 }
 
 .modal-form .form-group input,
 .modal-form .form-group select,
-.modal-form .form-group textarea {
+.modal-form .form-group textarea,
+.modal-body .form-group input,
+.modal-body .form-group select,
+.modal-body .form-group textarea {
   width: 100%;
   padding: 1rem 1.25rem;
   border: 2px solid var(--border);
-  background: var(--card);
-  color: var(--foreground);
+  background: rgba(255, 255, 255, 1) !important; /* Mejorado: fondo sólido para mejor contraste */
+  color: #111827 !important; /* Mejorado: texto oscuro para mejor legibilidad */
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 500;
@@ -152,28 +270,49 @@
   font-family: inherit;
 }
 
+.modal-form .form-group input::placeholder,
+.modal-form .form-group textarea::placeholder,
+.modal-body .form-group input::placeholder,
+.modal-body .form-group textarea::placeholder {
+  color: #6b7280 !important; /* Mejorado: placeholder con mejor contraste */
+  opacity: 0.9;
+}
+
 .modal-form .form-group textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-.modal-form .form-group select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='m6 9 6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1.25rem center;
-  background-size: 1.25em;
+.modal-form .form-group select,
+.modal-body .form-group select {
+  background: rgba(255, 255, 255, 1) !important; /* Mejorado: fondo sólido para select */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23111827' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='m6 9 6 6 6-6'/%3e%3c/svg%3e") !important; /* Mejorado: icono más oscuro */
+  background-repeat: no-repeat !important;
+  background-position: right 1.25rem center !important;
+  background-size: 1.25em !important;
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
   padding-right: 3rem;
+  color: #111827 !important; /* Mejorado: texto oscuro en select */
+}
+
+.modal-form .form-group select option,
+.modal-body .form-group select option {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #111827 !important;
 }
 
 .modal-form .form-group input:focus,
 .modal-form .form-group select:focus,
-.modal-form .form-group textarea:focus {
+.modal-form .form-group textarea:focus,
+.modal-body .form-group input:focus,
+.modal-body .form-group select:focus,
+.modal-body .form-group textarea:focus {
   outline: none;
   border-color: var(--primary);
-  background: var(--background);
+  background: rgba(255, 255, 255, 1) !important; /* Mantener fondo sólido al enfocar */
+  color: #111827 !important; /* Mantener texto oscuro al enfocar */
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 15%, transparent),
     0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
@@ -336,6 +475,11 @@
 
   .modal-form {
     padding: 2rem;
+  }
+
+  .modal-body {
+    padding: 2rem !important;
+    padding-top: 2.5rem !important;
   }
 
   .modal-actions {
@@ -574,6 +718,19 @@
 
   .confirm-modal-actions button {
     width: 100%;
+  }
+}
+
+/* Liquid glass animation */
+@keyframes liquidMove {
+  0% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+  50% {
+    transform: rotate(180deg) translate(50px, 50px);
+  }
+  100% {
+    transform: rotate(360deg) translate(0, 0);
   }
 }
 

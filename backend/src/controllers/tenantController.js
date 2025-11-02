@@ -1,4 +1,7 @@
 const bcrypt = require('bcryptjs');
+const { createTenantDatabase, getTenantDatabase } = require('../config/tenantDatabase');
+const { createCNAME } = require('../services/cloudflareService');
+const { addCustomDomain } = require('../services/caproverService');
 
 /**
  * Controlador para gestión de tenants (Super Administración)
@@ -10,6 +13,21 @@ class TenantController {
      */
     async getAllTenants(req, res) {
         try {
+            // Asegurar que req.db esté disponible
+            let db = req.db;
+            if (!db) {
+                console.log('[TENANT CONTROLLER] req.db no disponible, creando conexión directa...');
+                const { Pool } = require('pg');
+                const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                db = new Pool({
+                    user: process.env.DB_USER || 'postgres',
+                    host: dbHost,
+                    database: 'weekly_global',
+                    password: process.env.DB_PASSWORD || 'postgres',
+                    port: parseInt(process.env.DB_PORT) || 5432,
+                });
+            }
+            
             const { page = 1, limit = 10, estado, plan } = req.query;
             const offset = (page - 1) * limit;
             
@@ -32,7 +50,7 @@ class TenantController {
             query += ` ORDER BY created_at DESC LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
             params.push(limit, offset);
             
-            const result = await req.db.query(query, params);
+            const result = await db.query(query, params);
             
             // Contar total de tenants
             let countQuery = 'SELECT COUNT(*) as total FROM tenants WHERE 1=1';
@@ -51,8 +69,13 @@ class TenantController {
                 countParams.push(plan);
             }
             
-            const countResult = await req.db.query(countQuery, countParams);
+            const countResult = await db.query(countQuery, countParams);
             const total = parseInt(countResult.rows[0].total);
+            
+            // Cerrar conexión si la creamos nosotros
+            if (!req.db && db) {
+                await db.end();
+            }
             
             res.json({
                 success: true,
@@ -66,9 +89,11 @@ class TenantController {
             });
         } catch (error) {
             console.error('Error getting tenants:', error);
+            console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error al obtener tenants'
+                message: 'Error al obtener tenants',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     }
@@ -146,27 +171,163 @@ class TenantController {
                 });
             }
             
-            // Crear el tenant
+            // Si hay dirección, intentar geocodificar antes de insertar
+            let latitud = null;
+            let longitud = null;
+            
+            if (cliente_direccion) {
+                const GoogleMapsService = require('../services/googleMapsService');
+                const geocodeResult = await GoogleMapsService.geocodeAddress(cliente_direccion);
+                if (geocodeResult) {
+                    latitud = geocodeResult.lat;
+                    longitud = geocodeResult.lng;
+                    console.log(`[TENANT CREATE] ✅ Coordenadas geocodificadas: ${latitud}, ${longitud}`);
+                }
+            }
+
+            // Crear el tenant en la BD global
             const result = await req.db.query(`
                 INSERT INTO tenants (
                     tenant_name, display_name, cliente_nombre, cliente_email,
-                    cliente_telefono, cliente_direccion, plan, logo_url,
-                    primary_color, secondary_color, timezone, locale
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                    cliente_telefono, cliente_direccion, latitud, longitud,
+                    plan, logo_url, primary_color, secondary_color, timezone, locale
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
                 RETURNING *
             `, [
                 tenant_name, display_name, cliente_nombre, cliente_email,
-                cliente_telefono, cliente_direccion, plan, logo_url,
-                primary_color, secondary_color, timezone, locale
+                cliente_telefono, cliente_direccion, latitud, longitud,
+                plan, logo_url, primary_color, secondary_color, timezone, locale
             ]);
             
-            // TODO: Crear la base de datos del tenant
-            // await createTenantDatabase(tenant_name);
+            // Crear la base de datos del tenant automáticamente
+            let dnsCreated = false;
+            let dnsMessage = '';
+            
+            try {
+                await createTenantDatabase(tenant_name);
+                
+                // Si se proporcionaron credenciales de usuario inicial, crearlo
+                const { admin_email, admin_password, admin_nombre } = req.body;
+                if (admin_email && admin_password) {
+                    // Esperar un momento para que la BD esté lista
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Conectar a la BD del tenant
+                    const tenantPool = await getTenantDatabase(tenant_name);
+                    const tenantClient = await tenantPool.connect();
+                    
+                    try {
+                        // Verificar que el esquema esté inicializado (esto se hace automáticamente)
+                        // Generar hash de la contraseña
+                        const passwordHash = await bcrypt.hash(admin_password, 12);
+                        
+                        const normalizedEmail = admin_email.toLowerCase();
+                        
+                        // Crear usuario admin inicial (normalizar email a minúsculas)
+                        await tenantClient.query(`
+                            INSERT INTO usuarios (email, password_hash, nombre, rol, activo)
+                            VALUES ($1, $2, $3, 'admin', true)
+                            ON CONFLICT (email) DO NOTHING
+                        `, [
+                            normalizedEmail,
+                            passwordHash,
+                            admin_nombre || 'Administrador'
+                        ]);
+                        
+                        // Registrar mapeo email → tenant en BD global (para login universal)
+                        try {
+                            const { Pool } = require('pg');
+                            const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                            const globalDbConfig = {
+                                user: process.env.DB_USER || 'postgres',
+                                host: dbHost,
+                                database: 'weekly_global',
+                                password: process.env.DB_PASSWORD || 'postgres',
+                                port: parseInt(process.env.DB_PORT) || 5432,
+                            };
+                            const globalPool = new Pool(globalDbConfig);
+                            
+                            await globalPool.query(`
+                                INSERT INTO email_tenant_mapping (email, tenant_name)
+                                VALUES ($1, $2)
+                                ON CONFLICT (email) DO UPDATE SET tenant_name = $2, updated_at = CURRENT_TIMESTAMP
+                            `, [normalizedEmail, tenant_name]);
+                            
+                            await globalPool.end();
+                            console.log(`✅ Mapeo email→tenant registrado: ${normalizedEmail} → ${tenant_name}`);
+                        } catch (mappingError) {
+                            console.warn(`⚠️  Error registrando mapeo email→tenant: ${mappingError.message}`);
+                            // No fallar si falla el registro del mapeo
+                        }
+                        
+                        console.log(`✅ Usuario admin creado para tenant ${tenant_name}: ${admin_email}`);
+                    } finally {
+                        tenantClient.release();
+                    }
+                }
+                
+                // Crear DNS automáticamente en Cloudflare
+                try {
+                    const dnsResult = await createCNAME(tenant_name);
+                    if (dnsResult.success) {
+                        dnsCreated = true;
+                        dnsMessage = dnsResult.alreadyExists 
+                            ? 'El DNS ya estaba configurado.'
+                            : 'DNS configurado automáticamente.';
+                        console.log(`✅ DNS creado automáticamente para ${tenant_name}.weekly.pe`);
+                    } else if (dnsResult.requiresManual) {
+                        dnsMessage = 'Por favor, configura el DNS manualmente en Cloudflare.';
+                        console.log(`ℹ️  DNS debe configurarse manualmente para ${tenant_name}.weekly.pe`);
+                    } else {
+                        dnsMessage = `Error creando DNS: ${dnsResult.message}. Configura manualmente si es necesario.`;
+                        console.warn(`⚠️  Error creando DNS automáticamente: ${dnsResult.message}`);
+                    }
+                    
+                    // Intentar agregar el dominio en CapRover también (falla silenciosamente si no está configurado)
+                    try {
+                        const domain = process.env.CLOUDFLARE_DOMAIN || 'weekly.pe';
+                        const fullDomain = `${tenant_name}.${domain}`;
+                        const caproverApp = process.env.CAPROVER_FRONTEND_APP || 'weekly-frontend';
+                        
+                        const caproverResult = await addCustomDomain(caproverApp, fullDomain);
+                        if (caproverResult.success) {
+                            console.log(`✅ Dominio agregado automáticamente en CapRover: ${fullDomain}`);
+                            if (dnsCreated) {
+                                dnsMessage += ' Dominio agregado en CapRover.';
+                            } else {
+                                dnsMessage = `DNS: ${dnsMessage}. CapRover: Dominio agregado.`;
+                            }
+                        } else {
+                            // Falla silenciosamente - requerirá configuración manual
+                            console.log(`ℹ️  Agregar dominio manualmente en CapRover: ${fullDomain} (opcional)`);
+                        }
+                    } catch (caproverError) {
+                        // Falla silenciosamente - no es crítico
+                        console.log(`ℹ️  CapRover automático no disponible. Agregar ${tenant_name}.weekly.pe manualmente en CapRover (opcional).`);
+                    }
+                } catch (dnsError) {
+                    dnsMessage = 'Error al crear DNS automáticamente. Configura manualmente si es necesario.';
+                    console.error('Error en creación automática de DNS:', dnsError);
+                    // No fallar la creación del tenant si falla el DNS
+                }
+            } catch (dbError) {
+                console.error('Error creando BD del tenant:', dbError);
+                // Continuar de todas formas - el tenant ya está creado en la BD global
+                // La BD se creará automáticamente cuando se acceda por primera vez
+            }
+            
+            const successMessage = dnsCreated 
+                ? `Tenant creado exitosamente. Base de datos inicializada y DNS configurado automáticamente. ${tenant_name}.weekly.pe estará disponible en 1-5 minutos.`
+                : `Tenant creado exitosamente. Base de datos inicializada. ${dnsMessage}`;
             
             res.status(201).json({
                 success: true,
                 data: result.rows[0],
-                message: 'Tenant creado exitosamente'
+                message: successMessage,
+                dns: {
+                    created: dnsCreated,
+                    message: dnsMessage
+                }
             });
         } catch (error) {
             console.error('Error creating tenant:', error);
@@ -227,10 +388,29 @@ class TenantController {
                 params.push(cliente_telefono);
             }
             
+            // Si se actualiza la dirección, geocodificar nuevamente
+            let latitud = null;
+            let longitud = null;
+            
             if (cliente_direccion !== undefined) {
                 paramCount++;
                 updates.push(`cliente_direccion = $${paramCount}`);
                 params.push(cliente_direccion);
+                
+                // Geocodificar la nueva dirección
+                const GoogleMapsService = require('../services/googleMapsService');
+                const geocodeResult = await GoogleMapsService.geocodeAddress(cliente_direccion);
+                if (geocodeResult) {
+                    latitud = geocodeResult.lat;
+                    longitud = geocodeResult.lng;
+                    paramCount++;
+                    updates.push(`latitud = $${paramCount}`);
+                    params.push(latitud);
+                    paramCount++;
+                    updates.push(`longitud = $${paramCount}`);
+                    params.push(longitud);
+                    console.log(`[TENANT UPDATE] ✅ Coordenadas actualizadas: ${latitud}, ${longitud}`);
+                }
             }
             
             if (plan !== undefined) {
@@ -360,7 +540,22 @@ class TenantController {
      */
     async getTenantStats(req, res) {
         try {
-            const stats = await req.db.query(`
+            // Asegurar que req.db esté disponible
+            let db = req.db;
+            if (!db) {
+                console.log('[TENANT CONTROLLER] req.db no disponible, creando conexión directa...');
+                const { Pool } = require('pg');
+                const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                db = new Pool({
+                    user: process.env.DB_USER || 'postgres',
+                    host: dbHost,
+                    database: 'weekly_global',
+                    password: process.env.DB_PASSWORD || 'postgres',
+                    port: parseInt(process.env.DB_PORT) || 5432,
+                });
+            }
+            
+            const stats = await db.query(`
                 SELECT 
                     COUNT(*) as total_tenants,
                     COUNT(CASE WHEN estado = 'activo' THEN 1 END) as active_tenants,
@@ -372,15 +567,22 @@ class TenantController {
                 FROM tenants
             `);
             
+            // Cerrar conexión si la creamos nosotros
+            if (!req.db && db) {
+                await db.end();
+            }
+            
             res.json({
                 success: true,
                 data: stats.rows[0]
             });
         } catch (error) {
             console.error('Error getting tenant stats:', error);
+            console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error al obtener estadísticas'
+                message: 'Error al obtener estadísticas',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     }

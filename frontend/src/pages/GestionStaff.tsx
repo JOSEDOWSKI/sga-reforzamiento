@@ -48,7 +48,7 @@ const GestionStaff: React.FC = () => {
     const fetchStaff = async () => {
         try {
             setLoading(true);
-            const response = await apiClient.get('/profesores'); // Usando la misma API por ahora
+            const response = await apiClient.get('/staff');
             setStaff(response.data.data);
             setError('');
         } catch (err: any) {
@@ -93,7 +93,7 @@ const GestionStaff: React.FC = () => {
                 telefono: telefono.trim()
             };
             
-            await apiClient.post('/profesores', staffData);
+            await apiClient.post('/staff', staffData);
             setSuccess('Miembro del staff creado exitosamente');
             setNombre('');
             setEmail('');
@@ -160,7 +160,7 @@ const GestionStaff: React.FC = () => {
                 telefono: modalTelefono.trim()
             };
             
-            await apiClient.put(`/profesores/${modalState.editingStaff.id}`, staffData);
+            await apiClient.put(`/staff/${modalState.editingStaff.id}`, staffData);
             setSuccess('Miembro del staff actualizado exitosamente');
             setError('');
             handleCloseModal();
@@ -197,7 +197,7 @@ const GestionStaff: React.FC = () => {
 
         try {
             setLoading(true);
-            await apiClient.delete(`/profesores/${confirmModal.staffId}`);
+            await apiClient.delete(`/staff/${confirmModal.staffId}`);
             setSuccess('Miembro del staff eliminado exitosamente');
             setError('');
             handleCloseConfirmModal();

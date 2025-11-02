@@ -22,8 +22,23 @@ class GlobalAuthController {
                 });
             }
             
+            // Si req.db no está disponible, crear conexión directa
+            let db = req.db;
+            if (!db) {
+                console.log('[GLOBAL AUTH] req.db no disponible, creando conexión directa...');
+                const { Pool } = require('pg');
+                const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                db = new Pool({
+                    user: process.env.DB_USER || 'postgres',
+                    host: dbHost,
+                    database: 'weekly_global',
+                    password: process.env.DB_PASSWORD || 'postgres',
+                    port: parseInt(process.env.DB_PORT) || 5432,
+                });
+            }
+            
             // Buscar usuario en la base de datos global
-            const result = await req.db.query(
+            const result = await db.query(
                 'SELECT * FROM usuarios_global WHERE email = $1 AND activo = true',
                 [email]
             );
@@ -52,10 +67,15 @@ class GlobalAuthController {
             }
             
             // Actualizar último acceso
-            await req.db.query(
+            await db.query(
                 'UPDATE usuarios_global SET ultimo_acceso = CURRENT_TIMESTAMP WHERE id = $1',
                 [user.id]
             );
+            
+            // Cerrar conexión si la creamos nosotros (no usar req.db)
+            if (!req.db && db) {
+                await db.end();
+            }
             
             // Generar token JWT
             const token = jwt.sign(

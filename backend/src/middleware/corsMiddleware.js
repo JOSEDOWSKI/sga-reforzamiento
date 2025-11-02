@@ -25,10 +25,24 @@ const corsOptions = {
             return callback(null, true);
         }
         
+        // En producción, permitir automáticamente dominios weekly.pe y getdevtools.com
+        if (process.env.NODE_ENV === 'production') {
+            // Permitir todos los subdominios de weekly.pe
+            if (origin.includes('.weekly.pe') || origin === 'https://weekly.pe' || origin === 'http://weekly.pe') {
+                return callback(null, true);
+            }
+            // Permitir dominios getdevtools.com (para desarrollo en CapRover)
+            if (origin.includes('.getdevtools.com') || origin.includes('getdevtools.com')) {
+                return callback(null, true);
+            }
+        }
+        
         // Verificar si el origin está en la lista permitida
         const isAllowed = allowedOrigins.some(allowedOrigin => {
+            if (!allowedOrigin) return false;
+            
             if (allowedOrigin.startsWith('*.')) {
-                // Wildcard domain (ej: *.agendate.promesa.tech)
+                // Wildcard domain (ej: *.weekly.pe)
                 const domain = allowedOrigin.substring(2);
                 return origin && origin.endsWith(domain);
             }
@@ -39,6 +53,7 @@ const corsOptions = {
             callback(null, true);
         } else {
             console.log(`CORS blocked origin: ${origin}`);
+            console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
             callback(new Error('Not allowed by CORS policy'));
         }
     },

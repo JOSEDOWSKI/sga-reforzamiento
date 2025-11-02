@@ -7,7 +7,10 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "seed": "node db/seed.js",
+    "init-db": "node scripts/init-production-db.js",
+    "check-db": "./scripts/check-database.sh",
     "create-tenant": "node scripts/create-tenant.js",
+    "seed-demo": "node scripts/seed-demo.js",
     "cleanup-tenants": "node scripts/cleanup-random-tenants.js",
     "check-env": "node scripts/check-env-config.js",
     "migrate:alumnos": "node scripts/run-migration.js $TENANT ./db/migrate_add_alumnos.sql",
@@ -24,6 +27,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "axios": "^1.13.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

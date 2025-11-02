@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const alumnoController = require('../controllers/alumnoController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+
+// Aplicar middleware de autenticación a todas las rutas del dashboard
+router.use(authMiddleware);
 
 // GET /api/alumnos
 router.get('/', alumnoController.getAllAlumnos);

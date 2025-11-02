@@ -36,8 +36,8 @@ export const useTenantConfig = () => {
           tenantName = parts[0];
         }
 
-        // Buscar la configuración del tenant
-        const response = await apiClient.get(`/api/tenants/config/${tenantName}`);
+        // Buscar la configuración del tenant (baseURL ya incluye /api)
+        const response = await apiClient.get(`/tenants/config/${tenantName}`);
         setConfig(response.data.data);
       } catch (err: any) {
         console.error('Error fetching tenant config:', err);

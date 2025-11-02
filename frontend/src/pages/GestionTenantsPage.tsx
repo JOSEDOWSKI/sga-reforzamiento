@@ -47,6 +47,10 @@ const GestionTenantsPage: React.FC = () => {
         cliente_direccion: string;
         plan: 'basico' | 'premium' | 'enterprise';
         estado: 'activo' | 'suspendido' | 'cancelado';
+        admin_email: string;
+        admin_password: string;
+        admin_nombre: string;
+        crear_usuario_admin: boolean;
     }>({
         tenant_name: '',
         display_name: '',
@@ -55,7 +59,11 @@ const GestionTenantsPage: React.FC = () => {
         cliente_telefono: '',
         cliente_direccion: '',
         plan: 'basico',
-        estado: 'activo'
+        estado: 'activo',
+        admin_email: '',
+        admin_password: '',
+        admin_nombre: '',
+        crear_usuario_admin: true
     });
 
     useEffect(() => {
@@ -93,7 +101,11 @@ const GestionTenantsPage: React.FC = () => {
             cliente_telefono: '',
             cliente_direccion: '',
             plan: 'basico',
-            estado: 'activo'
+            estado: 'activo',
+            admin_email: '',
+            admin_password: '',
+            admin_nombre: '',
+            crear_usuario_admin: true
         });
         setShowModal(true);
     };
@@ -108,7 +120,11 @@ const GestionTenantsPage: React.FC = () => {
             cliente_telefono: tenant.cliente_telefono,
             cliente_direccion: tenant.cliente_direccion,
             plan: tenant.plan,
-            estado: tenant.estado
+            estado: tenant.estado,
+            admin_email: '',
+            admin_password: '',
+            admin_nombre: '',
+            crear_usuario_admin: false
         });
         setShowModal(true);
     };
@@ -117,13 +133,25 @@ const GestionTenantsPage: React.FC = () => {
         e.preventDefault();
         try {
             if (editingTenant) {
-                await apiClient.put(`/super-admin/tenants/${editingTenant.id}`, formData);
+                // Al editar, no enviar campos de usuario admin
+                const { admin_email, admin_password, admin_nombre, crear_usuario_admin, ...updateData } = formData;
+                await apiClient.put(`/super-admin/tenants/${editingTenant.id}`, updateData);
             } else {
-                await apiClient.post('/super-admin/tenants', formData);
+                // Al crear, incluir datos de usuario admin si está habilitado
+                if (!formData.crear_usuario_admin) {
+                    // No crear usuario admin, enviar solo datos del tenant
+                    const { admin_email, admin_password, admin_nombre, crear_usuario_admin, ...tenantData } = formData;
+                    await apiClient.post('/super-admin/tenants', tenantData);
+                } else {
+                    // Crear usuario admin, incluir todos los datos
+                    const { crear_usuario_admin, ...submitData } = formData;
+                    await apiClient.post('/super-admin/tenants', submitData);
+                }
             }
             setShowModal(false);
             fetchTenants();
             fetchStats();
+            setError(''); // Limpiar errores previos
         } catch (error: any) {
             setError('Error al guardar tenant: ' + (error.response?.data?.message || error.message));
         }
@@ -496,6 +524,104 @@ const GestionTenantsPage: React.FC = () => {
                                     </select>
                                 </div>
                             </div>
+
+                            {/* Sección de Usuario Administrador (solo al crear) */}
+                            {!editingTenant && (
+                                <>
+                                    <hr style={{ margin: '2rem 0', border: 'none', borderTop: '2px solid rgba(255, 255, 255, 0.3)' }} />
+                                    <h3 style={{ 
+                                        marginBottom: '1.5rem', 
+                                        fontSize: '1.2rem', 
+                                        fontWeight: '700',
+                                        color: '#ffffff',
+                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                                    }}>
+                                        👤 Usuario Administrador Inicial
+                                    </h3>
+                                    
+                                    <div className="form-group" style={{ 
+                                        marginBottom: '1.5rem',
+                                        padding: '1rem',
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    }}>
+                                        <label style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '0.75rem',
+                                            cursor: 'pointer',
+                                            color: '#ffffff',
+                                            fontWeight: '600',
+                                            fontSize: '1rem'
+                                        }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.crear_usuario_admin}
+                                                onChange={(e) => setFormData({...formData, crear_usuario_admin: e.target.checked})}
+                                                style={{
+                                                    width: '20px',
+                                                    height: '20px',
+                                                    cursor: 'pointer',
+                                                    accentColor: 'var(--primary)'
+                                                }}
+                                            />
+                                            Crear usuario administrador automáticamente
+                                        </label>
+                                        <small style={{ 
+                                            display: 'block', 
+                                            marginTop: '0.5rem', 
+                                            color: '#d1d5db',
+                                            fontSize: '0.9rem',
+                                            lineHeight: '1.4'
+                                        }}>
+                                            Si está marcado, se creará un usuario admin en la plataforma del cliente con las credenciales que indiques abajo.
+                                        </small>
+                                    </div>
+
+                                    {formData.crear_usuario_admin && (
+                                        <>
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Email del Administrador</label>
+                                                    <input
+                                                        type="email"
+                                                        value={formData.admin_email}
+                                                        onChange={(e) => setFormData({...formData, admin_email: e.target.value})}
+                                                        required={formData.crear_usuario_admin}
+                                                        placeholder="admin@peluqueria.weekly.pe"
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Nombre del Administrador</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.admin_nombre}
+                                                        onChange={(e) => setFormData({...formData, admin_nombre: e.target.value})}
+                                                        placeholder="Administrador"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Contraseña</label>
+                                                    <input
+                                                        type="password"
+                                                        value={formData.admin_password}
+                                                        onChange={(e) => setFormData({...formData, admin_password: e.target.value})}
+                                                        required={formData.crear_usuario_admin}
+                                                        placeholder="Contraseña segura"
+                                                        minLength={6}
+                                                    />
+                                                    <small style={{ display: 'block', marginTop: '0.25rem', color: '#666' }}>
+                                                        Mínimo 6 caracteres. Recomendamos usar una contraseña segura y compartirla con el cliente de forma segura.
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </>
+                            )}
 
                             <div className="modal-footer">
                                 <button 

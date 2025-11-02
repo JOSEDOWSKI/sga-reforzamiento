@@ -72,23 +72,23 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link id="nav-cursos" 
-              to="/cursos" 
-              className={isActive('/cursos') ? 'active' : ''}
+            <Link id="nav-servicios" 
+              to="/servicios" 
+              className={isActive('/servicios') ? 'active' : ''}
                 onClick={closeSidebar}
             >
               <span className="sidebar-nav-icon">📚</span>
-              Gestión Cursos
+              Gestión Servicios
             </Link>
           </li>
           <li>
-            <Link  id="nav-profesores"
-              to="/profesores" 
-              className={isActive('/profesores') ? 'active' : ''}
+            <Link  id="nav-staff"
+              to="/staff" 
+              className={isActive('/staff') ? 'active' : ''}
                 onClick={closeSidebar}
             >
               <span className="sidebar-nav-icon">👨‍🏫</span>
-              Gestión Profesores
+              Gestión Staff
             </Link>
           </li>
           <li>
@@ -103,12 +103,12 @@ const Sidebar: React.FC = () => {
           </li>
           <li>
             <Link 
-              to="/temas" 
-              className={isActive('/temas') ? 'active' : ''}
+              to="/categorias" 
+              className={isActive('/categorias') ? 'active' : ''}
                 onClick={closeSidebar}
             >
               <span className="sidebar-nav-icon">📝</span>
-              Gestión Temas
+              Gestión Categorías
             </Link>
           </li>
           <li>

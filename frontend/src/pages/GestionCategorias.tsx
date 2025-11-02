@@ -55,8 +55,8 @@ const GestionCategorias: React.FC = () => {
         try {
             setLoading(true);
             const [temasRes, cursosRes] = await Promise.all([
-                apiClient.get('/temas'),
-                apiClient.get('/cursos')
+                apiClient.get('/categorias'),
+                apiClient.get('/servicios')
             ]);
             setCategorias(temasRes.data.data);
             setServicios(cursosRes.data.data);
@@ -101,7 +101,7 @@ const GestionCategorias: React.FC = () => {
                 curso_id: parseInt(servicioId) // Usando la misma API por ahora
             };
             
-            await apiClient.post('/temas', categoriaData);
+            await apiClient.post('/categorias', categoriaData);
             setSuccess('Categoría creada exitosamente');
             setNombre('');
             setServicioId('');
@@ -160,7 +160,7 @@ const GestionCategorias: React.FC = () => {
                 curso_id: parseInt(modalServicioId) // Usando la misma API por ahora
             };
             
-            await apiClient.put(`/temas/${modalState.editingCategoria.id}`, categoriaData);
+            await apiClient.put(`/categorias/${modalState.editingCategoria.id}`, categoriaData);
             setSuccess('Categoría actualizada exitosamente');
             setError('');
             handleCloseModal();
@@ -197,7 +197,7 @@ const GestionCategorias: React.FC = () => {
 
         try {
             setLoading(true);
-            await apiClient.delete(`/temas/${confirmModal.categoriaId}`);
+            await apiClient.delete(`/categorias/${confirmModal.categoriaId}`);
             setSuccess('Categoría eliminada exitosamente');
             setError('');
             handleCloseConfirmModal();

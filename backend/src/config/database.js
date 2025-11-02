@@ -2,13 +2,16 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'sga_reforzamiento', // Nombre de la base de datos que usaremos
-    password: 'postgres',
-    port: 5432,
-});
+// Configuración desde variables de entorno (producción) o valores por defecto (desarrollo)
+const dbConfig = {
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'sga_reforzamiento',
+    password: process.env.DB_PASSWORD || 'postgres',
+    port: parseInt(process.env.DB_PORT) || 5432,
+};
+
+const pool = new Pool(dbConfig);
 
 // Función para inicializar la BD. Se llamará una vez al inicio.
 const initializeDatabase = async () => {
@@ -16,30 +19,57 @@ const initializeDatabase = async () => {
     try {
         // 1. Probar la conexión
         client = await pool.connect();
-        console.log('Conectado a la base de datos PostgreSQL.');
+        console.log(`Conectado a la base de datos PostgreSQL: ${dbConfig.database}`);
 
-        // 2. Comprobar si la tabla 'cursos' ya existe
-        const checkTableQuery = "SELECT to_regclass('public.cursos');";
+        // 2. Comprobar si la tabla 'establecimientos' ya existe (nueva estructura)
+        // Fallback a 'tenants' para BD global o 'usuarios' para tenant
+        const checkTableQuery = `
+            SELECT to_regclass('public.establecimientos') as establecimientos,
+                   to_regclass('public.tenants') as tenants,
+                   to_regclass('public.usuarios') as usuarios;
+        `;
         const res = await client.query(checkTableQuery);
         
-        // 3. Si no existe, crear las tablas desde el schema
-        if (res.rows[0].to_regclass === null) {
-            console.log('Base de datos no inicializada. Creando tablas...');
-            const schemaPath = path.resolve(__dirname, '../../db/schema.sql');
-            const schema = fs.readFileSync(schemaPath, 'utf8');
-            await client.query(schema);
-            console.log('Tablas creadas exitosamente.');
+        const hasEstablecimientos = res.rows[0].establecimientos !== null;
+        const hasTenants = res.rows[0].tenants !== null;
+        const hasUsuarios = res.rows[0].usuarios !== null;
+        
+        // 3. Determinar qué esquema aplicar según el tipo de BD
+        if (!hasEstablecimientos && !hasTenants && !hasUsuarios) {
+            console.log('Base de datos no inicializada. Inicializando esquema...');
+            
+            // Si es BD global (weekly_global), usar schema-global.sql
+            if (dbConfig.database.includes('global') || dbConfig.database === 'weekly_global') {
+                const schemaPath = path.resolve(__dirname, '../../db/schema-global.sql');
+                if (fs.existsSync(schemaPath)) {
+                    const schema = fs.readFileSync(schemaPath, 'utf8');
+                    await client.query(schema);
+                    console.log('✅ Esquema global creado exitosamente.');
+                } else {
+                    console.warn('⚠️  schema-global.sql no encontrado, usando schema.sql');
+                    const schemaPath = path.resolve(__dirname, '../../db/schema.sql');
+                    const schema = fs.readFileSync(schemaPath, 'utf8');
+                    await client.query(schema);
+                    console.log('✅ Esquema creado exitosamente.');
+                }
+            } else {
+                // BD de tenant, usar schema.sql
+                const schemaPath = path.resolve(__dirname, '../../db/schema.sql');
+                const schema = fs.readFileSync(schemaPath, 'utf8');
+                await client.query(schema);
+                console.log('✅ Esquema de tenant creado exitosamente.');
+            }
         } else {
-            console.log('Las tablas ya existen.');
+            console.log('✅ Las tablas ya existen. Base de datos inicializada.');
         }
     } catch (err) {
-        console.error('Error al inicializar la base de datos:', err.message);
-        // Si la base de datos 'sga_reforzamiento' no existe, pg lanza un error específico.
-        if (err.message.includes('database "sga_reforzamiento" does not exist')) {
+        console.error('❌ Error al inicializar la base de datos:', err.message);
+        // Si la base de datos no existe
+        if (err.message.includes('does not exist')) {
             console.log('\n---');
-            console.log('POR FAVOR, CREA LA BASE DE DATOS "sga_reforzamiento" EN POSTGRESQL.');
-            console.log('Puedes usar el comando:');
-            console.log('psql -U postgres -c "CREATE DATABASE sga_reforzamiento;"');
+            console.log(`⚠️  LA BASE DE DATOS "${dbConfig.database}" NO EXISTE.`);
+            console.log('Por favor, créala con el comando:');
+            console.log(`psql -U ${dbConfig.user} -c "CREATE DATABASE ${dbConfig.database};"`);
             console.log('---');
         }
         // No cerramos el pool aquí. Dejamos que los siguientes intentos puedan funcionar.

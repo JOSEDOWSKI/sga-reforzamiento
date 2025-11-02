@@ -90,10 +90,10 @@
 
 .login-subtitle {
     font-size: 17px;
-    color: #64748b !important;
+    color: #4b5563 !important; /* Mejorado: de #64748b a #4b5563 para mayor contraste */
     margin: 0;
     font-weight: 500;
-    opacity: 0.9;
+    opacity: 1; /* Mejorado: eliminar opacidad para mejor legibilidad */
 }
 
 .login-form {
@@ -130,7 +130,7 @@
 .form-label {
     font-size: 15px;
     font-weight: 600;
-    color: #374151 !important;
+    color: #111827 !important; /* Mejorado: de #374151 a #111827 para mayor contraste */
     margin: 0;
     transition: color 0.2s ease;
 }
@@ -142,15 +142,16 @@
     font-size: 16px;
     font-weight: 500;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95); /* Mejorado: más opaco para mejor contraste */
     backdrop-filter: blur(12px);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    color: #1f2937;
+    color: #111827 !important; /* Mejorado: de #1f2937 a #111827 para mayor contraste */
 }
 
 .form-input::placeholder {
-    color: #9ca3af;
+    color: #6b7280 !important; /* Mejorado: de #9ca3af a #6b7280 para mejor contraste */
     font-weight: 400;
+    opacity: 0.9;
 }
 
 .form-input:focus {

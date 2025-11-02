@@ -20,6 +20,8 @@ CREATE TABLE tenants (
     cliente_email VARCHAR(255) NOT NULL,
     cliente_telefono VARCHAR(20),
     cliente_direccion TEXT,
+    latitud DECIMAL(10, 8), -- Coordenada de latitud para Google Maps
+    longitud DECIMAL(11, 8), -- Coordenada de longitud para Google Maps
     
     -- Estado del tenant
     estado VARCHAR(20) DEFAULT 'activo', -- activo, suspendido, cancelado
@@ -43,6 +45,20 @@ CREATE TABLE usuarios_global (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Tabla de mapeo email → tenant (para login universal)
+CREATE TABLE email_tenant_mapping (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    tenant_name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_name) REFERENCES tenants(tenant_name) ON DELETE CASCADE
+);
+
+-- Índice para búsqueda rápida
+CREATE INDEX idx_email_tenant_mapping_email ON email_tenant_mapping(email);
+CREATE INDEX idx_email_tenant_mapping_tenant ON email_tenant_mapping(tenant_name);
 
 -- Tabla de facturación (futuro)
 CREATE TABLE facturacion (

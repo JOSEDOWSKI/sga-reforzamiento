@@ -3,7 +3,7 @@ const router = express.Router();
 const temaController = require('../controllers/temaController');
 const { authMiddleware, roleMiddleware } = require('../middleware/authMiddleware');
 
-// Aplicar autenticación a todas las rutas
+// Aplicar autenticación a todas las rutas del dashboard
 router.use(authMiddleware);
 
 // GET /api/temas - Obtener todos los temas

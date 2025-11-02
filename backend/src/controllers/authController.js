@@ -19,9 +19,42 @@ class AuthController {
                 });
             }
             
+            // Verificar que req.db esté disponible
+            if (!req.db) {
+                console.error('[AUTH LOGIN] req.db no disponible para tenant:', req.tenant);
+                console.error('[AUTH LOGIN] Host:', req.get('host'));
+                console.error('[AUTH LOGIN] Tenant type:', req.tenantType);
+                
+                // Si es un tenant, intentar crear la conexión manualmente
+                if (req.tenant && req.tenant !== 'global' && req.tenant !== 'public') {
+                    try {
+                        const { getTenantDatabase } = require('../config/tenantDatabase');
+                        req.db = await getTenantDatabase(req.tenant);
+                        console.log(`[AUTH LOGIN] Conexión creada manualmente para tenant: ${req.tenant}`);
+                    } catch (dbError) {
+                        console.error('[AUTH LOGIN] Error creando conexión manual:', dbError);
+                        return res.status(500).json({
+                            error: 'Internal Server Error',
+                            message: 'Error al conectar con la base de datos del tenant'
+                        });
+                    }
+                } else {
+                    return res.status(500).json({
+                        error: 'Internal Server Error',
+                        message: 'Conexión a base de datos no disponible'
+                    });
+                }
+            }
+            
+            // Normalizar email
+            const normalizedEmail = email.toLowerCase().trim();
+            console.log(`[AUTH LOGIN] Intentando login para: ${normalizedEmail} en tenant: ${req.tenant}`);
+            
             // Buscar usuario en la base de datos del tenant
             const query = 'SELECT * FROM usuarios WHERE email = $1 AND activo = true';
-            const result = await req.db.query(query, [email.toLowerCase()]);
+            const result = await req.db.query(query, [normalizedEmail]);
+            
+            console.log(`[AUTH LOGIN] Usuario encontrado: ${result.rows.length > 0 ? 'Sí' : 'No'}`);
             
             if (result.rows.length === 0) {
                 return res.status(401).json({
@@ -33,14 +66,18 @@ class AuthController {
             const user = result.rows[0];
             
             // Verificar contraseña
+            console.log(`[AUTH LOGIN] Verificando contraseña para usuario ID: ${user.id}`);
             const isValidPassword = await bcrypt.compare(password, user.password_hash);
             
             if (!isValidPassword) {
+                console.log(`[AUTH LOGIN] Contraseña incorrecta para: ${normalizedEmail}`);
                 return res.status(401).json({
                     error: 'Authentication Error',
                     message: 'Credenciales inválidas'
                 });
             }
+            
+            console.log(`[AUTH LOGIN] ✅ Login exitoso para: ${normalizedEmail}`);
             
             // Actualizar último acceso
             await req.db.query(
@@ -87,7 +124,56 @@ class AuthController {
             // El middleware de auth ya verificó el token y agregó req.user
             const user = req.user;
             
-            // Obtener información actualizada del usuario
+            // Si es usuario global, buscar en usuarios_global
+            if (user.userType === 'global') {
+                // Si req.db no está disponible, crear conexión directa
+                let db = req.db;
+                if (!db) {
+                    console.log('[AUTH VERIFY] req.db no disponible, creando conexión directa para usuario global...');
+                    const { Pool } = require('pg');
+                    const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                    db = new Pool({
+                        user: process.env.DB_USER || 'postgres',
+                        host: dbHost,
+                        database: 'weekly_global',
+                        password: process.env.DB_PASSWORD || 'postgres',
+                        port: parseInt(process.env.DB_PORT) || 5432,
+                    });
+                }
+                
+                const query = 'SELECT id, email, nombre, rol, activo, ultimo_acceso, created_at FROM usuarios_global WHERE id = $1 AND activo = true';
+                const result = await db.query(query, [user.userId]);
+                
+                // Cerrar conexión si la creamos nosotros
+                if (!req.db && db) {
+                    await db.end();
+                }
+                
+                if (result.rows.length === 0) {
+                    return res.status(401).json({
+                        error: 'Authentication Error',
+                        message: 'Usuario no encontrado o inactivo'
+                    });
+                }
+                
+                return res.json({
+                    valid: true,
+                    user: {
+                        ...result.rows[0],
+                        userType: 'global'
+                    },
+                    tenant: req.tenant
+                });
+            }
+            
+            // Para usuarios de tenant, buscar en usuarios
+            if (!req.db) {
+                return res.status(500).json({
+                    error: 'Internal Server Error',
+                    message: 'Conexión a base de datos no disponible'
+                });
+            }
+            
             const query = 'SELECT id, email, nombre, rol, activo, ultimo_acceso, created_at FROM usuarios WHERE id = $1 AND activo = true';
             const result = await req.db.query(query, [user.userId]);
             

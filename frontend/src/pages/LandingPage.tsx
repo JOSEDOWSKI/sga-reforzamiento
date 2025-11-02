@@ -31,22 +31,22 @@ const LandingPage = () => {
         {
             icon: <Calendar className="feature-icon" />,
             title: "Calendario Inteligente",
-            description: "Búsqueda inteligente de clientes con sugerencias automáticas y filtrado dinámico de servicios. Actualización en tiempo real con múltiples usuarios."
+            description: "Gestiona todas tus reservas en un calendario interactivo con vista mensual, semanal y diaria. Los clientes pueden agendar directamente desde tu calendario público sin necesidad de registro."
         },
         {
             icon: <Users className="feature-icon" />,
-            title: "Gestión de Clientes",
-            description: "Base de datos completa de clientes con historial de servicios y preferencias. Búsqueda rápida con autocompletado inteligente."
+            title: "Gestión Completa",
+            description: "Administra servicios, staff, clientes y categorías desde un solo lugar. Base de datos centralizada con búsqueda rápida y actualización en tiempo real para todos los usuarios."
         },
         {
             icon: <Clock className="feature-icon" />,
-            title: "Horarios Flexibles",
-            description: "Configura horarios de trabajo, días libres y disponibilidad por servicio. Validación automática de conflictos de horarios."
+            title: "Multi-Tenant SaaS",
+            description: "Cada negocio tiene su propia base de datos y panel independiente. Sistema seguro, escalable y personalizado para peluquerías, academias, clínicas y más."
         },
         {
             icon: <CheckCircle className="feature-icon" />,
-            title: "Automatización Inteligente",
-            description: "Próximamente: IA para registro automático de reservas desde mensajes y automatización con n8n para flujos de trabajo avanzados."
+            title: "Roles y Permisos",
+            description: "Diferencia entre administradores (acceso completo) y usuarios regulares (solo calendario y reservas). Sistema flexible para diferentes tipos de usuarios."
         }
     ];
 
@@ -54,19 +54,19 @@ const LandingPage = () => {
         {
             name: "María González",
             business: "Salón Bella Vista",
-            text: "WEEKLY transformó completamente mi negocio. Ahora mis clientes pueden reservar 24/7 y nunca más tengo citas perdidas.",
+            text: "WEEKLY transformó completamente mi negocio. Ahora mis clientes pueden agendar citas desde el calendario público 24/7 y yo gestiono todo desde un solo panel.",
             rating: 5
         },
         {
             name: "Carlos Mendoza",
             business: "Academia Refuerzo Plus",
-            text: "La gestión de horarios y profesores es súper fácil. Mis alumnos siempre saben cuándo tienen clase.",
+            text: "La gestión de servicios, profesores y alumnos es súper intuitiva. El calendario público permite que mis estudiantes reserven sus clases fácilmente.",
             rating: 5
         },
         {
             name: "Ana Rodríguez",
             business: "Clínica Dental Sonrisa",
-            text: "El sistema de recordatorios automáticos redujo las faltas en un 80%. ¡Increíble!",
+            text: "El sistema multi-tenant nos da total independencia y seguridad. Cada clínica tiene su propio espacio sin compartir datos.",
             rating: 5
         }
     ];
@@ -90,14 +90,14 @@ const LandingPage = () => {
                             <span className="hero-subtitle">Tu Sistema de Agendamiento Inteligente</span>
                         </h1>
                         <p className="hero-description">
-                            Simplifica la gestión de citas con búsqueda inteligente, filtrado automático y actualización en tiempo real. 
-                            Próximamente integración con IA para registro automático de reservas y automatización con n8n.
-                            Diseñada para peluquerías, academias, clínicas y más.
+                            Sistema SaaS multi-tenant para gestionar reservas, servicios, staff y clientes. 
+                            Calendario público para que tus clientes agenden sin registro, panel completo para administradores 
+                            y vista simplificada para usuarios. Perfecto para peluquerías, academias, clínicas, canchas y más.
                         </p>
                         <div className="hero-buttons">
                             <button 
                                 className="btn-primary"
-                                onClick={() => window.location.href = 'http://demo.weekly.pe:5173'}
+                                onClick={() => window.location.href = '/demo'}
                             >
                                 Probar Demo Gratis
                                 <ArrowRight className="btn-icon" />
@@ -179,8 +179,8 @@ const LandingPage = () => {
                     <div className="section-header">
                         <h2 className="section-title">¿Por qué elegir WEEKLY?</h2>
                         <p className="section-description">
-                            Una plataforma inteligente con búsqueda avanzada, filtrado automático y actualización en tiempo real. 
-                            Próximamente con IA para automatización completa de reservas.
+                            Plataforma completa de gestión de reservas con calendario público, panel administrativo y sistema multi-tenant. 
+                            Cada negocio tiene su propia base de datos independiente y segura.
                         </p>
                     </div>
                     <div className="features-grid">
@@ -234,17 +234,25 @@ const LandingPage = () => {
                     <div className="cta-content">
                         <h2 className="cta-title">¿Listo para transformar tu negocio?</h2>
                         <p className="cta-description">
-                            Únete a cientos de negocios que ya gestionan sus citas de manera inteligente con WEEKLY
+                            Únete a negocios que ya simplifican su gestión de reservas con WEEKLY. Sistema completo, seguro y fácil de usar.
                         </p>
                         <div className="cta-buttons">
                             <button 
                                 className="btn-primary large"
-                                onClick={() => window.location.href = 'http://demo.weekly.pe:5173'}
+                                onClick={() => window.location.href = '/demo'}
                             >
                                 Comenzar Gratis Ahora
                                 <ArrowRight className="btn-icon" />
                             </button>
-                            <button className="btn-outline">
+                            <button 
+                                className="btn-outline"
+                                onClick={() => {
+                                    const contactSection = document.getElementById('contact');
+                                    if (contactSection) {
+                                        contactSection.scrollIntoView({ behavior: 'smooth' });
+                                    }
+                                }}
+                            >
                                 Contactar Ventas
                             </button>
                         </div>
@@ -262,6 +270,265 @@ const LandingPage = () => {
                 </div>
             </section>
 
+            {/* Contact Section */}
+            <section id="contact" className="contact-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2 className="section-title">Contáctanos</h2>
+                        <p className="section-description">
+                            ¿Tienes preguntas? Estamos aquí para ayudarte. Ponte en contacto con nuestro equipo.
+                        </p>
+                    </div>
+                    <div className="contact-grid">
+                        <div className="contact-info">
+                            <div className="contact-card">
+                                <Mail className="contact-card-icon" />
+                                <h3>Email</h3>
+                                <p>Escríbenos a cualquier hora</p>
+                                <a href="mailto:info@weekly.pe">info@weekly.pe</a>
+                            </div>
+                            <div className="contact-card">
+                                <Phone className="contact-card-icon" />
+                                <h3>Teléfono</h3>
+                                <p>Lun - Vie: 9:00 AM - 6:00 PM</p>
+                                <a href="tel:+51987654321">+51 987 654 321</a>
+                            </div>
+                            <div className="contact-card">
+                                <Mail className="contact-card-icon" />
+                                <h3>Soporte</h3>
+                                <p>Asistencia técnica disponible</p>
+                                <a href="mailto:soporte@weekly.pe">soporte@weekly.pe</a>
+                            </div>
+                        </div>
+                        <div className="contact-form-container">
+                            <form 
+                                className="contact-form"
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.currentTarget);
+                                    const subject = formData.get('subject') as string;
+                                    const message = formData.get('message') as string;
+                                    window.location.href = `mailto:info@weekly.pe?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message + '\n\n---\nEnviado desde weekly.pe')}`;
+                                }}
+                            >
+                                <div className="form-group">
+                                    <label htmlFor="contact-name">Nombre</label>
+                                    <input type="text" id="contact-name" name="name" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="contact-email">Email</label>
+                                    <input type="email" id="contact-email" name="email" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="contact-subject">Asunto</label>
+                                    <input type="text" id="contact-subject" name="subject" required />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="contact-message">Mensaje</label>
+                                    <textarea id="contact-message" name="message" rows={6} required></textarea>
+                                </div>
+                                <button type="submit" className="btn-primary">
+                                    Enviar Mensaje
+                                    <ArrowRight className="btn-icon" />
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* About Section */}
+            <section id="about" className="about-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2 className="section-title">Acerca de WEEKLY</h2>
+                        <p className="section-description">
+                            Somos una plataforma SaaS diseñada para simplificar la gestión de reservas y citas.
+                        </p>
+                    </div>
+                    <div className="about-content">
+                        <div className="about-text">
+                            <h3>Nuestra Misión</h3>
+                            <p>
+                                En WEEKLY, creemos que cada negocio merece herramientas profesionales para gestionar 
+                                sus reservas de manera eficiente. Nuestra misión es proporcionar una plataforma intuitiva, 
+                                segura y escalable que permita a nuestros clientes enfocarse en lo que mejor hacen: 
+                                atender a sus clientes.
+                            </p>
+                            <h3>Nuestra Visión</h3>
+                            <p>
+                                Ser la plataforma líder en gestión de reservas en Latinoamérica, facilitando la 
+                                digitalización de negocios de todos los tamaños mediante tecnología de vanguardia 
+                                y un servicio excepcional.
+                            </p>
+                            <h3>¿Por qué WEEKLY?</h3>
+                            <ul className="about-features">
+                                <li>✅ Sistema multi-tenant: Cada cliente tiene su propia base de datos independiente</li>
+                                <li>✅ Seguridad de primer nivel: Protección de datos y cumplimiento de privacidad</li>
+                                <li>✅ Escalable: Crece con tu negocio sin límites</li>
+                                <li>✅ Soporte continuo: Equipo técnico siempre disponible</li>
+                                <li>✅ Calendario público: Tus clientes pueden agendar sin registro</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Privacy Section */}
+            <section id="privacy" className="privacy-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2 className="section-title">Política de Privacidad</h2>
+                        <p className="section-description">
+                            Respetamos tu privacidad y protegemos tus datos personales.
+                        </p>
+                    </div>
+                    <div className="privacy-content">
+                        <div className="privacy-item">
+                            <h3>1. Información que Recopilamos</h3>
+                            <p>
+                                Recopilamos información que nos proporcionas directamente, incluyendo nombre, 
+                                dirección de correo electrónico, número de teléfono y dirección física cuando 
+                                creas una cuenta o utilizas nuestros servicios.
+                            </p>
+                        </div>
+                        <div className="privacy-item">
+                            <h3>2. Uso de la Información</h3>
+                            <p>
+                                Utilizamos la información recopilada para proporcionar, mantener y mejorar nuestros 
+                                servicios, procesar transacciones, enviar notificaciones y comunicarnos contigo.
+                            </p>
+                        </div>
+                        <div className="privacy-item">
+                            <h3>3. Protección de Datos</h3>
+                            <p>
+                                Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger 
+                                tu información personal contra acceso no autorizado, alteración, divulgación o destrucción.
+                            </p>
+                        </div>
+                        <div className="privacy-item">
+                            <h3>4. Compartir Información</h3>
+                            <p>
+                                No vendemos, alquilamos ni compartimos tu información personal con terceros, excepto 
+                                cuando sea necesario para proporcionar nuestros servicios o cuando sea requerido por ley.
+                            </p>
+                        </div>
+                        <div className="privacy-item">
+                            <h3>5. Tus Derechos</h3>
+                            <p>
+                                Tienes derecho a acceder, corregir, eliminar o transferir tus datos personales en 
+                                cualquier momento. Puedes ejercer estos derechos contactándonos a través de 
+                                <a href="mailto:privacidad@weekly.pe"> privacidad@weekly.pe</a>.
+                            </p>
+                        </div>
+                        <div className="privacy-item">
+                            <h3>6. Cookies y Tecnologías Similares</h3>
+                            <p>
+                                Utilizamos cookies y tecnologías similares para mejorar tu experiencia, analizar 
+                                el uso del sitio y personalizar contenido. Puedes gestionar las preferencias de 
+                                cookies en tu navegador.
+                            </p>
+                        </div>
+                        <div className="privacy-item">
+                            <h3>7. Cambios a esta Política</h3>
+                            <p>
+                                Nos reservamos el derecho de actualizar esta política de privacidad en cualquier momento. 
+                                Te notificaremos sobre cambios significativos publicando la nueva política en nuestro sitio web.
+                            </p>
+                        </div>
+                        <div className="privacy-contact">
+                            <p><strong>Última actualización:</strong> Noviembre 2024</p>
+                            <p>Para preguntas sobre esta política, contacta a: <a href="mailto:privacidad@weekly.pe">privacidad@weekly.pe</a></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Terms Section */}
+            <section id="terms" className="terms-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2 className="section-title">Términos y Condiciones</h2>
+                        <p className="section-description">
+                            Al usar WEEKLY, aceptas estos términos y condiciones de uso.
+                        </p>
+                    </div>
+                    <div className="terms-content">
+                        <div className="terms-item">
+                            <h3>1. Aceptación de los Términos</h3>
+                            <p>
+                                Al acceder y utilizar WEEKLY, aceptas cumplir con estos términos y condiciones. 
+                                Si no estás de acuerdo con alguna parte de estos términos, no debes usar nuestros servicios.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>2. Descripción del Servicio</h3>
+                            <p>
+                                WEEKLY es una plataforma SaaS que proporciona herramientas para la gestión de reservas, 
+                                citas y calendarios. Proporcionamos acceso a nuestro software a través de una suscripción mensual o anual.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>3. Cuentas de Usuario</h3>
+                            <p>
+                                Eres responsable de mantener la confidencialidad de tu cuenta y contraseña. Debes notificarnos 
+                                inmediatamente de cualquier uso no autorizado de tu cuenta. Eres responsable de todas las 
+                                actividades que ocurran bajo tu cuenta.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>4. Uso Aceptable</h3>
+                            <p>
+                                No debes usar nuestros servicios para ningún propósito ilegal o no autorizado. No debes intentar 
+                                acceder a ningún servicio por ningún otro medio que no sea la interfaz proporcionada. No debes 
+                                interferir o interrumpir la integridad o el rendimiento de nuestros servicios.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>5. Propiedad Intelectual</h3>
+                            <p>
+                                Todos los derechos de propiedad intelectual relacionados con WEEKLY, incluyendo pero no limitado 
+                                a software, diseño, logotipos y contenido, son propiedad de WEEKLY o sus licenciantes.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>6. Facturación y Pagos</h3>
+                            <p>
+                                Los servicios se facturan de acuerdo con el plan seleccionado. Todos los precios están en soles 
+                                peruanos (PEN) a menos que se indique lo contrario. Los pagos no son reembolsables excepto 
+                                según lo especificado en nuestro política de reembolso.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>7. Cancelación y Terminación</h3>
+                            <p>
+                                Puedes cancelar tu suscripción en cualquier momento. Podemos suspender o terminar tu cuenta si 
+                                violas estos términos o si no realizas el pago de la suscripción.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>8. Limitación de Responsabilidad</h3>
+                            <p>
+                                WEEKLY se proporciona "tal cual" sin garantías de ningún tipo. No seremos responsables por 
+                                ningún daño indirecto, incidental, especial o consecuente derivado del uso de nuestros servicios.
+                            </p>
+                        </div>
+                        <div className="terms-item">
+                            <h3>9. Modificaciones a los Términos</h3>
+                            <p>
+                                Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán 
+                                en vigor al publicarlos en nuestro sitio web. El uso continuado del servicio después de los cambios 
+                                constituye tu aceptación de los nuevos términos.
+                            </p>
+                        </div>
+                        <div className="terms-contact">
+                            <p><strong>Última actualización:</strong> Noviembre 2024</p>
+                            <p>Para preguntas sobre estos términos, contacta a: <a href="mailto:legal@weekly.pe">legal@weekly.pe</a></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Footer */}
             <footer className="footer-section">
                 <div className="container">
@@ -274,14 +541,14 @@ const LandingPage = () => {
                             <div className="footer-column">
                                 <h4>Producto</h4>
                                 <a href="#features">Características</a>
-                                <a href="#pricing">Precios</a>
-                                <a href="#demo">Demo</a>
+                                <a href="/demo">Demo Interactiva</a>
+                                <a href="#map">Ubicaciones</a>
                             </div>
                             <div className="footer-column">
                                 <h4>Soporte</h4>
-                                <a href="#help">Ayuda</a>
-                                <a href="#contact">Contacto</a>
-                                <a href="#docs">Documentación</a>
+                                <a href="mailto:info@weekly.pe">Contacto</a>
+                                <a href="/demo">Probar Demo</a>
+                                <a href="https://panel.weekly.pe">Panel Admin</a>
                             </div>
                             <div className="footer-column">
                                 <h4>Empresa</h4>

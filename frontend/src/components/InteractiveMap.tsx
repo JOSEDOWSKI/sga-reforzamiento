@@ -1,74 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useState, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './InteractiveMap.css';
 
-// Coordenadas de Arequipa, Perú
+// Coordenadas de Arequipa, Perú (centro por defecto)
 const AREQUIPA_CENTER: [number, number] = [-16.4090, -71.5375];
 
-// Datos de ejemplo de negocios en Arequipa
-const businessLocations: Array<{
+interface TenantLocation {
   id: number;
+  tenant_name: string;
   name: string;
   category: string;
   address: string;
   coordinates: [number, number];
   phone: string;
-  rating: number;
-  clients: number;
-}> = [
-  {
-    id: 1,
-    name: "Peluquería Elegance",
-    category: "Peluquería",
-    address: "Av. Dolores 123, Yanahuara",
-    coordinates: [-16.3980, -71.5400],
-    phone: "+51 54 123456",
-    rating: 4.8,
-    clients: 150
-  },
-  {
-    id: 2,
-    name: "Academia de Danza Arequipa",
-    category: "Academia",
-    address: "Calle San Francisco 456, Centro Histórico",
-    coordinates: [-16.4090, -71.5375],
-    phone: "+51 54 234567",
-    rating: 4.9,
-    clients: 200
-  },
-  {
-    id: 3,
-    name: "Clínica Dental Sonrisa",
-    category: "Clínica",
-    address: "Av. Ejército 789, Cayma",
-    coordinates: [-16.4200, -71.5200],
-    phone: "+51 54 345678",
-    rating: 4.7,
-    clients: 120
-  },
-  {
-    id: 4,
-    name: "Gimnasio FitLife",
-    category: "Gimnasio",
-    address: "Av. La Marina 321, Cerro Colorado",
-    coordinates: [-16.3800, -71.5500],
-    phone: "+51 54 456789",
-    rating: 4.6,
-    clients: 300
-  },
-  {
-    id: 5,
-    name: "Spa Relax Total",
-    category: "Spa",
-    address: "Calle Jerusalén 654, Selva Alegre",
-    coordinates: [-16.3950, -71.5300],
-    phone: "+51 54 567890",
-    rating: 4.8,
-    clients: 80
-  }
-];
+  email?: string;
+  plan: string;
+  estado: string;
+}
 
 // Iconos personalizados para diferentes categorías
 const createCustomIcon = (category: string) => {
@@ -110,9 +60,82 @@ const categories = [
   { name: 'Spa', color: '#feca57', icon: '🧘' }
 ];
 
+// Componente para ajustar el mapa a las ubicaciones visibles
+const MapBounds: React.FC<{ locations: TenantLocation[] }> = ({ locations }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (locations.length === 0) {
+      map.setView(AREQUIPA_CENTER, 13);
+      return;
+    }
+
+    // Calcular bounds de todas las ubicaciones visibles
+    const bounds = locations.map(loc => loc.coordinates as [number, number]);
+    
+    if (bounds.length > 0) {
+      const latLngBounds = L.latLngBounds(bounds);
+      
+      // Si hay solo una ubicación, centrar y hacer zoom 15
+      if (bounds.length === 1) {
+        map.setView(bounds[0], 15);
+      } else {
+        // Si hay múltiples, ajustar el mapa para mostrar todas
+        map.fitBounds(latLngBounds, {
+          padding: [50, 50],
+          maxZoom: 16
+        });
+      }
+    }
+  }, [locations, map]);
+
+  return null;
+};
+
 const InteractiveMap: React.FC = () => {
+  const [businessLocations, setBusinessLocations] = useState<TenantLocation[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(categories.map(cat => cat.name));
   const [showAll, setShowAll] = useState(true);
+
+  // Cargar tenants desde el backend
+  useEffect(() => {
+    const fetchTenants = async () => {
+      try {
+        // Usar el dominio correcto para la API pública
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        let apiUrl = '';
+        
+        if (hostname.includes('weekly.pe')) {
+          apiUrl = `${protocol}//api.weekly.pe/api/public/tenants`;
+        } else if (hostname.includes('getdevtools.com')) {
+          apiUrl = `${protocol}//${hostname.replace('weekly-frontend', 'weekly-backend')}/api/public/tenants`;
+        } else {
+          apiUrl = `${protocol}//${hostname.replace(':5173', ':4000').replace(':3000', ':4000')}/api/public/tenants`;
+        }
+
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          setBusinessLocations(data.data);
+        }
+      } catch (error) {
+        console.error('Error cargando tenants:', error);
+        // Mantener datos vacíos si falla
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTenants();
+  }, []);
 
   // Función para alternar categoría
   const toggleCategory = (categoryName: string) => {
@@ -138,9 +161,26 @@ const InteractiveMap: React.FC = () => {
   };
 
   // Filtrar negocios basado en categorías seleccionadas
-  const filteredBusinesses = businessLocations.filter(business => 
-    selectedCategories.includes(business.category)
+  const filteredBusinesses = useMemo(() => 
+    businessLocations.filter(business => 
+      selectedCategories.includes(business.category)
+    ),
+    [businessLocations, selectedCategories]
   );
+
+  // Calcular centro del mapa basado en ubicaciones visibles
+  const mapCenter = useMemo(() => {
+    if (filteredBusinesses.length === 0) {
+      return AREQUIPA_CENTER;
+    }
+    
+    // Calcular centro promedio de las ubicaciones visibles
+    const sumLat = filteredBusinesses.reduce((sum, loc) => sum + loc.coordinates[0], 0);
+    const sumLng = filteredBusinesses.reduce((sum, loc) => sum + loc.coordinates[1], 0);
+    const count = filteredBusinesses.length;
+    
+    return [sumLat / count, sumLng / count] as [number, number];
+  }, [filteredBusinesses]);
 
   useEffect(() => {
     // Fix para iconos de Leaflet en React
@@ -190,18 +230,34 @@ const InteractiveMap: React.FC = () => {
       </div>
       
       <div className="map-wrapper">
-        <MapContainer
-          center={AREQUIPA_CENTER}
-          zoom={13}
-          style={{ height: '500px', width: '100%' }}
-          className="map-container"
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          
-          {filteredBusinesses.map((business) => (
+        {loading ? (
+          <div style={{ 
+            height: '500px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontSize: '1.1rem'
+          }}>
+            Cargando ubicaciones...
+          </div>
+        ) : (
+          <MapContainer
+            center={mapCenter}
+            zoom={filteredBusinesses.length === 1 ? 15 : 13}
+            style={{ height: '500px', width: '100%' }}
+            className="map-container"
+            scrollWheelZoom={true}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            {/* Ajustar mapa a las ubicaciones visibles */}
+            <MapBounds locations={filteredBusinesses} />
+            
+            {filteredBusinesses.map((business) => (
             <Marker
               key={business.id}
               position={business.coordinates}
@@ -212,19 +268,32 @@ const InteractiveMap: React.FC = () => {
                   <h4>{business.name}</h4>
                   <p className="category">{business.category}</p>
                   <p className="address">{business.address}</p>
-                  <p className="phone">{business.phone}</p>
-                  <div className="stats">
-                    <span className="rating">⭐ {business.rating}</span>
-                    <span className="clients">👥 {business.clients} clientes</span>
+                  {business.phone && <p className="phone">{business.phone}</p>}
+                  
+                  <div className="popup-actions">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.coordinates[0] + ',' + business.coordinates[1])}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="map-link-button"
+                    >
+                      📍 Ver en Google Maps
+                    </a>
+                    <a
+                      href={`https://${business.tenant_name}.weekly.pe/calendario-publico`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="calendar-link-button"
+                    >
+                      📅 Agendar Cita
+                    </a>
                   </div>
-                  <button className="visit-button">
-                    Ver Perfil
-                  </button>
                 </div>
               </Popup>
             </Marker>
           ))}
-        </MapContainer>
+          </MapContainer>
+        )}
       </div>
     </div>
   );

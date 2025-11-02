@@ -3,7 +3,7 @@ const router = express.Router();
 const establecimientoController = require('../controllers/establecimientoController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
-// Aplicar middleware de autenticación a todas las rutas
+// Aplicar middleware de autenticación a todas las rutas del dashboard
 router.use(authMiddleware);
 
 // Rutas para establecimientos

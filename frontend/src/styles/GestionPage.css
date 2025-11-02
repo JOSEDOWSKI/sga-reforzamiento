@@ -35,6 +35,29 @@
   width: 100%;
   box-sizing: border-box;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Liquid glass shine effect for form and list sections */
+.form-section::before,
+.list-section::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15), transparent 70%);
+  animation: liquidMove 8s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.form-section > *,
+.list-section > * {
+  position: relative;
+  z-index: 1;
 }
 
 .form-section:hover, .list-section:hover {
@@ -1298,6 +1321,19 @@ IDE PARA DROPDOWN - ESTILOS ESPECÍFICOS CON ALTA PRIORIDAD */
   flex-direction: column;
   gap: 4px;
   min-width: 120px;
+}
+
+/* Liquid glass animation */
+@keyframes liquidMove {
+  0% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+  50% {
+    transform: rotate(180deg) translate(50px, 50px);
+  }
+  100% {
+    transform: rotate(360deg) translate(0, 0);
+  }
 }
 
 .action-buttons .btn {

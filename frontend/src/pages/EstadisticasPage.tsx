@@ -47,9 +47,9 @@ const EstadisticasPage: React.FC = () => {
             setLoading(true);
             const [reservasRes, cursosRes, profesoresRes, temasRes] = await Promise.all([
                 apiClient.get('/reservas'),
-                apiClient.get('/cursos'),
-                apiClient.get('/profesores'),
-                apiClient.get('/temas'),
+                apiClient.get('/servicios'),
+                apiClient.get('/staff'),
+                apiClient.get('/categorias'),
             ]);
             
             setReservas(reservasRes.data.data);

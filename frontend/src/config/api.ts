@@ -11,12 +11,14 @@ const getBaseURL = () => {
     const currentHost = window.location.hostname;
     const protocol = window.location.protocol;
     
-    // Si hay variable de entorno VITE_API_URL configurada, usarla
+    // Si hay variable de entorno VITE_API_URL configurada, asegurar que termine en /api
     if (import.meta.env.VITE_API_URL) {
-        return import.meta.env.VITE_API_URL;
+        const apiUrl = import.meta.env.VITE_API_URL;
+        // Si termina en /api, usar tal cual; si no, agregar /api
+        return apiUrl.endsWith('/api') ? apiUrl : `${apiUrl.replace(/\/$/, '')}/api`;
     }
     
-    // Para dominios weekly.pe, usar api.weekly.pe
+    // Para dominios weekly.pe, usar api.weekly.pe/api
     if (currentHost.includes('weekly.pe')) {
         return `${protocol}//api.weekly.pe/api`;
     }
@@ -77,10 +79,30 @@ apiClient.interceptors.response.use(
         return response;
     },
     (error) => {
+        // Manejar errores de autenticación (401, 403)
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            // Solo redirigir si no estamos ya en la página de login y no es una ruta pública
+            const pathname = window.location.pathname;
+            const isPublicRoute = pathname.startsWith('/calendario') || 
+                                  pathname.startsWith('/agendar') ||
+                                  pathname === '/' && window.location.hostname.includes('weekly.pe');
+            
+            if (!isPublicRoute) {
+                // Limpiar token inválido
+                const { secureTokenStorage } = require('../utils/tokenSecurity');
+                secureTokenStorage.clear();
+                delete apiClient.defaults.headers.common['Authorization'];
+                
+                // Redirigir al login si no estamos ya ahí
+                if (pathname !== '/login') {
+                    window.location.href = '/login';
+                }
+            }
+        }
+        
         // Manejar errores comunes del SaaS
         if (error.response?.status === 400 && error.response?.data?.error === 'Invalid tenant identifier') {
             console.error('Tenant inválido:', error.response.data.message);
-            // Redirigir a página de error o configuración
         }
         
         if (error.response?.status === 429) {

@@ -1,12 +1,20 @@
 const express = require('express');
 const AuthController = require('../controllers/authController');
+const UniversalAuthController = require('../controllers/universalAuthController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 /**
+ * @route POST /api/auth/universal-login
+ * @desc Login universal - busca el usuario en todas las bases de datos
+ * @access Public
+ */
+router.post('/universal-login', UniversalAuthController.universalLogin);
+
+/**
  * @route POST /api/auth/login
- * @desc Login de usuario
+ * @desc Login de usuario (requiere header X-Tenant o subdominio)
  * @access Public
  */
 router.post('/login', AuthController.login);

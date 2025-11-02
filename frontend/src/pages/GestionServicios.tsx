@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import demoApiClient from '../utils/demoApiClient';
+import { useDemoMode } from './DemoView';
 import { useRealtimeData } from '../hooks/useRealtimeData';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { logger } from '../utils/logger';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
 
@@ -19,6 +23,8 @@ interface ModalState {
 }
 
 const GestionServicios: React.FC = () => {
+    const isDemoMode = useDemoMode();
+    const client = isDemoMode ? demoApiClient : apiClient;
     const [servicios, setServicios] = useState<Servicio[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -50,11 +56,11 @@ const GestionServicios: React.FC = () => {
     const fetchServicios = async () => {
         try {
             setLoading(true);
-            const response = await apiClient.get('/cursos'); // Usando la misma API por ahora
+            const response = await client.get('/servicios');
             setServicios(response.data.data);
             setError('');
         } catch (err: any) {
-            console.error('Error al cargar servicios:', err);
+            logger.error('Error al cargar servicios:', err);
             setError('Error al cargar servicios. Por favor, intenta de nuevo.');
         } finally {
             setLoading(false);
@@ -90,7 +96,11 @@ const GestionServicios: React.FC = () => {
                 duracion_minutos: duracion ? parseInt(duracion) : null
             };
             
-            await apiClient.post('/cursos', servicioData);
+            if (isDemoMode) {
+                setError('En modo demo no se pueden crear servicios. Esta es solo una demostración.');
+                return;
+            }
+            await client.post('/servicios', servicioData);
             setSuccess('Servicio creado exitosamente');
             setNombre('');
             setDescripcion('');
@@ -99,7 +109,7 @@ const GestionServicios: React.FC = () => {
             setError('');
             fetchServicios();
         } catch (err: any) {
-            console.error('Error al crear servicio:', err);
+            logger.error('Error al crear servicio:', err);
             setError('Error al crear servicio. Por favor, intenta de nuevo.');
         } finally {
             setLoading(false);
@@ -152,13 +162,17 @@ const GestionServicios: React.FC = () => {
                 duracion_minutos: modalDuracion ? parseInt(modalDuracion) : null
             };
             
-            await apiClient.put(`/cursos/${modalState.editingServicio.id}`, servicioData);
+            if (isDemoMode) {
+                setModalError('En modo demo no se pueden editar servicios. Esta es solo una demostración.');
+                return;
+            }
+            await client.put(`/servicios/${modalState.editingServicio.id}`, servicioData);
             setSuccess('Servicio actualizado exitosamente');
             setError('');
             handleCloseModal();
             fetchServicios();
         } catch (err: any) {
-            console.error('Error al actualizar servicio:', err);
+            logger.error('Error al actualizar servicio:', err);
             setModalError('Error al actualizar servicio. Por favor, intenta de nuevo.');
         } finally {
             setLoading(false);
@@ -189,13 +203,18 @@ const GestionServicios: React.FC = () => {
 
         try {
             setLoading(true);
-            await apiClient.delete(`/cursos/${confirmModal.servicioId}`);
+            if (isDemoMode) {
+                setError('En modo demo no se pueden eliminar servicios. Esta es solo una demostración.');
+                setConfirmModal({ isOpen: false, servicioId: null, servicioNombre: '' });
+                return;
+            }
+            await client.delete(`/servicios/${confirmModal.servicioId}`);
             setSuccess('Servicio eliminado exitosamente');
             setError('');
             handleCloseConfirmModal();
             fetchServicios();
         } catch (err: any) {
-            console.error('Error al eliminar servicio:', err);
+            logger.error('Error al eliminar servicio:', err);
             setError('Error al eliminar servicio. Por favor, intenta de nuevo.');
         } finally {
             setLoading(false);
@@ -266,7 +285,7 @@ const GestionServicios: React.FC = () => {
                 <div className="list-section">
                     <h2>Servicios Registrados</h2>
                     {loading ? (
-                        <div className="loading-message">Cargando servicios...</div>
+                        <SkeletonLoader variant="list" count={3} />
                     ) : servicios.length === 0 ? (
                         <div className="empty-message">No hay servicios registrados</div>
                     ) : (
