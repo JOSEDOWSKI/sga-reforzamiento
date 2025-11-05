@@ -246,6 +246,7 @@ function App() {
               {/* Rutas públicas (sin autenticación) */}
               <Route path="/demo" element={<DemoView />} />
               <Route path="/calendario-publico" element={<PublicCalendarPage />} />
+              <Route path="/agendar" element={<AppContent />} />
               
               {/* Rutas con autenticación */}
               <Route path="/*" element={<AppContent />} />
