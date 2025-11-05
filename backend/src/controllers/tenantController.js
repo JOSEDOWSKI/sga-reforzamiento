@@ -195,18 +195,53 @@ class TenantController {
             }
 
             // Crear el tenant en la BD global
-            const result = await req.db.query(`
-                INSERT INTO tenants (
+            // Verificar si las columnas latitud/longitud existen en la tabla
+            let hasLatLngColumns = false;
+            try {
+                const columnCheck = await req.db.query(`
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'tenants' 
+                    AND column_name IN ('latitud', 'longitud')
+                    AND table_schema = 'public'
+                `);
+                hasLatLngColumns = columnCheck.rows.length === 2;
+            } catch (checkError) {
+                console.warn('⚠️  No se pudo verificar columnas latitud/longitud:', checkError.message);
+                hasLatLngColumns = false;
+            }
+            
+            // Construir query dinámicamente según si las columnas existen
+            let result;
+            if (hasLatLngColumns) {
+                // Versión con latitud/longitud
+                result = await req.db.query(`
+                    INSERT INTO tenants (
+                        tenant_name, display_name, cliente_nombre, cliente_email,
+                        cliente_telefono, cliente_direccion, latitud, longitud,
+                        plan, logo_url, primary_color, secondary_color, timezone, locale
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                    RETURNING *
+                `, [
                     tenant_name, display_name, cliente_nombre, cliente_email,
                     cliente_telefono, cliente_direccion, latitud, longitud,
                     plan, logo_url, primary_color, secondary_color, timezone, locale
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-                RETURNING *
-            `, [
-                tenant_name, display_name, cliente_nombre, cliente_email,
-                cliente_telefono, cliente_direccion, latitud, longitud,
-                plan, logo_url, primary_color, secondary_color, timezone, locale
-            ]);
+                ]);
+            } else {
+                // Versión sin latitud/longitud (compatible con BD antigua)
+                result = await req.db.query(`
+                    INSERT INTO tenants (
+                        tenant_name, display_name, cliente_nombre, cliente_email,
+                        cliente_telefono, cliente_direccion,
+                        plan, logo_url, primary_color, secondary_color, timezone, locale
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                    RETURNING *
+                `, [
+                    tenant_name, display_name, cliente_nombre, cliente_email,
+                    cliente_telefono, cliente_direccion,
+                    plan, logo_url, primary_color, secondary_color, timezone, locale
+                ]);
+            }
             
             // Crear la base de datos del tenant automáticamente
             let dnsCreated = false;
