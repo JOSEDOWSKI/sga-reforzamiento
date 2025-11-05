@@ -211,23 +211,24 @@ function AppContent() {
   
   // Si hay un subdominio y no es demo ni panel, es un tenant
   if (subdomain && subdomain !== 'demo' && subdomain !== 'panel' && subdomain !== 'api') {
-    // Si la ruta es /agendar, mostrar calendario público (sin autenticación)
+    // Si la ruta es /agendar, mostrar calendario público del tenant (sin autenticación)
+    // Este calendario usa la base de datos del tenant específico vía X-Tenant header
     if (pathname === '/agendar' || pathname === '/agendar/') {
       return <PublicCalendarPage />;
     }
     
-    // Si la ruta es /login y no está autenticado, mostrar login
+    // Si la ruta es /login y no está autenticado, mostrar login del tenant
     if (pathname === '/login' && !user && !isLoading) {
       return <LoginPage />;
     }
     
-    // Si está en la raíz del tenant y no está autenticado, redirigir a weekly.pe/agendar
+    // Si está en la raíz del tenant y no está autenticado, redirigir a /agendar del mismo tenant
     if (pathname === '/' && !user && !isLoading) {
-      window.location.href = 'https://weekly.pe/agendar';
+      window.location.href = `/agendar`;
       return <div>Cargando...</div>;
     }
     
-    // Para rutas autenticadas, usar TenantAppContent
+    // Para rutas autenticadas, usar TenantAppContent (dashboard, servicios, etc.)
     return <TenantAppContent />;
   }
   
@@ -246,9 +247,10 @@ function App() {
               {/* Rutas públicas (sin autenticación) */}
               <Route path="/demo" element={<DemoView />} />
               <Route path="/calendario-publico" element={<PublicCalendarPage />} />
-              <Route path="/agendar" element={<AppContent />} />
               
-              {/* Rutas con autenticación */}
+              {/* Todas las rutas pasan por AppContent que maneja el routing según subdominio */}
+              {/* /agendar en tenant.weekly.pe muestra el calendario público del tenant */}
+              {/* /agendar en weekly.pe muestra el calendario público global */}
               <Route path="/*" element={<AppContent />} />
             </Routes>
           </RealtimeProvider>
