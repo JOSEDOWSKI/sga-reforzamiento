@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { createTenantDatabase, getTenantDatabase } = require('../config/tenantDatabase');
 const { createCNAME } = require('../services/cloudflareService');
-const { addCustomDomain } = require('../services/caproverService');
 
 /**
  * Controlador para gestión de tenants (Super Administración)
@@ -283,19 +282,36 @@ class TenantController {
                         console.warn(`⚠️  Error creando DNS automáticamente: ${dnsResult.message}`);
                     }
                     
-                    // Intentar agregar el dominio en CapRover también (falla silenciosamente si no está configurado)
+                    // Intentar agregar el dominio y habilitar SSL en CapRover (falla silenciosamente si no está configurado)
                     try {
                         const domain = process.env.CLOUDFLARE_DOMAIN || 'weekly.pe';
                         const fullDomain = `${tenant_name}.${domain}`;
                         const caproverApp = process.env.CAPROVER_FRONTEND_APP || 'weekly-frontend';
                         
-                        const caproverResult = await addCustomDomain(caproverApp, fullDomain);
-                        if (caproverResult.success) {
-                            console.log(`✅ Dominio agregado automáticamente en CapRover: ${fullDomain}`);
+                        // Usar la nueva función que agrega dominio y habilita SSL automáticamente
+                        const { addCustomDomainAndEnableSSL } = require('../services/caproverService');
+                        const caproverResult = await addCustomDomainAndEnableSSL(caproverApp, fullDomain, true);
+                        
+                        if (caproverResult.success && caproverResult.domainAdded) {
+                            const sslStatus = caproverResult.sslEnabled 
+                                ? 'Dominio agregado y SSL habilitado automáticamente en CapRover'
+                                : 'Dominio agregado en CapRover (SSL pendiente)';
+                            console.log(`✅ ${sslStatus}: ${fullDomain}`);
+                            
                             if (dnsCreated) {
-                                dnsMessage += ' Dominio agregado en CapRover.';
+                                dnsMessage += caproverResult.sslEnabled 
+                                    ? ' Dominio agregado y SSL habilitado en CapRover.'
+                                    : ' Dominio agregado en CapRover.';
                             } else {
-                                dnsMessage = `DNS: ${dnsMessage}. CapRover: Dominio agregado.`;
+                                dnsMessage = `DNS: ${dnsMessage}. CapRover: ${caproverResult.sslEnabled ? 'Dominio y SSL configurados' : 'Dominio agregado'}.`;
+                            }
+                        } else if (caproverResult.domainAdded) {
+                            // Dominio agregado pero SSL falló
+                            console.log(`⚠️  Dominio agregado en CapRover pero SSL falló: ${fullDomain}`);
+                            if (dnsCreated) {
+                                dnsMessage += ' Dominio agregado en CapRover (SSL pendiente).';
+                            } else {
+                                dnsMessage = `DNS: ${dnsMessage}. CapRover: Dominio agregado (SSL pendiente).`;
                             }
                         } else {
                             // Falla silenciosamente - requerirá configuración manual
