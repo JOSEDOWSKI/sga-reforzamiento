@@ -11,6 +11,8 @@ interface Tenant {
     cliente_email: string;
     cliente_telefono: string;
     cliente_direccion: string;
+    latitud?: number | null;
+    longitud?: number | null;
     estado: 'activo' | 'suspendido' | 'cancelado';
     plan: 'basico' | 'premium' | 'enterprise';
     created_at: string;

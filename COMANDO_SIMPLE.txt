@@ -1,0 +1,45 @@
+# ============================================
+# COMANDO PARA ACTUALIZAR BD EN PRODUCCIÓN
+# ============================================
+
+# OPCIÓN 1: Comando directo (copia y pega) - RECOMENDADO
+ssh root@173.212.216.136 "docker exec \$(docker ps -q --filter 'name=weekly-postgres') psql -U postgres -d weekly_global -c \"ALTER TABLE tenants ADD COLUMN IF NOT EXISTS latitud DECIMAL(10, 8); ALTER TABLE tenants ADD COLUMN IF NOT EXISTS longitud DECIMAL(11, 8);\""
+
+# OPCIÓN 2: Paso a paso (más seguro)
+# 1. Conectar:
+ssh root@173.212.216.136
+
+# 2. Encontrar contenedor:
+docker ps | grep weekly-postgres
+
+# 3. Conectar a PostgreSQL (reemplaza CONTAINER_ID):
+docker exec -it CONTAINER_ID psql -U postgres -d weekly_global
+
+# 4. Ejecutar SQL:
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS latitud DECIMAL(10, 8);
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS longitud DECIMAL(11, 8);
+
+# 5. Verificar:
+SELECT column_name FROM information_schema.columns WHERE table_name = 'tenants' AND column_name IN ('latitud', 'longitud');
+
+# 6. Salir:
+\q
+
+# ============================================
+# VERIFICACIÓN DEL FORMULARIO
+# ============================================
+# ✅ Campos requeridos presentes:
+#    - tenant_name (required)
+#    - display_name (required)
+#    - cliente_nombre (required)
+#    - cliente_email (required, type="email")
+
+# ✅ Campos opcionales presentes:
+#    - cliente_telefono
+#    - cliente_direccion (con LocationSelector)
+#    - latitud (se obtiene automáticamente)
+#    - longitud (se obtiene automáticamente)
+#    - plan (select con default 'basico')
+#    - estado (select con default 'activo')
+
+# ✅ El formulario satisface todos los requisitos de la BD
