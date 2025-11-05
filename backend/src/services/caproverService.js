@@ -111,16 +111,20 @@ async function addCustomDomain(appName, domain) {
     const port = urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80);
     const protocol = urlObj.protocol === 'https:' ? https : http;
     
-    // Endpoint correcto de CapRover API - Probar diferentes formatos
-    // Formato 1: /api/v2/apps/{appName}/customdomain
-    const path = `/api/v2/apps/${appName}/customdomain`;
+    // Endpoint correcto de CapRover API según documentación
+    // Formato: /api/v2/user/apps/appDefinitions/{appName}/customdomain
+    const path = `/api/v2/user/apps/appDefinitions/${appName}/customdomain`;
     
+    // Formato del body según la documentación de CapRover
     const requestData = JSON.stringify({
         customDomain: domain
     });
     
     console.log(`[CAPROVER] Intentando agregar dominio: ${domain} a app: ${appName}`);
-    console.log(`[CAPROVER] URL: ${protocol === https ? 'https' : 'http'}://${hostname}${path}`);
+    console.log(`[CAPROVER] URL completa: ${protocol === https ? 'https' : 'http'}://${hostname}${path}`);
+    console.log(`[CAPROVER] Token presente: ${apiToken ? 'Sí (primeros 10 chars: ' + apiToken.substring(0, 10) + '...)' : 'No'}`);
+    console.log(`[CAPROVER] Server URL: ${serverUrl}`);
+    console.log(`[CAPROVER] Request body: ${requestData}`);
     
     const result = await makeCapRoverRequest(hostname, port, protocol, path, 'POST', requestData, apiToken);
     
