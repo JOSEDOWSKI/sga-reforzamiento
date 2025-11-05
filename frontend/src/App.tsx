@@ -211,8 +211,8 @@ function AppContent() {
   
   // Si hay un subdominio y no es demo ni panel, es un tenant
   if (subdomain && subdomain !== 'demo' && subdomain !== 'panel' && subdomain !== 'api') {
-    // Si la ruta es /agendar, mostrar calendario público
-    if (pathname === '/agendar') {
+    // Si la ruta es /agendar, mostrar calendario público (sin autenticación)
+    if (pathname === '/agendar' || pathname === '/agendar/') {
       return <PublicCalendarPage />;
     }
     
