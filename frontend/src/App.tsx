@@ -187,13 +187,17 @@ function AppContent() {
     return <DemoView />;
   }
   
-  // Si es weekly.pe o www.weekly.pe, mostrar landing page principal
-  const isMainLanding = 
+  // Si es weekly.pe o www.weekly.pe, mostrar landing page o calendario público global
+  const isMainDomain = 
     hostname === 'weekly.pe' || 
-    hostname === 'www.weekly.pe' ||
-    (hostname === 'weekly-frontend.panel.getdevtools.com' && !isLoading && !user && pathname === '/');
+    hostname === 'www.weekly.pe';
   
-  if (isMainLanding) {
+  if (isMainDomain) {
+    // Si es /agendar en el dominio principal, mostrar calendario público global
+    if (pathname === '/agendar' || pathname === '/agendar/') {
+      return <PublicCalendarPage />;
+    }
+    // Si no, mostrar landing page
     return <LandingPage />;
   }
   
