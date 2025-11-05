@@ -2,14 +2,24 @@ const bcrypt = require('bcryptjs');
 const { createTenantDatabase, getTenantDatabase } = require('../config/tenantDatabase');
 const { createCNAME } = require('../services/cloudflareService');
 
-// CapRover service - importación segura para evitar errores si el módulo no está disponible
+// CapRover service - intentar usar CLI primero (recomendado), luego API HTTP
 let addCustomDomainAndEnableSSL = null;
 try {
-    const caproverService = require('../services/caproverService');
-    addCustomDomainAndEnableSSL = caproverService.addCustomDomainAndEnableSSL;
-} catch (caproverImportError) {
-    console.warn('⚠️  No se pudo cargar el servicio de CapRover:', caproverImportError.message);
-    // Continuar sin CapRover - no es crítico
+    // Intentar usar CLI primero (método recomendado por CapRover)
+    const caproverCLI = require('../services/caproverServiceCLI');
+    addCustomDomainAndEnableSSL = caproverCLI.addCustomDomainAndEnableSSLCLI;
+    console.log('[TENANT] ✅ CapRover CLI disponible (método recomendado)');
+} catch (cliError) {
+    console.warn('⚠️  CapRover CLI no disponible, intentando API HTTP:', cliError.message);
+    try {
+        // Fallback a API HTTP
+        const caproverService = require('../services/caproverService');
+        addCustomDomainAndEnableSSL = caproverService.addCustomDomainAndEnableSSL;
+        console.log('[TENANT] ✅ Usando CapRover API HTTP (fallback)');
+    } catch (apiError) {
+        console.warn('⚠️  No se pudo cargar el servicio de CapRover (ni CLI ni API):', apiError.message);
+        // Continuar sin CapRover - no es crítico
+    }
 }
 
 /**
@@ -337,10 +347,12 @@ class TenantController {
                         const fullDomain = `${tenant_name}.${domain}`;
                         const caproverApp = process.env.CAPROVER_FRONTEND_APP || 'weekly-frontend';
                         
-                        // Verificar que la función existe antes de llamarla
+                        // Intentar usar CLI primero (método recomendado), luego API HTTP como fallback
+                        let caproverResult = null;
+                        
                         if (typeof addCustomDomainAndEnableSSL === 'function') {
-                            // Usar la nueva función que agrega dominio y habilita SSL automáticamente
-                            const caproverResult = await addCustomDomainAndEnableSSL(caproverApp, fullDomain, true);
+                            // Usar la función (CLI o API HTTP según disponibilidad)
+                            caproverResult = await addCustomDomainAndEnableSSL(caproverApp, fullDomain, true);
                             
                             if (caproverResult && caproverResult.success && caproverResult.domainAdded) {
                                 const sslStatus = caproverResult.sslEnabled 
