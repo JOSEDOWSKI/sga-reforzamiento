@@ -438,7 +438,21 @@ const PublicCalendarPage: React.FC = () => {
               {error && <div className="error-message">{error}</div>}
 
               <div className="modal-actions">
-                <button type="submit" disabled={loading || !selectedServicio || !selectedStaff} className="btn-primary">
+                <button 
+                  type="submit" 
+                  disabled={
+                    loading || 
+                    !selectedServicio || 
+                    !selectedStaff || 
+                    !formData.cliente_nombre?.trim() || 
+                    !formData.cliente_telefono?.trim()
+                  } 
+                  className="btn-primary"
+                  style={{
+                    opacity: (loading || !selectedServicio || !selectedStaff || !formData.cliente_nombre?.trim() || !formData.cliente_telefono?.trim()) ? 0.5 : 1,
+                    cursor: (loading || !selectedServicio || !selectedStaff || !formData.cliente_nombre?.trim() || !formData.cliente_telefono?.trim()) ? 'not-allowed' : 'pointer'
+                  }}
+                >
                   {loading ? 'Creando...' : 'Confirmar Reserva'}
                 </button>
                 <button
