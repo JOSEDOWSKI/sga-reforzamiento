@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import LocationSelector from '../components/LocationSelector';
 import '../styles/GestionPage.css';
 
 interface Tenant {
@@ -45,6 +46,8 @@ const GestionTenantsPage: React.FC = () => {
         cliente_email: string;
         cliente_telefono: string;
         cliente_direccion: string;
+        latitud?: number | null;
+        longitud?: number | null;
         plan: 'basico' | 'premium' | 'enterprise';
         estado: 'activo' | 'suspendido' | 'cancelado';
         admin_email: string;
@@ -58,6 +61,8 @@ const GestionTenantsPage: React.FC = () => {
         cliente_email: '',
         cliente_telefono: '',
         cliente_direccion: '',
+        latitud: null,
+        longitud: null,
         plan: 'basico',
         estado: 'activo',
         admin_email: '',
@@ -100,6 +105,8 @@ const GestionTenantsPage: React.FC = () => {
             cliente_email: '',
             cliente_telefono: '',
             cliente_direccion: '',
+            latitud: null,
+            longitud: null,
             plan: 'basico',
             estado: 'activo',
             admin_email: '',
@@ -118,7 +125,9 @@ const GestionTenantsPage: React.FC = () => {
             cliente_nombre: tenant.cliente_nombre,
             cliente_email: tenant.cliente_email,
             cliente_telefono: tenant.cliente_telefono,
-            cliente_direccion: tenant.cliente_direccion,
+            cliente_direccion: tenant.cliente_direccion || '',
+            latitud: tenant.latitud || null,
+            longitud: tenant.longitud || null,
             plan: tenant.plan,
             estado: tenant.estado,
             admin_email: '',
@@ -489,13 +498,20 @@ const GestionTenantsPage: React.FC = () => {
                                         placeholder="+51 987 654 321"
                                     />
                                 </div>
-                                <div className="form-group">
-                                    <label>Dirección</label>
-                                    <input
-                                        type="text"
-                                        value={formData.cliente_direccion}
-                                        onChange={(e) => setFormData({...formData, cliente_direccion: e.target.value})}
-                                        placeholder="Lima, Perú"
+                                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                    <LocationSelector
+                                        address={formData.cliente_direccion}
+                                        onAddressChange={(address) => setFormData({...formData, cliente_direccion: address})}
+                                        onLocationSelect={(lat, lng, address) => {
+                                            setFormData({
+                                                ...formData,
+                                                cliente_direccion: address,
+                                                latitud: lat,
+                                                longitud: lng
+                                            });
+                                        }}
+                                        initialLat={formData.latitud}
+                                        initialLng={formData.longitud}
                                     />
                                 </div>
                             </div>

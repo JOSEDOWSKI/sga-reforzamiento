@@ -473,6 +473,48 @@ class PublicController {
             });
         }
     }
+
+    /**
+     * Geocodificar una dirección a coordenadas
+     * POST /api/public/geocode
+     * Body: { address: "dirección" }
+     */
+    async geocodeAddress(req, res) {
+        try {
+            const { address } = req.body;
+
+            if (!address || !address.trim()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Dirección requerida'
+                });
+            }
+
+            const GoogleMapsService = require('../services/googleMapsService');
+            const geocodeResult = await GoogleMapsService.geocodeAddress(address.trim());
+
+            if (geocodeResult) {
+                return res.json({
+                    success: true,
+                    lat: geocodeResult.lat,
+                    lng: geocodeResult.lng,
+                    formatted_address: geocodeResult.formatted_address,
+                    place_id: geocodeResult.place_id
+                });
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    message: 'No se pudo encontrar la ubicación'
+                });
+            }
+        } catch (error) {
+            console.error('Error geocodificando dirección:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error al geocodificar dirección'
+            });
+        }
+    }
 }
 
 module.exports = new PublicController();

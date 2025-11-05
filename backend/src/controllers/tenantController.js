@@ -181,10 +181,12 @@ class TenantController {
             }
             
             // Si hay dirección, intentar geocodificar antes de insertar
-            let latitud = null;
-            let longitud = null;
+            // Si el frontend envió coordenadas directamente, usarlas (más preciso)
+            let latitud = req.body.latitud || null;
+            let longitud = req.body.longitud || null;
             
-            if (cliente_direccion) {
+            // Si no hay coordenadas pero hay dirección, geocodificar
+            if ((!latitud || !longitud) && cliente_direccion) {
                 const GoogleMapsService = require('../services/googleMapsService');
                 const geocodeResult = await GoogleMapsService.geocodeAddress(cliente_direccion);
                 if (geocodeResult) {
@@ -192,6 +194,8 @@ class TenantController {
                     longitud = geocodeResult.lng;
                     console.log(`[TENANT CREATE] ✅ Coordenadas geocodificadas: ${latitud}, ${longitud}`);
                 }
+            } else if (latitud && longitud) {
+                console.log(`[TENANT CREATE] ✅ Coordenadas recibidas del frontend: ${latitud}, ${longitud}`);
             }
 
             // Crear el tenant en la BD global

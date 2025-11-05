@@ -25,5 +25,8 @@ router.post('/reservas', publicController.createPublicReserva);
 // Obtener lista pública de tenants (para el mapa)
 router.get('/tenants', publicController.getPublicTenants);
 
+// Geocodificar dirección (para selector de ubicación)
+router.post('/geocode', publicController.geocodeAddress);
+
 module.exports = router;
 
