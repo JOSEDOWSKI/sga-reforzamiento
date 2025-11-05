@@ -1,7 +1,16 @@
 const bcrypt = require('bcryptjs');
 const { createTenantDatabase, getTenantDatabase } = require('../config/tenantDatabase');
 const { createCNAME } = require('../services/cloudflareService');
-const { addCustomDomainAndEnableSSL } = require('../services/caproverService');
+
+// CapRover service - importación segura para evitar errores si el módulo no está disponible
+let addCustomDomainAndEnableSSL = null;
+try {
+    const caproverService = require('../services/caproverService');
+    addCustomDomainAndEnableSSL = caproverService.addCustomDomainAndEnableSSL;
+} catch (caproverImportError) {
+    console.warn('⚠️  No se pudo cargar el servicio de CapRover:', caproverImportError.message);
+    // Continuar sin CapRover - no es crítico
+}
 
 /**
  * Controlador para gestión de tenants (Super Administración)
