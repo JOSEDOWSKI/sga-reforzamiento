@@ -59,11 +59,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             let apiUrl = '';
 
             if (hostname.includes('weekly.pe')) {
-                apiUrl = `${protocol}//api.weekly.pe/api/geocode`;
+                apiUrl = `${protocol}//api.weekly.pe/api/public/geocode`;
             } else if (hostname.includes('getdevtools.com')) {
-                apiUrl = `${protocol}//${hostname.replace('weekly-frontend', 'weekly-backend')}/api/geocode`;
+                apiUrl = `${protocol}//${hostname.replace('weekly-frontend', 'weekly-backend')}/api/public/geocode`;
             } else {
-                apiUrl = `${protocol}//${hostname.replace(':5173', ':4000').replace(':3000', ':4000')}/api/geocode`;
+                apiUrl = `${protocol}//${hostname.replace(':5173', ':4000').replace(':3000', ':4000')}/api/public/geocode`;
             }
 
             const response = await fetch(apiUrl, {
