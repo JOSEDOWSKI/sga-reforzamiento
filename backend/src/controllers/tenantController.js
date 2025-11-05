@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { createTenantDatabase, getTenantDatabase } = require('../config/tenantDatabase');
 const { createCNAME } = require('../services/cloudflareService');
+const { addCustomDomainAndEnableSSL } = require('../services/caproverService');
 
 /**
  * Controlador para gestión de tenants (Super Administración)
@@ -289,7 +290,6 @@ class TenantController {
                         const caproverApp = process.env.CAPROVER_FRONTEND_APP || 'weekly-frontend';
                         
                         // Usar la nueva función que agrega dominio y habilita SSL automáticamente
-                        const { addCustomDomainAndEnableSSL } = require('../services/caproverService');
                         const caproverResult = await addCustomDomainAndEnableSSL(caproverApp, fullDomain, true);
                         
                         if (caproverResult.success && caproverResult.domainAdded) {
@@ -347,9 +347,12 @@ class TenantController {
             });
         } catch (error) {
             console.error('Error creating tenant:', error);
+            console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error al crear tenant'
+                message: 'Error al crear tenant',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
             });
         }
     }
