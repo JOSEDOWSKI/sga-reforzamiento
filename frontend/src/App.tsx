@@ -176,14 +176,8 @@ function AppContent() {
   const subdomain = parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
   
   // Si es demo.weekly.pe, mostrar DemoView (acceso libre sin login)
+  // Usamos solo demo.weekly.pe para mejor tracking y performance
   if (hostname === 'demo.weekly.pe' || subdomain === 'demo') {
-    if (pathname === '/' || pathname === '/demo') {
-      return <DemoView />;
-    }
-  }
-  
-  // Si es /demo en cualquier dominio, mostrar DemoView
-  if (pathname === '/demo') {
     return <DemoView />;
   }
   
@@ -249,12 +243,12 @@ function App() {
           <RealtimeProvider>
             <Routes>
               {/* Rutas públicas (sin autenticación) */}
-              <Route path="/demo" element={<DemoView />} />
               <Route path="/calendario-publico" element={<PublicCalendarPage />} />
               
               {/* Todas las rutas pasan por AppContent que maneja el routing según subdominio */}
               {/* /agendar en tenant.weekly.pe muestra el calendario público del tenant */}
               {/* /agendar en weekly.pe muestra el calendario público global */}
+              {/* demo.weekly.pe muestra DemoView directamente */}
               <Route path="/*" element={<AppContent />} />
             </Routes>
           </RealtimeProvider>

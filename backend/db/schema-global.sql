@@ -89,7 +89,7 @@ CREATE TABLE tickets_soporte (
     FOREIGN KEY (asignado_a) REFERENCES usuarios_global(id)
 );
 
--- Tabla de logs del sistema
+-- Tabla de logs del sistema (mejorada para fase beta)
 CREATE TABLE logs_sistema (
     id SERIAL PRIMARY KEY,
     tenant_id INT,
@@ -98,9 +98,10 @@ CREATE TABLE logs_sistema (
     descripcion TEXT,
     ip_address VARCHAR(45),
     user_agent TEXT,
+    metadata JSONB, -- Datos adicionales en formato JSON
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios_global(id)
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios_global(id) ON DELETE SET NULL
 );
 
 -- Índices para mejorar performance
@@ -113,8 +114,11 @@ CREATE INDEX idx_facturacion_tenant ON facturacion(tenant_id);
 CREATE INDEX idx_facturacion_estado ON facturacion(estado);
 CREATE INDEX idx_tickets_tenant ON tickets_soporte(tenant_id);
 CREATE INDEX idx_tickets_estado ON tickets_soporte(estado);
-CREATE INDEX idx_logs_tenant ON logs_sistema(tenant_id);
-CREATE INDEX idx_logs_fecha ON logs_sistema(created_at);
+CREATE INDEX idx_logs_sistema_tenant ON logs_sistema(tenant_id);
+CREATE INDEX idx_logs_sistema_usuario ON logs_sistema(usuario_id);
+CREATE INDEX idx_logs_sistema_accion ON logs_sistema(accion);
+CREATE INDEX idx_logs_sistema_created_at ON logs_sistema(created_at DESC);
+CREATE INDEX idx_logs_sistema_tenant_accion ON logs_sistema(tenant_id, accion);
 
 -- Insertar usuario super admin por defecto
 INSERT INTO usuarios_global (email, password_hash, nombre, rol) 

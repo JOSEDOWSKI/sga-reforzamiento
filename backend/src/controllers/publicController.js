@@ -275,6 +275,40 @@ class PublicController {
 
             const { rows: reservaRows } = await db.query(reservaSql, reservaParams);
 
+            // Registrar creación de reserva en logs
+            try {
+                const loggingService = require('../services/loggingService');
+                // Obtener tenant_id
+                let tenantId = null;
+                if (req.tenant && req.tenant !== 'public') {
+                    const { Pool } = require('pg');
+                    const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                    const globalPool = new Pool({
+                        user: process.env.DB_USER || 'postgres',
+                        host: dbHost,
+                        database: 'weekly_global',
+                        password: process.env.DB_PASSWORD || 'postgres',
+                        port: parseInt(process.env.DB_PORT) || 5432,
+                    });
+                    const tenantResult = await globalPool.query(
+                        'SELECT id FROM tenants WHERE tenant_name = $1',
+                        [req.tenant]
+                    );
+                    if (tenantResult.rows.length > 0) {
+                        tenantId = tenantResult.rows[0].id;
+                    }
+                    await globalPool.end();
+                }
+                await loggingService.logReservaCreated(req, reservaRows[0].id, tenantId, req.tenant, {
+                    establecimiento_id: establecimiento_id,
+                    colaborador_id: colaborador_id,
+                    cliente_id: cliente_id
+                });
+            } catch (logError) {
+                console.error('[PUBLIC RESERVA] Error registrando log:', logError.message);
+                // No fallar si el logging falla
+            }
+
             // Emitir evento WebSocket
             const io = req.app.get('io');
             if (io && req.tenant) {

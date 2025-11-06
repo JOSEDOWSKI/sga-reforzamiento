@@ -257,6 +257,21 @@ class TenantController {
                 ]);
             }
             
+            const newTenant = result.rows[0];
+            
+            // Registrar creación de tenant en logs
+            try {
+                const loggingService = require('../services/loggingService');
+                await loggingService.logTenantCreated(req, newTenant.id, tenant_name, {
+                    display_name: display_name,
+                    cliente_email: cliente_email,
+                    plan: plan
+                });
+            } catch (logError) {
+                console.error('[TENANT CREATE] Error registrando log:', logError.message);
+                // No fallar si el logging falla
+            }
+            
             // Crear la base de datos del tenant automáticamente
             let dnsCreated = false;
             let dnsMessage = '';

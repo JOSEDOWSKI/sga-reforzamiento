@@ -57,6 +57,14 @@ class AuthController {
             console.log(`[AUTH LOGIN] Usuario encontrado: ${result.rows.length > 0 ? 'Sí' : 'No'}`);
             
             if (result.rows.length === 0) {
+                // Registrar intento de login fallido
+                try {
+                    const loggingService = require('../services/loggingService');
+                    await loggingService.logLoginFailed(req, normalizedEmail, req.tenant, 'usuario_no_encontrado');
+                } catch (logError) {
+                    // No fallar si el logging falla
+                }
+                
                 return res.status(401).json({
                     error: 'Authentication Error',
                     message: 'Credenciales inválidas'
@@ -71,6 +79,15 @@ class AuthController {
             
             if (!isValidPassword) {
                 console.log(`[AUTH LOGIN] Contraseña incorrecta para: ${normalizedEmail}`);
+                
+                // Registrar intento de login fallido
+                try {
+                    const loggingService = require('../services/loggingService');
+                    await loggingService.logLoginFailed(req, normalizedEmail, req.tenant, 'contraseña_incorrecta');
+                } catch (logError) {
+                    // No fallar si el logging falla
+                }
+                
                 return res.status(401).json({
                     error: 'Authentication Error',
                     message: 'Credenciales inválidas'
@@ -78,6 +95,36 @@ class AuthController {
             }
             
             console.log(`[AUTH LOGIN] ✅ Login exitoso para: ${normalizedEmail}`);
+            
+            // Registrar login exitoso en logs
+            try {
+                const loggingService = require('../services/loggingService');
+                // Obtener tenant_id si existe
+                let tenantId = null;
+                if (req.tenant && req.tenant !== 'public') {
+                    const { Pool } = require('pg');
+                    const dbHost = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'srv-captain--weekly-postgres' : 'localhost');
+                    const globalPool = new Pool({
+                        user: process.env.DB_USER || 'postgres',
+                        host: dbHost,
+                        database: 'weekly_global',
+                        password: process.env.DB_PASSWORD || 'postgres',
+                        port: parseInt(process.env.DB_PORT) || 5432,
+                    });
+                    const tenantResult = await globalPool.query(
+                        'SELECT id FROM tenants WHERE tenant_name = $1',
+                        [req.tenant]
+                    );
+                    if (tenantResult.rows.length > 0) {
+                        tenantId = tenantResult.rows[0].id;
+                    }
+                    await globalPool.end();
+                }
+                await loggingService.logLogin(req, user.id, tenantId, req.tenant);
+            } catch (logError) {
+                console.error('[AUTH LOGIN] Error registrando log:', logError.message);
+                // No fallar el login si el logging falla
+            }
             
             // Actualizar último acceso
             await req.db.query(

@@ -13,7 +13,6 @@
     "seed-demo": "node scripts/seed-demo.js",
     "cleanup-tenants": "node scripts/cleanup-random-tenants.js",
     "check-env": "node scripts/check-env-config.js",
-    "migrate:alumnos": "node scripts/run-migration.js $TENANT ./db/migrate_add_alumnos.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

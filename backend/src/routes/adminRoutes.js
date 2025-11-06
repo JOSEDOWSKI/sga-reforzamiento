@@ -5,6 +5,7 @@ const {
     createTenantDatabase, 
     removeTenantConnection 
 } = require('../config/tenantDatabase');
+const logsController = require('../controllers/logsController');
 
 // Obtener información de todos los tenants activos
 router.get('/tenants', async (req, res) => {
@@ -85,6 +86,10 @@ router.delete('/tenants/:tenantId/connection', async (req, res) => {
 });
 
 // Obtener estadísticas del sistema
+// Rutas de logs
+router.get('/logs', logsController.getLogs.bind(logsController));
+router.get('/logs/stats', logsController.getLogStats.bind(logsController));
+
 router.get('/stats', async (req, res) => {
     try {
         const activeTenants = getActiveTenants();

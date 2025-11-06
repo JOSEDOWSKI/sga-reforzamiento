@@ -34,6 +34,22 @@ interface TenantStats {
     enterprise_plan: number;
 }
 
+interface Log {
+    id: number;
+    tenant_id: number | null;
+    usuario_id: number | null;
+    accion: string;
+    descripcion: string | null;
+    ip_address: string | null;
+    user_agent: string | null;
+    metadata: any;
+    created_at: string;
+    tenant_name: string | null;
+    tenant_display_name: string | null;
+    usuario_email: string | null;
+    usuario_nombre: string | null;
+}
+
 const GestionTenantsPage: React.FC = () => {
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [stats, setStats] = useState<TenantStats | null>(null);
@@ -41,6 +57,10 @@ const GestionTenantsPage: React.FC = () => {
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
+    const [showLogsModal, setShowLogsModal] = useState(false);
+    const [selectedTenantForLogs, setSelectedTenantForLogs] = useState<Tenant | null>(null);
+    const [logs, setLogs] = useState<Log[]>([]);
+    const [loadingLogs, setLoadingLogs] = useState(false);
     const [formData, setFormData] = useState<{
         tenant_name: string;
         display_name: string;
@@ -261,6 +281,55 @@ const GestionTenantsPage: React.FC = () => {
         }
     };
 
+    const handleViewLogs = async (tenant: Tenant) => {
+        setSelectedTenantForLogs(tenant);
+        setShowLogsModal(true);
+        setLoadingLogs(true);
+        
+        try {
+            const params = new URLSearchParams();
+            params.append('tenant_id', tenant.id.toString());
+            params.append('limit', '100');
+            params.append('offset', '0');
+
+            const response = await apiClient.get(`/super-admin/logs?${params.toString()}`);
+            
+            if (response.data.success) {
+                setLogs(response.data.data);
+            } else {
+                setError('Error al cargar logs');
+            }
+        } catch (err: any) {
+            console.error('Error cargando logs:', err);
+            setError('Error al cargar logs: ' + (err.response?.data?.message || err.message));
+        } finally {
+            setLoadingLogs(false);
+        }
+    };
+
+    const getActionColor = (accion: string) => {
+        if (accion.includes('login_exitoso')) return '#10b981';
+        if (accion.includes('login_fallido')) return '#ef4444';
+        if (accion.includes('reserva')) return '#3b82f6';
+        if (accion.includes('create') || accion.includes('crear')) return '#10b981';
+        if (accion.includes('update') || accion.includes('actualizar')) return '#f59e0b';
+        if (accion.includes('delete') || accion.includes('eliminar')) return '#ef4444';
+        if (accion.includes('error')) return '#dc2626';
+        return '#6b7280';
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    };
+
     if (loading) {
         return (
             <div className="page-container">
@@ -318,6 +387,7 @@ const GestionTenantsPage: React.FC = () => {
                             <th>Pago</th>
                             <th>Monto</th>
                             <th>Último Acceso</th>
+                            <th>Logs</th>
                             <th>Control</th>
                         </tr>
                     </thead>
@@ -389,6 +459,15 @@ const GestionTenantsPage: React.FC = () => {
                                         ) : (
                                             <span className="text-muted">Nunca</span>
                                         )}
+                                    </td>
+                                    <td>
+                                        <button 
+                                            className="btn btn-sm btn-info"
+                                            onClick={() => handleViewLogs(tenant)}
+                                            title="Ver logs de actividad"
+                                        >
+                                            📊 Ver Logs
+                                        </button>
                                     </td>
                                     <td>
                                         <div className="action-buttons">
@@ -654,6 +733,95 @@ const GestionTenantsPage: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Logs */}
+            {showLogsModal && selectedTenantForLogs && (
+                <div className="modal-overlay" onClick={() => setShowLogsModal(false)}>
+                    <div className="modal" style={{ maxWidth: '90vw', width: '1200px', maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>📊 Logs de Actividad - {selectedTenantForLogs.display_name}</h2>
+                            <button 
+                                className="modal-close"
+                                onClick={() => {
+                                    setShowLogsModal(false);
+                                    setSelectedTenantForLogs(null);
+                                    setLogs([]);
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                            {loadingLogs ? (
+                                <div className="loading">Cargando logs...</div>
+                            ) : logs.length === 0 ? (
+                                <div className="empty-state">No se encontraron logs para este tenant</div>
+                            ) : (
+                                <div className="table-container">
+                                    <table className="data-table" style={{ fontSize: '0.875rem' }}>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha/Hora</th>
+                                                <th>Acción</th>
+                                                <th>Usuario</th>
+                                                <th>Descripción</th>
+                                                <th>IP</th>
+                                                <th>Metadata</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {logs.map((log) => (
+                                                <tr key={log.id}>
+                                                    <td>{formatDate(log.created_at)}</td>
+                                                    <td>
+                                                        <span style={{
+                                                            padding: '0.25rem 0.5rem',
+                                                            borderRadius: '4px',
+                                                            background: getActionColor(log.accion) + '20',
+                                                            color: getActionColor(log.accion),
+                                                            fontWeight: '600',
+                                                            fontSize: '0.75rem'
+                                                        }}>
+                                                            {log.accion}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        {log.usuario_nombre || log.usuario_email || 'N/A'}
+                                                    </td>
+                                                    <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {log.descripcion || '-'}
+                                                    </td>
+                                                    <td>{log.ip_address || '-'}</td>
+                                                    <td>
+                                                        {log.metadata ? (
+                                                            <details>
+                                                                <summary style={{ cursor: 'pointer', color: '#667eea' }}>
+                                                                    Ver
+                                                                </summary>
+                                                                <pre style={{ 
+                                                                    marginTop: '0.5rem', 
+                                                                    padding: '0.5rem', 
+                                                                    background: 'rgba(0, 0, 0, 0.2)', 
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '0.7rem',
+                                                                    overflow: 'auto',
+                                                                    maxHeight: '150px'
+                                                                }}>
+                                                                    {JSON.stringify(log.metadata, null, 2)}
+                                                                </pre>
+                                                            </details>
+                                                        ) : '-'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

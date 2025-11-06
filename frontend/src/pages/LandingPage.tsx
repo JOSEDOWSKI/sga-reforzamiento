@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Calendar, Clock, Users, CheckCircle, ArrowRight, Star, Phone, Mail } from "lucide-react";
-import InteractiveMap from "../components/InteractiveMap";
 import LandingNavbar from "../components/LandingNavbar";
-import AnimatedBackground from "../components/AnimatedBackground";
 import "./LandingPage.css";
+
+// Lazy load de componentes pesados para mejorar performance
+const InteractiveMap = lazy(() => import("../components/InteractiveMap"));
+const AnimatedBackground = lazy(() => import("../components/AnimatedBackground"));
 
 const LandingPage = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -78,7 +80,9 @@ const LandingPage = () => {
             
             {/* Hero Section */}
             <section className="hero-section">
-                <AnimatedBackground />
+                <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }} />}>
+                    <AnimatedBackground />
+                </Suspense>
                 <div className="hero-background">
                     <div className="hero-gradient"></div>
                 </div>
@@ -97,7 +101,7 @@ const LandingPage = () => {
                         <div className="hero-buttons">
                             <button 
                                 className="btn-primary"
-                                onClick={() => window.location.href = '/demo'}
+                                onClick={() => window.location.href = 'https://demo.weekly.pe'}
                             >
                                 Probar Demo Gratis
                                 <ArrowRight className="btn-icon" />
@@ -197,8 +201,20 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Map Section */}
-            <InteractiveMap />
+            {/* Map Section - Lazy loaded para mejor performance */}
+            <Suspense fallback={
+                <section className="map-section">
+                    <div className="container">
+                        <div className="map-container">
+                            <div className="map-placeholder">
+                                <h3>Cargando mapa...</h3>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            }>
+                <InteractiveMap />
+            </Suspense>
 
             {/* Testimonials Section */}
             <section className="testimonials-section">
@@ -541,13 +557,13 @@ const LandingPage = () => {
                             <div className="footer-column">
                                 <h4>Producto</h4>
                                 <a href="#features">Características</a>
-                                <a href="/demo">Demo Interactiva</a>
+                                <a href="https://demo.weekly.pe">Demo Interactiva</a>
                                 <a href="#map">Ubicaciones</a>
                             </div>
                             <div className="footer-column">
                                 <h4>Soporte</h4>
                                 <a href="mailto:info@weekly.pe">Contacto</a>
-                                <a href="/demo">Probar Demo</a>
+                                <a href="https://demo.weekly.pe">Probar Demo</a>
                                 <a href="https://panel.weekly.pe">Panel Admin</a>
                             </div>
                             <div className="footer-column">
