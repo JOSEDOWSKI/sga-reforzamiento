@@ -276,11 +276,20 @@ const PublicCalendarPage: React.FC = () => {
         const fechaHoraFin = new Date(fechaHoraInicio);
         fechaHoraFin.setHours(fechaHoraFin.getHours() + 1); // Duración de 1 hora por defecto
 
-        // Obtener el primer servicio disponible (o el seleccionado si hay selector)
-        const establecimientoId = servicios.length > 0 ? servicios[0].id : null;
+        // Obtener el primer servicio disponible
+        // Si el colaborador tiene establecimiento_id, usar ese, sino el primero disponible
+        let establecimientoId: number | null = null;
+        
+        if (selectedColaborador.establecimiento_id) {
+            // Si el colaborador tiene un establecimiento asignado, usar ese
+            establecimientoId = selectedColaborador.establecimiento_id;
+        } else if (servicios.length > 0) {
+            // Si no, usar el primer servicio disponible
+            establecimientoId = servicios[0].id;
+        }
         
         if (!establecimientoId) {
-            setError('No hay servicios disponibles');
+            setError('No hay servicios disponibles para este profesional');
             setLoading(false);
             return;
         }
