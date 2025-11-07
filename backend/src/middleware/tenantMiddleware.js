@@ -179,11 +179,18 @@ const tenantMiddleware = async (req, res, next) => {
             req.db = await getTenantDatabase(subdomain);
             
         } else {
-            // Acceso público (sin subdominio)
-            req.tenant = 'public';
-            req.tenantType = 'public';
-            req.database = null;
-            req.db = null;
+            // Acceso público (sin subdominio) - En desarrollo usar el tenant demo
+            if (process.env.NODE_ENV === 'development') {
+                req.tenant = 'demo';
+                req.tenantType = 'tenant';
+                req.database = 'sga_reforzamiento';
+                req.db = await getTenantDatabase('demo');
+            } else {
+                req.tenant = 'public';
+                req.tenantType = 'public';
+                req.database = null;
+                req.db = null;
+            }
         }
         
         // Agregar headers de respuesta para identificar el tenant

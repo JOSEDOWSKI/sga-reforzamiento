@@ -10,6 +10,7 @@ import GestionClientes from './pages/GestionClientes';
 import GestionCategorias from './pages/GestionCategorias';
 import EstadisticasPage from './pages/EstadisticasPage';
 import UserCalendarView from './pages/UserCalendarView';
+import ReservasPage from './pages/ReservasPage';
 
 // Páginas del panel global
 import GlobalLoginPage from './pages/GlobalLoginPage';
@@ -89,6 +90,7 @@ function TenantAppContent() {
               <Routes>
                 <Route path="/" element={<UserCalendarView />} />
                 <Route path="/calendario" element={<UserCalendarView />} />
+                <Route path="/reservas" element={<ReservasPage />} />
               </Routes>
             </main>
             <SplashReset />
@@ -128,6 +130,7 @@ function TenantAppContent() {
               <Route path="/categorias" element={<GestionCategorias />} />
               <Route path="/estadisticas" element={<EstadisticasPage />} />
               <Route path="/calendario" element={<UserCalendarView />} />
+              <Route path="/reservas" element={<ReservasPage />} />
             </Routes>
           </main>
 
@@ -175,6 +178,11 @@ function AppContent() {
   const parts = hostname.split('.');
   const subdomain = parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
   
+  // Si la ruta es /reservas, mostrar página de reservas (SIN autenticación)
+  if (pathname === '/reservas' || pathname === '/reservas/') {
+    return <ReservasPage />;
+  }
+
   // Si es demo.weekly.pe, mostrar DemoView (acceso libre sin login)
   // Usamos solo demo.weekly.pe para mejor tracking y performance
   if (hostname === 'demo.weekly.pe' || subdomain === 'demo') {
@@ -215,6 +223,11 @@ function AppContent() {
       return <PublicCalendarPage />;
     }
     
+    // Si la ruta es /reservas, mostrar página de reservas (SIN autenticación)
+    if (pathname === '/reservas' || pathname === '/reservas/') {
+      return <ReservasPage />;
+    }
+    
     // Si la ruta es /login y no está autenticado, mostrar login del tenant
     if (pathname === '/login' && !user && !isLoading) {
       return <LoginPage />;
@@ -244,6 +257,7 @@ function App() {
             <Routes>
               {/* Rutas públicas (sin autenticación) */}
               <Route path="/calendario-publico" element={<PublicCalendarPage />} />
+              <Route path="/reservas" element={<ReservasPage />} />
               
               {/* Todas las rutas pasan por AppContent que maneja el routing según subdominio */}
               {/* /agendar en tenant.weekly.pe muestra el calendario público del tenant */}

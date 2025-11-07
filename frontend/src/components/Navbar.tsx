@@ -16,6 +16,7 @@ const ProfessorsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" 
 const StudentsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 .9 2.7 2 6 2s6-1.1 6-2v-5"/></svg>;
 const TopicsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg>;
 const StatsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M8 17V9" /><path d="M13 17V5" /><path d="M18 17v-3" /></svg>;
+const ReservasIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>;
 const LogoPlaceholder = () => <div className="logo-placeholder"></div>
 
 const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
@@ -40,6 +41,9 @@ const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
                 </NavLink>
                 <NavLink id="nav-categorias" to="/categorias" data-tooltip="Administrar categorías">
                     <TopicsIcon /> Categorías
+                </NavLink>
+                <NavLink id="nav-reservas" to="/reservas" data-tooltip="Gestionar reservas">
+                    <ReservasIcon /> Reservas
                 </NavLink>
                 <NavLink id="nav-estadisticas" to="/estadisticas" data-tooltip="Ver estadísticas del sistema">
                     <StatsIcon /> Estadísticas
