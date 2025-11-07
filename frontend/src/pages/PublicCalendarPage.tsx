@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './PublicCalendarPage.css';
-import confetti from 'canvas-confetti';
 import apiClient from '../config/api';
 import { useTenantConfig } from '../hooks/useTenantConfig';
+import confetti from 'canvas-confetti';
 
 // Interfaces
 interface Colaborador {
@@ -75,7 +75,6 @@ const PublicCalendarPage: React.FC = () => {
     
     // Estado para el modal de confirmación
     const [showConfirmacion, setShowConfirmacion] = useState(false);
-    const [success, setSuccess] = useState(false);
 
     // Obtener servicios
     useEffect(() => {
@@ -311,7 +310,6 @@ const PublicCalendarPage: React.FC = () => {
 
             setShowReservaModal(false);
             setShowConfirmacion(true);
-            setSuccess(true);
             
             // Confetti
             confetti({
@@ -345,7 +343,6 @@ const PublicCalendarPage: React.FC = () => {
 
             setTimeout(() => {
                 setShowConfirmacion(false);
-                setSuccess(false);
             }, 5000);
         } catch (err: any) {
             setError(err.response?.data?.message || err.response?.data?.error || 'Error al crear la reserva');
