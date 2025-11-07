@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "seed": "node db/seed.js",
     "init-db": "node scripts/init-production-db.js",
     "check-db": "./scripts/check-database.sh",
     "create-tenant": "node scripts/create-tenant.js",
