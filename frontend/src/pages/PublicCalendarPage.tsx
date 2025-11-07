@@ -1,229 +1,69 @@
-import React, { useState, useEffect, useRef } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import esLocale from '@fullcalendar/core/locales/es';
+import React, { useState, useEffect } from 'react';
 import './PublicCalendarPage.css';
+import confetti from 'canvas-confetti';
 import apiClient from '../config/api';
+import { useTenantConfig } from '../hooks/useTenantConfig';
 
-interface Servicio {
-  id: number;
-  nombre: string;
-  descripcion?: string;
+// Interfaces
+interface Colaborador {
+    id: number;
+    nombre: string;
+    email: string;
+    especialidades?: string[];
+    establecimiento_id?: number;
 }
 
-interface Staff {
-  id: number;
-  nombre: string;
-  especialidades?: string;
+interface Servicio {
+    id: number;
+    nombre: string;
+    descripcion?: string;
 }
 
 interface AvailabilitySlot {
-  id: number;
-  inicio: string;
-  fin: string;
-  establecimiento_id: number;
-  establecimiento_nombre: string;
-  colaborador_id: number;
-  colaborador_nombre: string;
-  ocupado: boolean;
+    id: number;
+    inicio: string;
+    fin: string;
+    establecimiento_id: number;
+    establecimiento_nombre: string;
+    colaborador_id: number;
+    colaborador_nombre: string;
+    ocupado: boolean;
 }
 
+interface ReservaFormData {
+    cliente_nombre: string;
+    cliente_telefono: string;
+    cliente_email: string;
+    cliente_dni: string;
+    servicio_descripcion: string;
+    precio: string;
+    notas: string;
+}
 
 const PublicCalendarPage: React.FC = () => {
-  const [servicios, setServicios] = useState<Servicio[]>([]);
-  const [staff, setStaff] = useState<Staff[]>([]);
-  const [selectedServicio, setSelectedServicio] = useState<number | null>(null);
-  const [selectedStaff, setSelectedStaff] = useState<number | null>(null);
-  const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
-  const [showReservaModal, setShowReservaModal] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
-  
-  // Formulario de reserva
-  const [formData, setFormData] = useState({
-    cliente_nombre: '',
-    cliente_telefono: '',
-    cliente_email: '',
-    cliente_dni: '',
-    servicio_descripcion: '',
-    precio: '',
-    notas: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const calendarRef = useRef<FullCalendar>(null);
-
-  // Cerrar modal con tecla Escape
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showReservaModal) {
-        setShowReservaModal(false);
-        setSelectedServicio(null);
-        setSelectedStaff(null);
-      }
-    };
-
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [showReservaModal]);
-
-  // Obtener servicios
-  useEffect(() => {
-    const fetchServicios = async () => {
-      try {
-        const response = await apiClient.get('/public/servicios');
-        setServicios(response.data.data || []);
-      } catch (err: any) {
-        console.error('Error obteniendo servicios:', err);
-      }
-    };
-    fetchServicios();
-  }, []);
-
-  // Cargar staff completo al inicio
-  useEffect(() => {
-    const fetchAllStaff = async () => {
-      try {
-        const response = await apiClient.get('/public/staff');
-        setStaff(response.data.data || []);
-      } catch (err: any) {
-        console.error('Error obteniendo staff:', err);
-      }
-    };
-    fetchAllStaff();
-  }, []);
-
-  // Obtener disponibilidad general (sin filtros)
-  useEffect(() => {
-    const fetchAvailability = async () => {
-      try {
-        const hoy = new Date();
-        const finSemana = new Date();
-        finSemana.setDate(hoy.getDate() + 14); // Próximos 14 días
-
-        const fecha_desde = hoy.toISOString().split('T')[0];
-        const fecha_hasta = finSemana.toISOString().split('T')[0];
-
-        const url = `/public/availability?fecha_desde=${fecha_desde}&fecha_hasta=${fecha_hasta}`;
-        const response = await apiClient.get(url);
-        setAvailability(response.data.data || []);
-      } catch (err: any) {
-        console.error('Error obteniendo disponibilidad:', err);
-      }
-    };
-
-    fetchAvailability();
-  }, []);
-
-  // Generar eventos del calendario
-  const calendarEvents = availability.map(slot => ({
-    id: slot.id.toString(),
-    title: slot.ocupado ? 'Ocupado' : 'Disponible',
-    start: slot.inicio,
-    end: slot.fin,
-    backgroundColor: slot.ocupado ? '#ef4444' : '#10b981',
-    borderColor: slot.ocupado ? '#dc2626' : '#059669',
-    textColor: '#fff',
-    display: 'block',
-    extendedProps: {
-      ocupado: slot.ocupado,
-      establecimiento_id: slot.establecimiento_id,
-      colaborador_id: slot.colaborador_id
-    }
-  }));
-
-  // Manejar selección de fecha/hora
-  const handleDateSelect = (selectInfo: any) => {
-    // Obtener fecha/hora actual
-    const ahora = new Date();
-    const fechaSeleccionada = new Date(selectInfo.start);
+    const { config: tenantConfig, isLoading: loadingConfig } = useTenantConfig();
     
-    // Comparar solo el día (sin hora) para verificar si es un día pasado
-    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-    const diaSeleccionado = new Date(fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth(), fechaSeleccionada.getDate());
+    // Estados para datos de la API
+    const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+    const [servicios, setServicios] = useState<Servicio[]>([]);
+    const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     
-    // Si el día seleccionado es anterior a hoy, rechazar
-    if (diaSeleccionado.getTime() < hoy.getTime()) {
-      alert('No puedes agendar citas en días pasados. Por favor, selecciona un día actual o futuro.');
-      return;
-    }
+    // Estado para colaborador seleccionado
+    const [selectedColaborador, setSelectedColaborador] = useState<Colaborador | null>(null);
     
-    // Si es el mismo día, verificar que la hora sea futura (con margen de 30 minutos)
-    if (diaSeleccionado.getTime() === hoy.getTime()) {
-      const minutosDiferencia = (fechaSeleccionada.getTime() - ahora.getTime()) / (1000 * 60);
-      
-      // Permitir solo si la hora es al menos 30 minutos en el futuro
-      if (minutosDiferencia < -30) {
-        alert('No puedes agendar citas en horarios pasados. Por favor, selecciona un horario al menos 30 minutos en el futuro.');
-        return;
-      }
-    }
+    // Estados para el calendario
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     
-    // Si llegamos aquí, el día es hoy o futuro, y si es hoy la hora es válida
-
-    // Verificar si está ocupado
-    const isOcupado = availability.some(
-      slot => new Date(slot.inicio) <= selectInfo.start && 
-              new Date(slot.fin) > selectInfo.start &&
-              slot.ocupado
-    );
-
-    if (isOcupado) {
-      alert('Este horario ya está ocupado. Por favor, selecciona otro.');
-      return;
-    }
-
-    // Permitir seleccionar sin servicio/staff previo
-    setSelectedTime(selectInfo.start);
-    setShowReservaModal(true);
-  };
-
-  // Manejar envío del formulario
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    if (!selectedTime || !selectedServicio || !selectedStaff) {
-      setError('Por favor, selecciona un servicio y un profesional');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.cliente_nombre.trim() || !formData.cliente_telefono.trim()) {
-      setError('Por favor, completa tu nombre y teléfono');
-      setLoading(false);
-      return;
-    }
-
-    // Calcular fecha fin (asumir 1 hora de duración por defecto)
-    const fechaFin = new Date(selectedTime);
-    fechaFin.setHours(fechaFin.getHours() + 1);
-
-    try {
-      await apiClient.post('/public/reservas', {
-        fecha_hora_inicio: selectedTime.toISOString(),
-        fecha_hora_fin: fechaFin.toISOString(),
-        establecimiento_id: selectedServicio,
-        colaborador_id: selectedStaff,
-        cliente_nombre: formData.cliente_nombre,
-        cliente_telefono: formData.cliente_telefono,
-        cliente_email: formData.cliente_email || null,
-        cliente_dni: formData.cliente_dni || null,
-        servicio_descripcion: formData.servicio_descripcion || null,
-        precio: formData.precio ? parseFloat(formData.precio) : null,
-        notas: formData.notas || null
-      });
-
-      setSuccess(true);
-      setShowReservaModal(false);
-      
-      // Limpiar formulario
-      setFormData({
+    // Estado para hora seleccionada
+    const [selectedHora, setSelectedHora] = useState<string | null>(null);
+    const [horariosDisponibles, setHorariosDisponibles] = useState<string[]>([]);
+    
+    // Estado para el modal de reserva
+    const [showReservaModal, setShowReservaModal] = useState(false);
+    const [reservaForm, setReservaForm] = useState<ReservaFormData>({
         cliente_nombre: '',
         cliente_telefono: '',
         cliente_email: '',
@@ -231,249 +71,552 @@ const PublicCalendarPage: React.FC = () => {
         servicio_descripcion: '',
         precio: '',
         notas: ''
-      });
-      setSelectedServicio(null);
-      setSelectedStaff(null);
+    });
+    
+    // Estado para el modal de confirmación
+    const [showConfirmacion, setShowConfirmacion] = useState(false);
+    const [success, setSuccess] = useState(false);
 
-      // Recargar disponibilidad general
-      const hoy = new Date();
-      const finSemana = new Date();
-      finSemana.setDate(hoy.getDate() + 14);
-      const fecha_desde = hoy.toISOString().split('T')[0];
-      const fecha_hasta = finSemana.toISOString().split('T')[0];
-      const url = `/public/availability?fecha_desde=${fecha_desde}&fecha_hasta=${fecha_hasta}`;
-      const availResponse = await apiClient.get(url);
-      setAvailability(availResponse.data.data || []);
-
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.response?.data?.error || 'Error al crear la reserva');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="public-calendar-page">
-      <header className="public-calendar-header">
-        <h1>Agenda tu Cita</h1>
-        <p>Selecciona un horario disponible en el calendario para agendar tu cita</p>
-      </header>
-
-      {success && (
-        <div className="success-message">
-          ✅ ¡Reserva creada exitosamente! Te hemos enviado la confirmación.
-        </div>
-      )}
-
-      {/* Calendario visible siempre */}
-      <div className="public-calendar-container">
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          locale={esLocale}
-          events={calendarEvents}
-          selectable={true}
-          select={handleDateSelect}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-          }}
-          height="auto"
-          editable={false}
-          views={{
-            dayGridMonth: {
-              titleFormat: { year: 'numeric', month: 'long' }
-            },
-            timeGridWeek: {
-              titleFormat: { year: 'numeric', month: 'long', day: 'numeric' }
-            },
-            timeGridDay: {
-              titleFormat: { year: 'numeric', month: 'long', day: 'numeric' }
+    // Obtener servicios
+    useEffect(() => {
+        const fetchServicios = async () => {
+            try {
+                const response = await apiClient.get('/public/servicios');
+                setServicios(response.data.data || []);
+            } catch (err: any) {
+                console.error('Error obteniendo servicios:', err);
             }
-          }}
-          eventClick={(clickInfo) => {
-            if (clickInfo.event.extendedProps.ocupado) {
-              alert('Este horario está ocupado. Por favor, selecciona otro.');
+        };
+        fetchServicios();
+    }, []);
+
+    // Obtener colaboradores
+    useEffect(() => {
+        const fetchColaboradores = async () => {
+            try {
+                const response = await apiClient.get('/public/staff');
+                const staffData = response.data.data || [];
+                setColaboradores(staffData);
+                // Seleccionar el primer colaborador por defecto solo si no hay uno seleccionado
+                if (staffData.length > 0 && !selectedColaborador) {
+                    setSelectedColaborador(staffData[0]);
+                }
+            } catch (err: any) {
+                console.error('Error obteniendo colaboradores:', err);
             }
-          }}
-        />
-      </div>
+        };
+        fetchColaboradores();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-      {/* Modal de Reserva */}
-      {showReservaModal && (
-        <div className="modal-overlay" onClick={() => {
-          setShowReservaModal(false);
-          setSelectedServicio(null);
-          setSelectedStaff(null);
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ margin: 0 }}>Agendar Cita</h2>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowReservaModal(false);
-                  setSelectedServicio(null);
-                  setSelectedStaff(null);
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#111827';
-                  e.currentTarget.style.background = 'rgba(0, 0, 0, 0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#6b7280';
-                  e.currentTarget.style.background = 'none';
-                }}
-                title="Cerrar"
-              >
-                ×
-              </button>
-            </div>
-            <p><strong>Fecha y Hora Seleccionada:</strong> {selectedTime?.toLocaleString('es-PE')}</p>
+    // Obtener disponibilidad cuando cambia el colaborador o fecha
+    useEffect(() => {
+        if (!selectedColaborador) return;
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Servicio *</label>
-                <select
-                  required
-                  value={selectedServicio || ''}
-                  onChange={(e) => {
-                    setSelectedServicio(e.target.value ? parseInt(e.target.value) : null);
-                    setSelectedStaff(null);
-                  }}
-                >
-                  <option value="">Selecciona un servicio</option>
-                  {servicios.map(s => (
-                    <option key={s.id} value={s.id}>{s.nombre}</option>
-                  ))}
-                </select>
-              </div>
+        const fetchAvailability = async () => {
+            try {
+                const hoy = new Date();
+                const finSemana = new Date();
+                finSemana.setDate(hoy.getDate() + 30); // Próximos 30 días
 
-              {selectedServicio && (
-                <div className="form-group">
-                  <label>Profesional *</label>
-                  <select
-                    required
-                    value={selectedStaff || ''}
-                    onChange={(e) => setSelectedStaff(e.target.value ? parseInt(e.target.value) : null)}
-                  >
-                    <option value="">Selecciona un profesional</option>
-                    {staff.map(s => (
-                      <option key={s.id} value={s.id}>{s.nombre}</option>
-                    ))}
-                  </select>
+                const fecha_desde = hoy.toISOString().split('T')[0];
+                const fecha_hasta = finSemana.toISOString().split('T')[0];
+
+                const url = `/public/availability?fecha_desde=${fecha_desde}&fecha_hasta=${fecha_hasta}&staff_id=${selectedColaborador.id}`;
+                const response = await apiClient.get(url);
+                setAvailability(response.data.data || []);
+            } catch (err: any) {
+                console.error('Error obteniendo disponibilidad:', err);
+            }
+        };
+
+        fetchAvailability();
+    }, [selectedColaborador]);
+
+    // Calcular horarios disponibles para la fecha seleccionada
+    useEffect(() => {
+        if (!selectedDate || !selectedColaborador) {
+            setHorariosDisponibles([]);
+            return;
+        }
+
+        // Generar horarios típicos del día (8:00 AM a 8:00 PM, cada hora)
+        const horariosBase: string[] = [];
+        for (let hora = 8; hora <= 20; hora++) {
+            horariosBase.push(`${hora.toString().padStart(2, '0')}:00`);
+        }
+
+        // Filtrar horarios ocupados
+        const fechaSeleccionadaStr = selectedDate.toISOString().split('T')[0];
+        const horariosOcupados = availability
+            .filter(slot => {
+                const slotDate = new Date(slot.inicio);
+                const slotDateStr = slotDate.toISOString().split('T')[0];
+                return slotDateStr === fechaSeleccionadaStr && 
+                       slot.colaborador_id === selectedColaborador.id && 
+                       slot.ocupado;
+            })
+            .map(slot => {
+                const slotDate = new Date(slot.inicio);
+                const horas = slotDate.getHours();
+                const minutos = slotDate.getMinutes();
+                return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+            });
+
+        // Filtrar horarios pasados si es hoy
+        const ahora = new Date();
+        const esHoy = selectedDate.toDateString() === ahora.toDateString();
+        const horariosDisponiblesFiltrados = horariosBase.filter(hora => {
+            // Verificar si está ocupado
+            if (horariosOcupados.includes(hora)) return false;
+            
+            // Si es hoy, verificar que no sea pasado
+            if (esHoy) {
+                const [h, m] = hora.split(':').map(Number);
+                const horaCompleta = new Date();
+                horaCompleta.setHours(h, m, 0, 0);
+                // Solo mostrar horarios al menos 30 minutos en el futuro
+                return horaCompleta.getTime() > ahora.getTime() + 30 * 60 * 1000;
+            }
+            
+            // Si no es hoy, verificar que no sea un día pasado
+            const fechaCompleta = new Date(selectedDate);
+            const [h, m] = hora.split(':').map(Number);
+            fechaCompleta.setHours(h, m, 0, 0);
+            return fechaCompleta.getTime() > ahora.getTime();
+        });
+
+        setHorariosDisponibles(horariosDisponiblesFiltrados);
+    }, [selectedDate, selectedColaborador, availability]);
+
+    // Funciones del calendario
+    const getDaysInMonth = (date: Date) => {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    };
+
+    const getFirstDayOfMonth = (date: Date) => {
+        return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    };
+
+    const generateCalendarDays = () => {
+        const daysInMonth = getDaysInMonth(currentDate);
+        const firstDay = getFirstDayOfMonth(currentDate);
+        const days = [];
+
+        // Días vacíos antes del primer día del mes
+        for (let i = 0; i < firstDay; i++) {
+            days.push(null);
+        }
+
+        // Días del mes
+        for (let i = 1; i <= daysInMonth; i++) {
+            days.push(i);
+        }
+
+        return days;
+    };
+
+    // Funciones de navegación del calendario
+    const handlePrevMonth = () => {
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+        setSelectedDate(null);
+    };
+
+    const handleNextMonth = () => {
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+        setSelectedDate(null);
+    };
+
+    const handleDateClick = (day: number) => {
+        if (day !== null) {
+            const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            newDate.setHours(0, 0, 0, 0);
+            
+            // No permitir seleccionar días pasados
+            if (newDate < hoy) {
+                alert('No puedes seleccionar días pasados');
+                return;
+            }
+            
+            setSelectedDate(newDate);
+            setSelectedHora(null);
+        }
+    };
+
+    const handleHoraSelect = (hora: string) => {
+        setSelectedHora(hora);
+        setShowReservaModal(true);
+    };
+
+    // Manejar envío del formulario
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        if (!selectedDate || !selectedHora || !selectedColaborador) {
+            setError('Por favor, completa todos los campos');
+            setLoading(false);
+            return;
+        }
+
+        if (!reservaForm.cliente_nombre.trim() || !reservaForm.cliente_telefono.trim()) {
+            setError('Por favor, completa tu nombre y teléfono');
+            setLoading(false);
+            return;
+        }
+
+        // Construir fecha/hora completa
+        const [hora, minuto] = selectedHora.split(':').map(Number);
+        const fechaHoraInicio = new Date(selectedDate);
+        fechaHoraInicio.setHours(hora, minuto, 0, 0);
+        
+        const fechaHoraFin = new Date(fechaHoraInicio);
+        fechaHoraFin.setHours(fechaHoraFin.getHours() + 1); // Duración de 1 hora por defecto
+
+        // Obtener el primer servicio disponible (o el seleccionado si hay selector)
+        const establecimientoId = servicios.length > 0 ? servicios[0].id : null;
+        
+        if (!establecimientoId) {
+            setError('No hay servicios disponibles');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            await apiClient.post('/public/reservas', {
+                fecha_hora_inicio: fechaHoraInicio.toISOString(),
+                fecha_hora_fin: fechaHoraFin.toISOString(),
+                establecimiento_id: establecimientoId,
+                colaborador_id: selectedColaborador.id,
+                cliente_nombre: reservaForm.cliente_nombre,
+                cliente_telefono: reservaForm.cliente_telefono,
+                cliente_email: reservaForm.cliente_email || null,
+                cliente_dni: reservaForm.cliente_dni || null,
+                servicio_descripcion: reservaForm.servicio_descripcion || null,
+                precio: reservaForm.precio ? parseFloat(reservaForm.precio) : null,
+                notas: reservaForm.notas || null
+            });
+
+            setShowReservaModal(false);
+            setShowConfirmacion(true);
+            setSuccess(true);
+            
+            // Confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            // Limpiar formulario
+            setReservaForm({
+                cliente_nombre: '',
+                cliente_telefono: '',
+                cliente_email: '',
+                cliente_dni: '',
+                servicio_descripcion: '',
+                precio: '',
+                notas: ''
+            });
+            setSelectedDate(null);
+            setSelectedHora(null);
+
+            // Recargar disponibilidad
+            const hoy = new Date();
+            const finSemana = new Date();
+            finSemana.setDate(hoy.getDate() + 30);
+            const fecha_desde = hoy.toISOString().split('T')[0];
+            const fecha_hasta = finSemana.toISOString().split('T')[0];
+            const url = `/public/availability?fecha_desde=${fecha_desde}&fecha_hasta=${fecha_hasta}&staff_id=${selectedColaborador.id}`;
+            const availResponse = await apiClient.get(url);
+            setAvailability(availResponse.data.data || []);
+
+            setTimeout(() => {
+                setShowConfirmacion(false);
+                setSuccess(false);
+            }, 5000);
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.response?.data?.error || 'Error al crear la reserva');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const calendarDays = generateCalendarDays();
+    const empresaInfo = tenantConfig || {
+        display_name: 'WEEKLY',
+        cliente_nombre: 'Cliente',
+        cliente_direccion: '',
+        cliente_telefono: ''
+    };
+
+    return (
+        <div className="reservas-page">
+            <div className="reservas-grid">
+                {/* Primera columna: Información de la empresa y colaboradores */}
+                <div className="columna-info">
+                    <div className="empresa-info">
+                        <h1>{empresaInfo.display_name || empresaInfo.cliente_nombre}</h1>
+                        {empresaInfo.cliente_direccion && (
+                            <div className="contacto">
+                                {empresaInfo.cliente_direccion && (
+                                    <span>📍 {empresaInfo.cliente_direccion}</span>
+                                )}
+                                {empresaInfo.cliente_telefono && (
+                                    <span>📞 {empresaInfo.cliente_telefono}</span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="profesores-list">
+                        <h2>Nuestros Profesionales</h2>
+                        {loadingConfig ? (
+                            <p style={{ color: '#a0aec0' }}>Cargando...</p>
+                        ) : colaboradores.length === 0 ? (
+                            <p style={{ color: '#a0aec0' }}>No hay profesionales disponibles</p>
+                        ) : (
+                            colaboradores.map(colaborador => (
+                                <div
+                                    key={colaborador.id}
+                                    className={`profesor-card ${selectedColaborador?.id === colaborador.id ? 'selected' : ''}`}
+                                    onClick={() => setSelectedColaborador(colaborador)}
+                                >
+                                    <div className="profesor-avatar">
+                                        {colaborador.nombre.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="profesor-info">
+                                        <h3>{colaborador.nombre}</h3>
+                                        {colaborador.especialidades && colaborador.especialidades.length > 0 && (
+                                            <p>{colaborador.especialidades.join(', ')}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
-              )}
-              <div className="form-group">
-                <label>Nombre completo *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.cliente_nombre}
-                  onChange={(e) => setFormData({...formData, cliente_nombre: e.target.value})}
-                />
-              </div>
 
-              <div className="form-group">
-                <label>Teléfono *</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.cliente_telefono}
-                  onChange={(e) => setFormData({...formData, cliente_telefono: e.target.value})}
-                />
-              </div>
+                {/* Segunda columna: Calendario */}
+                <div className="columna-calendario">
+                    <h2>Selecciona una Fecha</h2>
+                    <div className="calendario">
+                        <div className="calendar-header">
+                            <button onClick={handlePrevMonth}>◀</button>
+                            <h3>{currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</h3>
+                            <button onClick={handleNextMonth}>▶</button>
+                        </div>
+                        <div className="calendar-weekdays">
+                            <div>Do</div>
+                            <div>Lu</div>
+                            <div>Ma</div>
+                            <div>Mi</div>
+                            <div>Ju</div>
+                            <div>Vi</div>
+                            <div>Sa</div>
+                        </div>
+                        <div className="calendar-days">
+                            {calendarDays.map((day, index) => {
+                                const dayDate = day !== null ? new Date(currentDate.getFullYear(), currentDate.getMonth(), day) : null;
+                                const hoy = new Date();
+                                hoy.setHours(0, 0, 0, 0);
+                                const isPast = dayDate && dayDate < hoy;
+                                
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`calendar-day ${day === null ? 'empty' : ''} ${
+                                            selectedDate?.getDate() === day ? 'selected' : ''
+                                        } ${isPast ? 'past' : ''}`}
+                                        onClick={() => !isPast && day !== null && handleDateClick(day)}
+                                        style={isPast ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
+                                    >
+                                        {day}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
 
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={formData.cliente_email}
-                  onChange={(e) => setFormData({...formData, cliente_email: e.target.value})}
-                />
-              </div>
+                {/* Tercera columna: Horarios disponibles */}
+                <div className="columna-horarios">
+                    <h2>Horarios Disponibles</h2>
+                    {!selectedColaborador ? (
+                        <p className="placeholder-text">Selecciona un profesional para ver horarios</p>
+                    ) : !selectedDate ? (
+                        <p className="placeholder-text">Selecciona una fecha para ver los horarios disponibles</p>
+                    ) : horariosDisponibles.length === 0 ? (
+                        <p className="placeholder-text">No hay horarios disponibles para esta fecha</p>
+                    ) : (
+                        <div className="horarios-grid">
+                            {horariosDisponibles.map(hora => (
+                                <button
+                                    key={hora}
+                                    className={`hora-btn ${selectedHora === hora ? 'selected' : ''}`}
+                                    onClick={() => handleHoraSelect(hora)}
+                                >
+                                    {hora}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
 
-              <div className="form-group">
-                <label>DNI</label>
-                <input
-                  type="text"
-                  value={formData.cliente_dni}
-                  onChange={(e) => setFormData({...formData, cliente_dni: e.target.value})}
-                />
-              </div>
+            {/* Modal de Reserva */}
+            {showReservaModal && (
+                <div className="modal-overlay" onClick={() => setShowReservaModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h2 style={{ margin: 0 }}>Completa tu Reserva</h2>
+                            <button
+                                type="button"
+                                onClick={() => setShowReservaModal(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '1.5rem',
+                                    cursor: 'pointer',
+                                    color: '#a0aec0',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '4px'
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        {selectedDate && selectedHora && (
+                            <p style={{ color: '#a0aec0', marginBottom: '1rem' }}>
+                                <strong>Fecha y Hora:</strong> {selectedDate.toLocaleDateString('es-ES')} a las {selectedHora}
+                            </p>
+                        )}
+                        {selectedColaborador && (
+                            <p style={{ color: '#a0aec0', marginBottom: '1rem' }}>
+                                <strong>Profesional:</strong> {selectedColaborador.nombre}
+                            </p>
+                        )}
+                        <form onSubmit={handleFormSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="nombre">Nombre completo *</label>
+                                <input
+                                    type="text"
+                                    id="nombre"
+                                    value={reservaForm.cliente_nombre}
+                                    onChange={e => setReservaForm(prev => ({...prev, cliente_nombre: e.target.value}))}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="telefono">Número de teléfono *</label>
+                                <input
+                                    type="tel"
+                                    id="telefono"
+                                    value={reservaForm.cliente_telefono}
+                                    onChange={e => setReservaForm(prev => ({...prev, cliente_telefono: e.target.value}))}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="email">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={reservaForm.cliente_email}
+                                    onChange={e => setReservaForm(prev => ({...prev, cliente_email: e.target.value}))}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="dni">DNI</label>
+                                <input
+                                    type="text"
+                                    id="dni"
+                                    value={reservaForm.cliente_dni}
+                                    onChange={e => setReservaForm(prev => ({...prev, cliente_dni: e.target.value}))}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="descripcion">Descripción del servicio</label>
+                                <textarea
+                                    id="descripcion"
+                                    value={reservaForm.servicio_descripcion}
+                                    onChange={e => setReservaForm(prev => ({...prev, servicio_descripcion: e.target.value}))}
+                                    rows={3}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="notas">Notas adicionales</label>
+                                <textarea
+                                    id="notas"
+                                    value={reservaForm.notas}
+                                    onChange={e => setReservaForm(prev => ({...prev, notas: e.target.value}))}
+                                    rows={2}
+                                />
+                            </div>
+                            {error && (
+                                <div style={{ 
+                                    color: '#ef4444', 
+                                    padding: '0.75rem', 
+                                    background: 'rgba(239, 68, 68, 0.1)', 
+                                    borderRadius: '8px',
+                                    marginBottom: '1rem'
+                                }}>
+                                    {error}
+                                </div>
+                            )}
+                            <div className="modal-buttons">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowReservaModal(false)}
+                                    disabled={loading}
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={loading || !reservaForm.cliente_nombre.trim() || !reservaForm.cliente_telefono.trim()}
+                                >
+                                    {loading ? 'Creando...' : 'Confirmar Reserva'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
-              <div className="form-group">
-                <label>Descripción del servicio</label>
-                <textarea
-                  value={formData.servicio_descripcion}
-                  onChange={(e) => setFormData({...formData, servicio_descripcion: e.target.value})}
-                  rows={3}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Notas adicionales</label>
-                <textarea
-                  value={formData.notas}
-                  onChange={(e) => setFormData({...formData, notas: e.target.value})}
-                  rows={2}
-                />
-              </div>
-
-              {error && <div className="error-message">{error}</div>}
-
-              <div className="modal-actions">
-                <button 
-                  type="submit" 
-                  disabled={
-                    loading || 
-                    !selectedServicio || 
-                    !selectedStaff || 
-                    !formData.cliente_nombre?.trim() || 
-                    !formData.cliente_telefono?.trim()
-                  } 
-                  className="btn-primary"
-                  style={{
-                    opacity: (loading || !selectedServicio || !selectedStaff || !formData.cliente_nombre?.trim() || !formData.cliente_telefono?.trim()) ? 0.5 : 1,
-                    cursor: (loading || !selectedServicio || !selectedStaff || !formData.cliente_nombre?.trim() || !formData.cliente_telefono?.trim()) ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  {loading ? 'Creando...' : 'Confirmar Reserva'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowReservaModal(false);
-                    setSelectedServicio(null);
-                    setSelectedStaff(null);
-                  }}
-                  className="btn-secondary"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
+            {/* Modal de Confirmación */}
+            {showConfirmacion && (
+                <div className="modal-overlay">
+                    <div className="modal-content success">
+                        <h2>¡Reserva Confirmada! 🎉</h2>
+                        <p>Tu reserva ha sido registrada exitosamente</p>
+                        <p style={{ fontSize: '0.9rem', color: '#a0aec0', marginTop: '0.5rem' }}>
+                            Te hemos enviado la confirmación por email
+                        </p>
+                        <button onClick={() => {
+                            setShowConfirmacion(false);
+                            setSelectedDate(null);
+                            setSelectedHora(null);
+                            setReservaForm({
+                                cliente_nombre: '',
+                                cliente_telefono: '',
+                                cliente_email: '',
+                                cliente_dni: '',
+                                servicio_descripcion: '',
+                                precio: '',
+                                notas: ''
+                            });
+                        }}>
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default PublicCalendarPage;
-

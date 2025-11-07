@@ -508,45 +508,6 @@
     transform: translateY(-1px);
 }
 
-/* Estilos para textarea */
-.form-group textarea {
-    width: 100%;
-    padding: 0.9rem 1.2rem;
-    border: 2px solid rgba(170, 223, 173, 0.15);
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-sizing: border-box;
-    background: linear-gradient(135deg, rgba(170, 223, 173, 0.08) 0%, rgba(170, 223, 173, 0.03) 100%);
-    color: #e2e8f0;
-    font-weight: 500;
-    font-family: inherit;
-    resize: vertical;
-    min-height: 80px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
-                inset 0 1px 2px rgba(170, 223, 173, 0.05);
-}
-
-.form-group textarea::placeholder {
-    color: #718096;
-}
-
-.form-group textarea:hover {
-    border-color: rgba(170, 223, 173, 0.3);
-    background: linear-gradient(135deg, rgba(170, 223, 173, 0.12) 0%, rgba(170, 223, 173, 0.05) 100%);
-    box-shadow: 0 4px 12px rgba(170, 223, 173, 0.15),
-                inset 0 1px 2px rgba(170, 223, 173, 0.1);
-}
-
-.form-group textarea:focus {
-    outline: none;
-    border-color: #AADFAD;
-    background: linear-gradient(135deg, rgba(170, 223, 173, 0.15) 0%, rgba(170, 223, 173, 0.08) 100%);
-    box-shadow: 0 0 40px rgba(170, 223, 173, 0.35),
-                inset 0 1px 3px rgba(170, 223, 173, 0.15),
-                0 4px 16px rgba(170, 223, 173, 0.2);
-}
-
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
