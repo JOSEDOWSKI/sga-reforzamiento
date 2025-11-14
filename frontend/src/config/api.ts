@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { parseToon } from '../utils/toonParser';
 
 // Detectar el entorno y configurar la URL base
 const getBaseURL = () => {
@@ -39,7 +40,8 @@ const getBaseURL = () => {
 const apiClient = axios.create({
     baseURL: getBaseURL(),
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/toon, application/json' // Preferir TOON para reducir tokens
     },
     withCredentials: true // Habilitado para permitir cookies y headers de autenticación
 });
@@ -72,6 +74,16 @@ apiClient.interceptors.request.use((config) => {
 // Interceptor para manejar respuestas
 apiClient.interceptors.response.use(
     (response) => {
+        // Si la respuesta es TOON, parsearla
+        const contentType = response.headers['content-type'] || '';
+        if (contentType.includes('application/toon') || contentType.includes('text/toon')) {
+            try {
+                response.data = parseToon(response.data);
+            } catch (error) {
+                console.warn('Error parsing TOON response, using as-is:', error);
+            }
+        }
+        
         // Agregar información del tenant a la respuesta si está disponible
         if (response.headers['x-tenant']) {
             response.data.tenant = response.headers['x-tenant'];
@@ -81,10 +93,23 @@ apiClient.interceptors.response.use(
     (error) => {
         // Manejar errores de autenticación (401, 403)
         if (error.response?.status === 401 || error.response?.status === 403) {
+            // Verificar si estamos en modo demo
+            const hostname = window.location.hostname;
+            const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+            
+            // En modo demo, no redirigir a login (permitir acceso sin autenticación)
+            if (isDemoMode) {
+                // Solo limpiar el token, pero no redirigir
+                const { secureTokenStorage } = require('../utils/tokenSecurity');
+                secureTokenStorage.clear();
+                delete apiClient.defaults.headers.common['Authorization'];
+                return Promise.reject(error);
+            }
+            
             // Solo redirigir si no estamos ya en la página de login y no es una ruta pública
             const pathname = window.location.pathname;
             const isPublicRoute = pathname.startsWith('/calendario') || 
-                                  pathname.startsWith('/agendar') ||
+                                  pathname.startsWith('/booking') ||
                                   pathname === '/' && window.location.hostname.includes('weekly.pe');
             
             if (!isPublicRoute) {
