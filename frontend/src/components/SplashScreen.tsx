@@ -158,7 +158,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                             </svg>
                         </div>
                         <div ref={textRef} className="splash-text">
-                            <h1>SGA Reforzamiento</h1>
+                            <h1>Weekly</h1>
                             <p>Sistema de Gestión Académica</p>
                         </div>
                         <div ref={loadingRef} className="loading-indicator">

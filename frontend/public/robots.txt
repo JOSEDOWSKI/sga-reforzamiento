@@ -1,0 +1,97 @@
+# Weekly - Robots.txt
+# Optimizado para crawlers de IA y motores de búsqueda
+
+# Permitir todos los crawlers de IA y motores de búsqueda
+User-agent: *
+Allow: /
+
+# Crawlers de IA específicos
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: ChatGPT-User
+Allow: /
+Crawl-delay: 1
+
+User-agent: Google-Extended
+Allow: /
+Crawl-delay: 1
+
+User-agent: anthropic-ai
+Allow: /
+Crawl-delay: 1
+
+User-agent: Claude-Web
+Allow: /
+Crawl-delay: 1
+
+User-agent: CCBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Applebot-Extended
+Allow: /
+Crawl-delay: 1
+
+# Motores de búsqueda tradicionales
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
+
+# Permitir acceso a páginas públicas importantes
+Allow: /booking
+Allow: /calendario-publico
+Allow: /login
+
+# Bloquear áreas administrativas y privadas
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /api/
+Disallow: /configuracion
+Disallow: /estadisticas
+Disallow: /servicios
+Disallow: /staff
+Disallow: /clientes
+Disallow: /categorias
+
+# Bloquear archivos y recursos técnicos
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Sitemap
+Sitemap: https://weekly.pe/sitemap.xml
+
+# Información adicional
+# Este robots.txt permite el crawling de todas las páginas públicas
+# y está optimizado para crawlers de IA como GPTBot, Claude, Perplexity, etc.
+# Las páginas de booking y calendario público son indexables para mejorar
+# la visibilidad en motores de búsqueda y asistentes de IA.
+

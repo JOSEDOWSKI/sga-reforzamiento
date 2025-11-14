@@ -1,0 +1,150 @@
+@startuml Tenant Database Schema
+
+!define TABLE(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define PRIMARY_KEY(x) <b>x</b>
+!define FOREIGN_KEY(x) <color:blue>x</color>
+
+title WEEKLY - Esquema de Base de Datos por Tenant
+
+' Tabla de Usuarios
+TABLE(usuarios, "Usuarios del Sistema") {
+  PRIMARY_KEY(id) : SERIAL
+  email : VARCHAR(255) **UNIQUE**
+  password_hash : VARCHAR(255)
+  nombre : VARCHAR(255)
+  rol : VARCHAR(50) {admin, vendedor, colaborador}
+  activo : BOOLEAN
+  ultimo_acceso : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Tabla de Establecimientos
+TABLE(establecimientos, "Establecimientos/Servicios") {
+  PRIMARY_KEY(id) : SERIAL
+  nombre : VARCHAR(255) **UNIQUE**
+  descripcion : TEXT
+  tipo_negocio : VARCHAR(100)
+  direccion : TEXT
+  telefono : VARCHAR(20)
+  email : VARCHAR(255)
+  activo : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Tabla de Colaboradores
+TABLE(colaboradores, "Colaboradores/Staff") {
+  PRIMARY_KEY(id) : SERIAL
+  nombre : VARCHAR(255)
+  email : VARCHAR(255) **UNIQUE**
+  telefono : VARCHAR(20)
+  especialidades : TEXT[]
+  tarifa_por_hora : DECIMAL(10,2)
+  FOREIGN_KEY(establecimiento_id) : INTEGER
+  activo : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Tabla de Clientes
+TABLE(clientes, "Clientes") {
+  PRIMARY_KEY(id) : SERIAL
+  nombre : VARCHAR(255)
+  telefono : VARCHAR(20)
+  dni : VARCHAR(50)
+  email : VARCHAR(255)
+  activo : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Tabla de Categorías
+TABLE(categorias, "Categorías") {
+  PRIMARY_KEY(id) : SERIAL
+  nombre : VARCHAR(255)
+  descripcion : TEXT
+  color : VARCHAR(7)
+  FOREIGN_KEY(establecimiento_id) : INTEGER
+  activo : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Tabla de Horarios de Atención
+TABLE(horarios_atencion, "Horarios de Atención") {
+  PRIMARY_KEY(id) : SERIAL
+  FOREIGN_KEY(establecimiento_id) : INTEGER
+  dia_semana : INTEGER {0=domingo, 1=lunes, ..., 6=sábado}
+  hora_apertura : TIME
+  hora_cierre : TIME
+  intervalo_minutos : INTEGER
+  activo : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Tabla de Reservas
+TABLE(reservas, "Reservas/Citas") {
+  PRIMARY_KEY(id) : SERIAL
+  fecha_hora_inicio : TIMESTAMP
+  fecha_hora_fin : TIMESTAMP
+  FOREIGN_KEY(colaborador_id) : INTEGER
+  FOREIGN_KEY(establecimiento_id) : INTEGER
+  FOREIGN_KEY(cliente_id) : INTEGER
+  servicio_descripcion : TEXT
+  notas : TEXT
+  precio : DECIMAL(10,2)
+  estado : VARCHAR(20) {confirmada, cancelada, completada, no_asistio}
+  FOREIGN_KEY(creado_por) : INTEGER
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Relaciones
+establecimientos ||--o{ colaboradores : "tiene"
+establecimientos ||--o{ horarios_atencion : "tiene"
+establecimientos ||--o{ categorias : "organiza"
+colaboradores ||--o{ reservas : "atiende"
+establecimientos ||--o{ reservas : "recibe"
+clientes ||--o{ reservas : "realiza"
+usuarios ||--o{ reservas : "crea"
+
+note right of usuarios
+  **Roles:**
+  - admin: Administrador del tenant
+  - vendedor: Puede gestionar reservas
+  - colaborador: Solo puede ver sus reservas
+end note
+
+note right of establecimientos
+  **Tipos de negocio:**
+  - peluqueria
+  - clases_reforzamiento
+  - cancha_futbol
+  - veterinaria
+  - odontologia
+  - etc.
+end note
+
+note right of reservas
+  **Estados:**
+  - confirmada: Reserva confirmada
+  - cancelada: Reserva cancelada
+  - completada: Servicio completado
+  - no_asistio: Cliente no asistió
+end note
+
+note right of horarios_atencion
+  **Días de la semana:**
+  - 0: Domingo
+  - 1: Lunes
+  - 2: Martes
+  - 3: Miércoles
+  - 4: Jueves
+  - 5: Viernes
+  - 6: Sábado
+end note
+
+@enduml
+

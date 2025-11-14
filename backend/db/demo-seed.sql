@@ -59,9 +59,17 @@ WHERE e.activo = true
 ON CONFLICT (establecimiento_id, dia_semana) DO NOTHING;
 
 -- Clientes de ejemplo para demo (opcional, para mostrar reservas)
-INSERT INTO clientes (nombre, telefono, email, activo) VALUES
-('Juan Pérez', '+51 987 111 222', 'juan@example.com', true),
-('María González', '+51 987 333 444', 'maria@example.com', true),
-('Pedro Sánchez', '+51 987 555 666', 'pedro@example.com', true)
-ON CONFLICT DO NOTHING;
+-- Nota: La tabla clientes no tiene UNIQUE constraint, así que usamos INSERT IGNORE equivalente
+INSERT INTO clientes (nombre, telefono, email, activo) 
+SELECT nombre, telefono, email, activo
+FROM (VALUES
+    ('Juan Pérez', '+51 987 111 222', 'juan@example.com', true),
+    ('María González', '+51 987 333 444', 'maria@example.com', true),
+    ('Pedro Sánchez', '+51 987 555 666', 'pedro@example.com', true)
+) AS clientes_data(nombre, telefono, email, activo)
+WHERE NOT EXISTS (
+    SELECT 1 FROM clientes 
+    WHERE clientes.telefono = clientes_data.telefono 
+    OR (clientes_data.email IS NOT NULL AND clientes.email = clientes_data.email)
+);
 

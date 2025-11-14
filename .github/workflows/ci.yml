@@ -1,0 +1,57 @@
+name: CI - Build and Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+
+jobs:
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_API_URL: https://api.weekly.pe
+          VITE_WS_URL: wss://api.weekly.pe
+          VITE_ENV: production
+        run: npm run build
+
+      - name: Test Docker build
+        run: |
+          docker build -t weekly:test \
+            --build-arg VITE_API_URL=https://api.weekly.pe \
+            --build-arg VITE_WS_URL=wss://api.weekly.pe \
+            --build-arg VITE_ENV=production \
+            .
+
+      - name: Verify Docker image
+        run: |
+          docker images weekly:test
+          echo "✅ Docker image built successfully"
+

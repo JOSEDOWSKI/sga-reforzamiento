@@ -7,7 +7,6 @@ import esLocale from '@fullcalendar/core/locales/es';
 import apiClient from '../config/api';
 import demoApiClient from '../utils/demoApiClient';
 import { useAuth } from '../hooks/useAuth';
-import { useDemoMode } from './DemoView';
 import './UserCalendarView.css';
 
 interface Servicio {
@@ -37,7 +36,9 @@ interface Reserva {
 
 const UserCalendarView: React.FC = () => {
   const { user: _user } = useAuth();
-  const isDemoMode = useDemoMode();
+  // Detectar modo demo directamente del hostname (más confiable)
+  const hostname = window.location.hostname;
+  const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
   const client = isDemoMode ? demoApiClient : apiClient;
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);

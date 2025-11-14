@@ -1,0 +1,33 @@
+{
+  "name": "weekly-unified",
+  "version": "1.0.0",
+  "description": "Weekly - Sistema de Agendamiento y Reservas Online (Backend + Frontend Unificado)",
+  "private": true,
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:build": "docker-compose up --build",
+    "dev:down": "docker-compose down",
+    "dev:logs": "docker-compose logs -f",
+    "build": "docker build -t weekly:latest .",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm install --production",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "restart": "docker-compose restart",
+    "clean": "docker-compose down -v && docker system prune -f",
+    "db:init": "docker-compose exec app node backend/scripts/init-production-db.js",
+    "db:migrate": "docker-compose exec app node backend/scripts/migrate-mvp-global.js",
+    "db:seed": "docker-compose exec app node backend/scripts/seed-demo.js"
+  },
+  "keywords": [
+    "weekly",
+    "saas",
+    "multi-tenant",
+    "scheduling",
+    "booking",
+    "reservations"
+  ],
+  "author": "Promesa Tech",
+  "license": "ISC"
+}
+

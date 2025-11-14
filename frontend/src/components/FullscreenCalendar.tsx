@@ -169,6 +169,16 @@ const FullscreenCalendar: React.FC<FullscreenCalendarProps> = ({
 
   // Configurar WebSocket con notificaciones
   useEffect(() => {
+    // Detectar si estamos en modo demo
+    const hostname = window.location.hostname;
+    const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+    
+    // En modo demo, no intentar conectar WebSocket
+    if (isDemoMode) {
+      setIsConnected(false);
+      return;
+    }
+
     if (isOpen && tenant) {
       const socket = connectSocket(tenant);
 
@@ -179,7 +189,10 @@ const FullscreenCalendar: React.FC<FullscreenCalendarProps> = ({
 
       socket.on('connect_error', () => {
         setIsConnected(false);
-        addNotification('error', 'Error de conexión');
+        // No mostrar error en modo demo
+        if (!isDemoMode) {
+          addNotification('error', 'Error de conexión');
+        }
       });
 
       socket.on('disconnect', () => {

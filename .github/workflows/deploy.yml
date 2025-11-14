@@ -1,0 +1,106 @@
+name: Deploy Weekly to CapRover
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - 'supervisord.conf'
+      - 'docker-compose.yml'
+      - 'captain-definition'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch: # Permite ejecutar manualmente
+
+jobs:
+  deploy-unified:
+    name: Deploy Unified App (Backend + Frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create unified tarball
+        run: |
+          # Crear tarball con todo el proyecto (backend + frontend + configs)
+          tar -czf weekly-unified.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='*.log' \
+            --exclude='.env*' \
+            --exclude='*.md' \
+            --exclude='*.sh' \
+            --exclude='*.txt' \
+            --exclude='*.puml' \
+            --exclude='*.tar.gz' \
+            --exclude='dist' \
+            --exclude='build' \
+            --exclude='.github' \
+            --exclude='.vscode' \
+            --exclude='.idea' \
+            backend/ \
+            frontend/ \
+            Dockerfile \
+            nginx.conf \
+            supervisord.conf \
+            captain-definition \
+            docker-compose.yml \
+            .dockerignore \
+            package.json
+
+      - name: Deploy to CapRover via Webhook
+        env:
+          CAPROVER_WEBHOOK_URL: ${{ secrets.CAPROVER_WEBHOOK_URL }}
+        run: |
+          echo "🚀 Triggering CapRover build via webhook..."
+          
+          # Convertir tar.gz a base64
+          TAR_BASE64=$(base64 -w 0 weekly-unified.tar.gz)
+          
+          # Enviar tarball al webhook de CapRover
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"tarFileBase64\": \"$TAR_BASE64\"
+            }" \
+            "$CAPROVER_WEBHOOK_URL")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+            echo "✅ Build triggered successfully!"
+            echo "Response: $BODY"
+          else
+            echo "❌ Build trigger failed with HTTP $HTTP_CODE"
+            echo "Response: $BODY"
+            exit 1
+          fi
+
+      - name: Health check
+        env:
+          CAPROVER_SERVER_URL: ${{ secrets.CAPROVER_SERVER_URL }}
+          CAPROVER_APP_NAME: ${{ secrets.CAPROVER_APP_NAME || 'weekly-app' }}
+        run: |
+          echo "🏥 Waiting for app to be ready..."
+          sleep 45
+          
+          # Intentar health check (ajusta la URL según tu configuración)
+          if [ -n "$CAPROVER_SERVER_URL" ]; then
+            HEALTH_URL="https://${CAPROVER_APP_NAME:-weekly-app}.${CAPROVER_SERVER_URL#https://}"
+            HEALTH_URL="${HEALTH_URL#https://https://}"
+            HEALTH_URL="https://${HEALTH_URL}"
+          else
+            HEALTH_URL="https://weekly-app.panel.getdevtools.com"
+          fi
+          
+          echo "Checking health at: $HEALTH_URL/health"
+          if curl -f "$HEALTH_URL/health" 2>/dev/null; then
+            echo "✅ Health check passed!"
+          else
+            echo "⚠️  Health check failed or endpoint not available"
+            echo "This is normal if the app is still building"
+          fi

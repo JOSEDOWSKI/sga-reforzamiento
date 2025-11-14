@@ -19,6 +19,28 @@ export const useTenant = (): TenantInfo => {
     const detectTenant = () => {
       const hostname = window.location.hostname;
       const parts = hostname.split(".");
+      const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+
+      // En demo, intentar cargar displayName desde localStorage
+      if (isDemoMode) {
+        const saved = localStorage.getItem('demo_tenant_config');
+        if (saved) {
+          try {
+            const configData = JSON.parse(saved);
+            if (configData.displayName) {
+              setTenantInfo({
+                id: 'demo',
+                displayName: configData.displayName,
+                isMultiTenant: false,
+                subdomain: null,
+              });
+              return;
+            }
+          } catch (e) {
+            // Si hay error, continuar con la lógica normal
+          }
+        }
+      }
 
       // Detectar si estamos en un subdominio (no localhost)
       if (parts.length >= 3 && !hostname.includes("localhost")) {
@@ -51,6 +73,37 @@ export const useTenant = (): TenantInfo => {
     };
 
     detectTenant();
+    
+    // Escuchar cambios en localStorage para actualizar el nombre en tiempo real
+    const handleStorageChange = () => {
+      const hostname = window.location.hostname;
+      const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+      if (isDemoMode) {
+        const saved = localStorage.getItem('demo_tenant_config');
+        if (saved) {
+          try {
+            const configData = JSON.parse(saved);
+            if (configData.displayName) {
+              setTenantInfo(prev => ({
+                ...prev,
+                displayName: configData.displayName
+              }));
+            }
+          } catch (e) {
+            // Ignorar errores
+          }
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // También escuchar cambios en la misma pestaña usando un evento personalizado
+    window.addEventListener('tenant-config-updated', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('tenant-config-updated', handleStorageChange);
+    };
   }, []);
 
   return tenantInfo;

@@ -32,23 +32,23 @@ const LandingPage = () => {
     const features = [
         {
             icon: <Calendar className="feature-icon" />,
-            title: "Calendario Inteligente",
-            description: "Gestiona todas tus reservas en un calendario interactivo con vista mensual, semanal y diaria. Los clientes pueden agendar directamente desde tu calendario público sin necesidad de registro."
+            title: "Panel Administrativo Completo",
+            description: "Gestiona servicios, colaboradores, clientes y reservas desde un panel intuitivo. Personalización total con etiquetas personalizadas, módulos configurables y horarios flexibles. Estadísticas en tiempo real para tomar decisiones informadas."
         },
         {
             icon: <Users className="feature-icon" />,
-            title: "Gestión Completa",
-            description: "Administra servicios, staff, clientes y categorías desde un solo lugar. Base de datos centralizada con búsqueda rápida y actualización en tiempo real para todos los usuarios."
-        },
-        {
-            icon: <Clock className="feature-icon" />,
-            title: "Multi-Tenant SaaS",
-            description: "Cada negocio tiene su propia base de datos y panel independiente. Sistema seguro, escalable y personalizado para peluquerías, academias, clínicas y más."
+            title: "Calendario Público 24/7",
+            description: "Tus clientes pueden agendar citas directamente desde tu calendario público sin necesidad de registro. Disponibilidad en tiempo real, confirmaciones automáticas y experiencia optimizada para dispositivos móviles."
         },
         {
             icon: <CheckCircle className="feature-icon" />,
-            title: "Roles y Permisos",
-            description: "Diferencia entre administradores (acceso completo) y usuarios regulares (solo calendario y reservas). Sistema flexible para diferentes tipos de usuarios."
+            title: "Personalización Avanzada",
+            description: "Adapta WEEKLY a tu rubro: renombra entidades (Peluqueros, Profesores, Dentistas, Canchas), activa o desactiva módulos según tus necesidades y configura el modo de reserva (por servicio, recurso o combinado)."
+        },
+        {
+            icon: <Clock className="feature-icon" />,
+            title: "Marketplace Integrado",
+            description: "Aplicación móvil tipo Rappi donde los usuarios encuentran negocios cercanos por rubro. Reservas geolocalizadas, categorización por tipo de servicio y sistema de descubrimiento para aumentar tu visibilidad."
         }
     ];
 
@@ -91,12 +91,12 @@ const LandingPage = () => {
                         <h1 className="hero-title">
                             <span className="weekly-text">WEEKLY</span>
                             <br />
-                            <span className="hero-subtitle">Tu Sistema de Agendamiento Inteligente</span>
+                            <span className="hero-subtitle">Agenda lo que quieras, donde quieras</span>
                         </h1>
                         <p className="hero-description">
-                            Sistema SaaS multi-tenant para gestionar reservas, servicios, staff y clientes. 
-                            Calendario público para que tus clientes agenden sin registro, panel completo para administradores 
-                            y vista simplificada para usuarios. Perfecto para peluquerías, academias, clínicas, canchas y más.
+                            Plataforma SaaS multi-tenant para la gestión de reservas, horarios y clientes con marketplace integrado. 
+                            Digitaliza tu negocio en minutos con dominio personalizado y funcionalidades adaptadas a tu rubro. 
+                            Perfecto para peluquerías, clínicas, academias, canchas deportivas y más.
                         </p>
                         <div className="hero-buttons">
                             <button 
@@ -112,16 +112,16 @@ const LandingPage = () => {
                         </div>
                         <div className="hero-stats">
                             <div className="stat">
-                                <span className="stat-number">500+</span>
-                                <span className="stat-label">Negocios Activos</span>
+                                <span className="stat-number">500K+</span>
+                                <span className="stat-label">Negocios en Latinoamérica</span>
                             </div>
                             <div className="stat">
-                                <span className="stat-number">50K+</span>
-                                <span className="stat-label">Citas Gestionadas</span>
+                                <span className="stat-number">100%</span>
+                                <span className="stat-label">En la Nube</span>
                             </div>
                             <div className="stat">
-                                <span className="stat-number">98%</span>
-                                <span className="stat-label">Satisfacción</span>
+                                <span className="stat-number">24/7</span>
+                                <span className="stat-label">Disponible</span>
                             </div>
                         </div>
                     </div>
@@ -183,8 +183,9 @@ const LandingPage = () => {
                     <div className="section-header">
                         <h2 className="section-title">¿Por qué elegir WEEKLY?</h2>
                         <p className="section-description">
-                            Plataforma completa de gestión de reservas con calendario público, panel administrativo y sistema multi-tenant. 
-                            Cada negocio tiene su propia base de datos independiente y segura.
+                            No somos un sistema de reservas genérico. WEEKLY es un ecosistema adaptable diseñado específicamente 
+                            para distintos tipos de negocios de servicios en Latinoamérica. Cada negocio tiene su propia base de datos 
+                            independiente, dominio personalizado y certificado SSL automático.
                         </p>
                     </div>
                     <div className="features-grid">
@@ -197,6 +198,88 @@ const LandingPage = () => {
                                 <p className="feature-description">{feature.description}</p>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Pricing Section */}
+            <section id="pricing" className="pricing-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2 className="section-title">Planes y Precios</h2>
+                        <p className="section-description">
+                            Elige el plan que mejor se adapte a tu negocio. Todos los planes incluyen dominio personalizado, 
+                            certificado SSL automático y soporte técnico.
+                        </p>
+                    </div>
+                    <div className="pricing-grid">
+                        <div className="pricing-card">
+                            <div className="pricing-header">
+                                <h3 className="pricing-name">Plan Básico</h3>
+                                <div className="pricing-price">
+                                    <span className="price-amount">S/. 79</span>
+                                    <span className="price-period">/mes</span>
+                                </div>
+                            </div>
+                            <ul className="pricing-features">
+                                <li>✅ 1 sede</li>
+                                <li>✅ Hasta 2 colaboradores</li>
+                                <li>✅ Calendario público</li>
+                                <li>✅ Panel administrativo completo</li>
+                                <li>✅ Personalización básica</li>
+                                <li>✅ Soporte por email</li>
+                            </ul>
+                            <button className="btn-primary" onClick={() => window.location.href = '/demo'}>
+                                Comenzar Ahora
+                                <ArrowRight className="btn-icon" />
+                            </button>
+                        </div>
+                        <div className="pricing-card featured">
+                            <div className="pricing-badge">Más Popular</div>
+                            <div className="pricing-header">
+                                <h3 className="pricing-name">Plan Profesional</h3>
+                                <div className="pricing-price">
+                                    <span className="price-amount">S/. 119</span>
+                                    <span className="price-period">/mes</span>
+                                </div>
+                            </div>
+                            <ul className="pricing-features">
+                                <li>✅ Múltiples sedes</li>
+                                <li>✅ Hasta 5 colaboradores</li>
+                                <li>✅ Calendario público</li>
+                                <li>✅ Panel administrativo completo</li>
+                                <li>✅ Personalización avanzada</li>
+                                <li>✅ Estadísticas detalladas</li>
+                                <li>✅ Soporte prioritario</li>
+                            </ul>
+                            <button className="btn-primary" onClick={() => window.location.href = '/demo'}>
+                                Comenzar Ahora
+                                <ArrowRight className="btn-icon" />
+                            </button>
+                        </div>
+                        <div className="pricing-card">
+                            <div className="pricing-header">
+                                <h3 className="pricing-name">Plan Premium</h3>
+                                <div className="pricing-price">
+                                    <span className="price-amount">S/. 149</span>
+                                    <span className="price-period">/mes</span>
+                                </div>
+                            </div>
+                            <ul className="pricing-features">
+                                <li>✅ Sedes ilimitadas</li>
+                                <li>✅ Colaboradores ilimitados</li>
+                                <li>✅ Calendario público</li>
+                                <li>✅ Panel administrativo completo</li>
+                                <li>✅ Personalización total</li>
+                                <li>✅ Estadísticas avanzadas + IA</li>
+                                <li>✅ Marketplace integrado</li>
+                                <li>✅ Soporte 24/7</li>
+                            </ul>
+                            <button className="btn-primary" onClick={() => window.location.href = '/demo'}>
+                                Comenzar Ahora
+                                <ArrowRight className="btn-icon" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -250,7 +333,8 @@ const LandingPage = () => {
                     <div className="cta-content">
                         <h2 className="cta-title">¿Listo para transformar tu negocio?</h2>
                         <p className="cta-description">
-                            Únete a negocios que ya simplifican su gestión de reservas con WEEKLY. Sistema completo, seguro y fácil de usar.
+                            Únete a miles de negocios en Latinoamérica que ya digitalizaron su gestión de reservas con WEEKLY. 
+                            Crea tu sistema en minutos, con dominio personalizado y funcionalidades adaptadas a tu rubro.
                         </p>
                         <div className="cta-buttons">
                             <button 
@@ -359,32 +443,39 @@ const LandingPage = () => {
                     <div className="section-header">
                         <h2 className="section-title">Acerca de WEEKLY</h2>
                         <p className="section-description">
-                            Somos una plataforma SaaS diseñada para simplificar la gestión de reservas y citas.
+                            Plataforma SaaS multi-tenant para la gestión de reservas, horarios y clientes con marketplace integrado.
                         </p>
                     </div>
                     <div className="about-content">
                         <div className="about-text">
                             <h3>Nuestra Misión</h3>
                             <p>
-                                En WEEKLY, creemos que cada negocio merece herramientas profesionales para gestionar 
-                                sus reservas de manera eficiente. Nuestra misión es proporcionar una plataforma intuitiva, 
-                                segura y escalable que permita a nuestros clientes enfocarse en lo que mejor hacen: 
-                                atender a sus clientes.
+                                Brindar a los negocios latinoamericanos una plataforma intuitiva, segura y personalizable para 
+                                gestionar sus reservas, horarios y clientes sin depender de herramientas genéricas. Transformamos 
+                                la gestión de citas mediante automatización, personalización y conectividad.
                             </p>
                             <h3>Nuestra Visión</h3>
                             <p>
-                                Ser la plataforma líder en gestión de reservas en Latinoamérica, facilitando la 
-                                digitalización de negocios de todos los tamaños mediante tecnología de vanguardia 
-                                y un servicio excepcional.
+                                Ser la plataforma líder de gestión y descubrimiento de servicios en Latinoamérica, conectando 
+                                tecnología, negocios y personas a través de la automatización. Crear un ecosistema interconectado 
+                                de servicios a nivel regional.
                             </p>
-                            <h3>¿Por qué WEEKLY?</h3>
+                            <h3>Ventajas Competitivas</h3>
                             <ul className="about-features">
-                                <li>✅ Sistema multi-tenant: Cada cliente tiene su propia base de datos independiente</li>
-                                <li>✅ Seguridad de primer nivel: Protección de datos y cumplimiento de privacidad</li>
-                                <li>✅ Escalable: Crece con tu negocio sin límites</li>
-                                <li>✅ Soporte continuo: Equipo técnico siempre disponible</li>
-                                <li>✅ Calendario público: Tus clientes pueden agendar sin registro</li>
+                                <li>✅ Arquitectura multi-tenant adaptable y segura con aislamiento total de datos</li>
+                                <li>✅ Alto nivel de personalización por rubro y por negocio sin cambiar el modelo base</li>
+                                <li>✅ Subdominios y certificados SSL automáticos para cada negocio</li>
+                                <li>✅ Marketplace integrado como motor de crecimiento y visibilidad</li>
+                                <li>✅ Experiencia de usuario moderna, rápida y optimizada para móviles</li>
+                                <li>✅ Actualización en tiempo real con Socket.io para reservas y estados</li>
+                                <li>✅ Accesibilidad mediante precios competitivos y modelo 100% en la nube</li>
                             </ul>
+                            <h3>Público Objetivo</h3>
+                            <p>
+                                WEEKLY está diseñado para negocios de servicios que requieren agendamiento y gestión de clientes: 
+                                peluquerías y salones de belleza, clínicas médicas y dentales, academias y centros de refuerzo escolar, 
+                                canchas deportivas y gimnasios, veterinarias, estudios y talleres.
+                            </p>
                         </div>
                     </div>
                 </div>

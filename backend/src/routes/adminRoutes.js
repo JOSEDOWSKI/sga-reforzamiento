@@ -6,6 +6,8 @@ const {
     removeTenantConnection 
 } = require('../config/tenantDatabase');
 const logsController = require('../controllers/logsController');
+const tenantConfigController = require('../controllers/tenantConfigController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Obtener información de todos los tenants activos
 router.get('/tenants', async (req, res) => {
@@ -84,6 +86,10 @@ router.delete('/tenants/:tenantId/connection', async (req, res) => {
         });
     }
 });
+
+// Rutas de configuración del tenant (requieren autenticación)
+router.get('/tenant/config', authMiddleware, tenantConfigController.getConfig.bind(tenantConfigController));
+router.put('/tenant/config', authMiddleware, tenantConfigController.updateConfig.bind(tenantConfigController));
 
 // Obtener estadísticas del sistema
 // Rutas de logs

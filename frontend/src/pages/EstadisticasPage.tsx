@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import { demoApiClient } from '../utils/demoApiClient';
+import { useTenantLabels } from '../utils/tenantLabels';
 import '../styles/GestionPage.css';
 
 interface Reserva {
@@ -31,6 +33,14 @@ interface Tema {
 }
 
 const EstadisticasPage: React.FC = () => {
+    // Labels del tenant
+    const labels = useTenantLabels();
+    
+    // Detectar si estamos en modo demo
+    const hostname = window.location.hostname;
+    const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+    const client = isDemoMode ? demoApiClient : apiClient;
+    
     const [reservas, setReservas] = useState<Reserva[]>([]);
     const [cursos, setCursos] = useState<Curso[]>([]);
     const [profesores, setProfesores] = useState<Profesor[]>([]);
@@ -46,10 +56,10 @@ const EstadisticasPage: React.FC = () => {
         try {
             setLoading(true);
             const [reservasRes, cursosRes, profesoresRes, temasRes] = await Promise.all([
-                apiClient.get('/reservas'),
-                apiClient.get('/servicios'),
-                apiClient.get('/staff'),
-                apiClient.get('/categorias'),
+                client.get('/reservas'),
+                client.get('/servicios'),
+                client.get('/staff'),
+                client.get('/categorias'),
             ]);
             
             setReservas(reservasRes.data.data);
@@ -185,7 +195,7 @@ const EstadisticasPage: React.FC = () => {
                     <div className="stat-card primary">
                         <div className="stat-icon">📅</div>
                         <div className="stat-content">
-                            <h3>Total Reservas</h3>
+                            <h3>Total {labels.reservas}</h3>
                             <div className="stat-number">{stats.totalReservas}</div>
                             <div className="stat-breakdown">
                                 <span>Hoy: {stats.reservasHoy}</span>
@@ -224,7 +234,7 @@ const EstadisticasPage: React.FC = () => {
                     <div className="stat-card info">
                         <div className="stat-icon">👥</div>
                         <div className="stat-content">
-                            <h3>Alumnos Únicos</h3>
+                            <h3>{labels.clientes} Únicos</h3>
                             <div className="stat-number">{stats.alumnosUnicos}</div>
                             <div className="stat-breakdown">
                                 <span>Duración promedio: {stats.promedioDuracion}h</span>
@@ -241,11 +251,11 @@ const EstadisticasPage: React.FC = () => {
                         <h2>Estado del Sistema</h2>
                         <div className="system-metrics">
                             <div className="metric-item">
-                                <span className="metric-label">📚 Cursos Activos:</span>
+                                <span className="metric-label">📚 {labels.establecimientos} Activos:</span>
                                 <span className="metric-value">{stats.cursosActivos}</span>
                             </div>
                             <div className="metric-item">
-                                <span className="metric-label">👨‍🏫 Profesores Activos:</span>
+                                <span className="metric-label">👨‍🏫 {labels.colaboradores} Activos:</span>
                                 <span className="metric-value">{stats.profesoresActivos}</span>
                             </div>
                             <div className="metric-item">
@@ -259,15 +269,15 @@ const EstadisticasPage: React.FC = () => {
                         <h2>Resumen Rápido</h2>
                         <div className="summary-stats">
                             <div className="summary-item">
-                                <strong>Reservas promedio por curso:</strong>
+                                <strong>{labels.reservas} promedio por {labels.establecimiento.toLowerCase()}:</strong>
                                 <span>{stats.cursosActivos > 0 ? (stats.totalReservas / stats.cursosActivos).toFixed(1) : '0'}</span>
                             </div>
                             <div className="summary-item">
-                                <strong>Reservas promedio por profesor:</strong>
+                                <strong>{labels.reservas} promedio por {labels.colaborador.toLowerCase()}:</strong>
                                 <span>{stats.profesoresActivos > 0 ? (stats.totalReservas / stats.profesoresActivos).toFixed(1) : '0'}</span>
                             </div>
                             <div className="summary-item">
-                                <strong>Horas promedio por alumno:</strong>
+                                <strong>Horas promedio por {labels.cliente.toLowerCase()}:</strong>
                                 <span>{stats.alumnosUnicos > 0 ? (stats.horasTotales / stats.alumnosUnicos).toFixed(1) : '0'}h</span>
                             </div>
                             <div className="summary-item">
@@ -283,15 +293,15 @@ const EstadisticasPage: React.FC = () => {
             <div className="rankings">
                 <div className="form-and-list-container">
                     <div className="list-section" id="stats-top-cursos">
-                        <h2>Top Cursos</h2>
+                        <h2>Top {labels.establecimientos}</h2>
                         {stats.topCursos.length > 0 ? (
                             <div className="table-container">
                                 <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>Posición</th>
-                                            <th>Curso</th>
-                                            <th>Reservas</th>
+                                            <th>{labels.establecimiento}</th>
+                                            <th>{labels.reservas}</th>
                                             <th>Horas</th>
                                             <th>%</th>
                                         </tr>
@@ -314,20 +324,20 @@ const EstadisticasPage: React.FC = () => {
                                 </table>
                             </div>
                         ) : (
-                            <p>No hay datos de cursos disponibles.</p>
+                            <p>No hay datos de {labels.establecimientos.toLowerCase()} disponibles.</p>
                         )}
                     </div>
                     
                     <div className="list-section"  id="stats-top-profesores">
-                        <h2>Top Profesores</h2>
+                        <h2>Top {labels.colaboradores}</h2>
                         {stats.topProfesores.length > 0 ? (
                             <div className="table-container">
                                 <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>Posición</th>
-                                            <th>Profesor</th>
-                                            <th>Reservas</th>
+                                            <th>{labels.colaborador}</th>
+                                            <th>{labels.reservas}</th>
                                             <th>Horas</th>
                                             <th>%</th>
                                         </tr>
@@ -350,7 +360,7 @@ const EstadisticasPage: React.FC = () => {
                                 </table>
                             </div>
                         ) : (
-                            <p>No hay datos de profesores disponibles.</p>
+                            <p>No hay datos de {labels.colaboradores.toLowerCase()} disponibles.</p>
                         )}
                     </div>
                 </div>

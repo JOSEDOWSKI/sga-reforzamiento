@@ -1,5 +1,5 @@
 .mobile-header {
-  display: none; /* Oculto por defecto */
+  display: none; /* Oculto por defecto en desktop */
   position: fixed;
   top: 0;
   left: 0;
@@ -14,6 +14,13 @@
   justify-content: space-between;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* En desktop, el header no se muestra (el navbar es constante) */
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none !important;
+  }
 }
 
 @media (max-width: 768px) {

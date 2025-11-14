@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PublicCalendarPage.css';
 import apiClient from '../config/api';
+import { demoApiClient } from '../utils/demoApiClient';
 import { useTenantConfig } from '../hooks/useTenantConfig';
 import confetti from 'canvas-confetti';
 
@@ -43,6 +44,11 @@ interface ReservaFormData {
 const PublicCalendarPage: React.FC = () => {
     const { config: tenantConfig, isLoading: loadingConfig } = useTenantConfig();
     
+    // Detectar si estamos en modo demo
+    const hostname = window.location.hostname;
+    const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+    const client = isDemoMode ? demoApiClient : apiClient;
+    
     // Estados para datos de la API
     const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
     const [servicios, setServicios] = useState<Servicio[]>([]);
@@ -80,20 +86,20 @@ const PublicCalendarPage: React.FC = () => {
     useEffect(() => {
         const fetchServicios = async () => {
             try {
-                const response = await apiClient.get('/public/servicios');
+                const response = await client.get('/public/servicios');
                 setServicios(response.data.data || []);
             } catch (err: any) {
                 console.error('Error obteniendo servicios:', err);
             }
         };
         fetchServicios();
-    }, []);
+    }, [client]);
 
     // Obtener colaboradores
     useEffect(() => {
         const fetchColaboradores = async () => {
             try {
-                const response = await apiClient.get('/public/staff');
+                const response = await client.get('/public/staff');
                 const staffData = response.data.data || [];
                 setColaboradores(staffData);
                 // Seleccionar el primer colaborador por defecto solo si no hay uno seleccionado
@@ -106,7 +112,7 @@ const PublicCalendarPage: React.FC = () => {
         };
         fetchColaboradores();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [client]);
 
     // Obtener disponibilidad cuando cambia el colaborador o fecha
     useEffect(() => {
@@ -122,7 +128,7 @@ const PublicCalendarPage: React.FC = () => {
                 const fecha_hasta = finSemana.toISOString().split('T')[0];
 
                 const url = `/public/availability?fecha_desde=${fecha_desde}&fecha_hasta=${fecha_hasta}&staff_id=${selectedColaborador.id}`;
-                const response = await apiClient.get(url);
+                const response = await client.get(url);
                 setAvailability(response.data.data || []);
             } catch (err: any) {
                 console.error('Error obteniendo disponibilidad:', err);
@@ -294,7 +300,7 @@ const PublicCalendarPage: React.FC = () => {
         }
 
         try {
-            await apiClient.post('/public/reservas', {
+            await client.post('/public/reservas', {
                 fecha_hora_inicio: fechaHoraInicio.toISOString(),
                 fecha_hora_fin: fechaHoraFin.toISOString(),
                 establecimiento_id: establecimientoId,
@@ -338,7 +344,7 @@ const PublicCalendarPage: React.FC = () => {
             const fecha_desde = hoy.toISOString().split('T')[0];
             const fecha_hasta = finSemana.toISOString().split('T')[0];
             const url = `/public/availability?fecha_desde=${fecha_desde}&fecha_hasta=${fecha_hasta}&staff_id=${selectedColaborador.id}`;
-            const availResponse = await apiClient.get(url);
+            const availResponse = await client.get(url);
             setAvailability(availResponse.data.data || []);
 
             setTimeout(() => {
@@ -379,7 +385,7 @@ const PublicCalendarPage: React.FC = () => {
                     </div>
 
                     <div className="profesores-list">
-                        <h2>Nuestros Profesionales</h2>
+                        <h2>Nuestros {tenantConfig?.config?.uiLabels?.colaboradores || 'Profesionales'}</h2>
                         {loadingConfig ? (
                             <p style={{ color: '#a0aec0' }}>Cargando...</p>
                         ) : colaboradores.length === 0 ? (

@@ -79,6 +79,9 @@
 html {
   /* Prevent horizontal scroll on the entire page */
   overflow-x: hidden;
+  /* Limitar scroll vertical al contenido */
+  height: 100%;
+  max-height: 100vh;
 }
 
 body {
@@ -89,6 +92,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
   min-height: 100vh;
   line-height: 1.5;
@@ -103,13 +107,14 @@ body::before, body::after {
   position: fixed;
   left: 0;
   top: 0;
-  width: 200vw;
-  height: 200vh;
+  width: 100vw; /* Reducido de 200vw para evitar scroll extra */
+  height: 100vh; /* Reducido de 200vh para evitar scroll extra */
   z-index: -1;
   filter: blur(120px);
   will-change: transform;
   transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1), 
               opacity 0.5s ease-in-out;
+  pointer-events: none; /* Evitar que interfiera con el scroll */
 }
 
 body::before {

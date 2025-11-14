@@ -5,13 +5,19 @@
 
 class PublicController {
     /**
-     * Obtener disponibilidad (solo horarios ocupados/libres, sin datos personales)
+     * Obtener disponibilidad (horarios ocupados y slots disponibles)
      * GET /api/public/availability?fecha_desde=YYYY-MM-DD&fecha_hasta=YYYY-MM-DD&servicio_id=X&staff_id=Y
+     * 
+     * Retorna:
+     * - Slots ocupados (reservas confirmadas)
+     * - Slots disponibles (basados en horarios de atención, excluyendo ocupados)
+     * - Respeta timezone del tenant
      */
     async getAvailability(req, res) {
         try {
             const { fecha_desde, fecha_hasta, servicio_id, staff_id } = req.query;
             const { db } = req;
+            const tenant = req.tenant;
 
             if (!fecha_desde || !fecha_hasta) {
                 return res.status(400).json({
@@ -20,7 +26,12 @@ class PublicController {
                 });
             }
 
-            let sql = `
+            // Obtener timezone del tenant
+            const timezoneService = require('../services/timezoneService');
+            const tenantTimezone = await timezoneService.getTenantTimezone(tenant);
+
+            // 1. Obtener reservas ocupadas
+            let sqlReservas = `
                 SELECT 
                     r.id,
                     r.fecha_hora_inicio,
@@ -37,25 +48,59 @@ class PublicController {
                 AND r.fecha_hora_inicio <= $2
             `;
 
-            const params = [fecha_desde, fecha_hasta];
+            const paramsReservas = [fecha_desde, fecha_hasta];
             let paramCount = 2;
 
             if (servicio_id) {
-                sql += ` AND r.establecimiento_id = $${++paramCount}`;
-                params.push(servicio_id);
+                sqlReservas += ` AND r.establecimiento_id = $${++paramCount}`;
+                paramsReservas.push(servicio_id);
             }
 
             if (staff_id) {
-                sql += ` AND r.colaborador_id = $${++paramCount}`;
-                params.push(staff_id);
+                sqlReservas += ` AND r.colaborador_id = $${++paramCount}`;
+                paramsReservas.push(staff_id);
             }
 
-            sql += ` ORDER BY r.fecha_hora_inicio ASC`;
+            sqlReservas += ` ORDER BY r.fecha_hora_inicio ASC`;
 
-            const result = await db.query(sql, params);
+            const reservasResult = await db.query(sqlReservas, paramsReservas);
 
-            // Retornar solo información de disponibilidad (sin datos personales)
-            const availability = result.rows.map(row => ({
+            // 2. Obtener horarios de atención
+            let sqlHorarios = `
+                SELECT 
+                    h.id,
+                    h.establecimiento_id,
+                    h.dia_semana,
+                    h.hora_apertura,
+                    h.hora_cierre,
+                    h.break_start,
+                    h.break_end,
+                    h.intervalo_minutos,
+                    h.activo,
+                    h.is_closed,
+                    c.id as colaborador_id
+                FROM horarios_atencion h
+                JOIN establecimientos e ON h.establecimiento_id = e.id
+                LEFT JOIN colaboradores c ON c.establecimiento_id = e.id
+                WHERE h.activo = true 
+                AND (h.is_closed IS NULL OR h.is_closed = false)
+            `;
+
+            const paramsHorarios = [];
+            if (servicio_id) {
+                sqlHorarios += ` AND h.establecimiento_id = $1`;
+                paramsHorarios.push(servicio_id);
+            }
+            if (staff_id) {
+                sqlHorarios += ` AND c.id = $${paramsHorarios.length + 1}`;
+                paramsHorarios.push(staff_id);
+            }
+
+            const horariosResult = await db.query(sqlHorarios, paramsHorarios);
+
+            // 3. Generar slots disponibles basados en horarios
+            const slotsDisponibles = [];
+            const slotsOcupados = reservasResult.rows.map(row => ({
                 id: row.id,
                 inicio: row.fecha_hora_inicio,
                 fin: row.fecha_hora_fin,
@@ -66,9 +111,62 @@ class PublicController {
                 ocupado: true
             }));
 
+            // Generar slots para cada día en el rango
+            const fechaInicio = new Date(fecha_desde);
+            const fechaFin = new Date(fecha_hasta);
+            fechaFin.setHours(23, 59, 59, 999);
+
+            for (let fecha = new Date(fechaInicio); fecha <= fechaFin; fecha.setDate(fecha.getDate() + 1)) {
+                const diaSemana = fecha.getDay(); // 0=domingo, 1=lunes, etc.
+
+                // Buscar horarios para este día
+                const horariosDelDia = horariosResult.rows.filter(h => h.dia_semana === diaSemana);
+
+                for (const horario of horariosDelDia) {
+                    const slots = timezoneService.generateTimeSlots(horario, fecha, tenantTimezone);
+                    
+                    for (const slot of slots) {
+                        // Verificar si el slot está ocupado
+                        const estaOcupado = slotsOcupados.some(ocupado => {
+                            const slotInicio = new Date(slot.inicio);
+                            const slotFin = new Date(slot.fin);
+                            const ocupadoInicio = new Date(ocupado.inicio);
+                            const ocupadoFin = new Date(ocupado.fin);
+
+                            // Verificar si hay solapamiento
+                            return (
+                                (slotInicio < ocupadoFin && slotFin > ocupadoInicio) &&
+                                ocupado.colaborador_id === horario.colaborador_id
+                            );
+                        });
+
+                        if (!estaOcupado) {
+                            slotsDisponibles.push({
+                                inicio: slot.inicio.toISOString(),
+                                fin: slot.fin.toISOString(),
+                                establecimiento_id: horario.establecimiento_id,
+                                colaborador_id: horario.colaborador_id,
+                                ocupado: false
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Combinar slots disponibles y ocupados
+            const allSlots = [...slotsDisponibles, ...slotsOcupados].sort((a, b) => 
+                new Date(a.inicio) - new Date(b.inicio)
+            );
+
             res.json({
                 success: true,
-                data: availability,
+                data: allSlots,
+                metadata: {
+                    total: allSlots.length,
+                    disponibles: slotsDisponibles.length,
+                    ocupados: slotsOcupados.length,
+                    timezone: tenantTimezone
+                },
                 message: 'Disponibilidad obtenida exitosamente'
             });
         } catch (error) {

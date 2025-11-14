@@ -27,11 +27,35 @@ CREATE TABLE tenants (
     estado VARCHAR(20) DEFAULT 'activo', -- activo, suspendido, cancelado
     plan VARCHAR(50) DEFAULT 'basico', -- basico, premium, enterprise
     
+    -- Marketplace y ubicación
+    show_in_marketplace BOOLEAN DEFAULT false, -- Indica si aparece en el marketplace de la app móvil
+    city VARCHAR(255), -- Ciudad del negocio (para búsqueda geográfica)
+    
+    -- Configuración personalizada (JSONB)
+    config JSONB DEFAULT '{}'::jsonb, -- Configuración personalizada: nombres de entidades, características, etc.
+    
     -- Fechas
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultimo_acceso TIMESTAMP
 );
+
+-- Índice para búsquedas en config
+CREATE INDEX IF NOT EXISTS idx_tenants_config ON tenants USING GIN (config);
+CREATE INDEX IF NOT EXISTS idx_tenants_marketplace ON tenants(show_in_marketplace);
+CREATE INDEX IF NOT EXISTS idx_tenants_city ON tenants(city);
+
+-- Tabla de tenant_settings (configuración y personalización por negocio)
+CREATE TABLE tenant_settings (
+    id SERIAL PRIMARY KEY,
+    tenant_id INTEGER NOT NULL UNIQUE REFERENCES tenants(id) ON DELETE CASCADE,
+    config JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tenant_settings_tenant ON tenant_settings(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_tenant_settings_config ON tenant_settings USING GIN (config);
 
 -- Tabla de usuarios globales (super admin)
 CREATE TABLE usuarios_global (

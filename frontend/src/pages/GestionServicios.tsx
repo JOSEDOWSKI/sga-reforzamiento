@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import demoApiClient from '../utils/demoApiClient';
-import { useDemoMode } from './DemoView';
+import { useDemoMode } from '../components/DemoModeWrapper';
 import { useRealtimeData } from '../hooks/useRealtimeData';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { logger } from '../utils/logger';

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import apiClient from "../config/api";
 import demoApiClient from "../utils/demoApiClient";
-import { useDemoMode } from "./DemoView";
 import FullscreenCalendar from "../components/FullscreenCalendar";
 import { useRealtimeData } from "../hooks/useRealtimeData";
 import useTenant from "../hooks/useTenant";
+import { useTenantLabels } from "../utils/tenantLabels";
 import "./DashboardPage.css";
 
 // --- Imports para FullCalendar ---
@@ -60,7 +60,11 @@ interface ModalReserva {
 const DashboardPage: React.FC = () => {
   // --- Hook para obtener el tenant ---
   const { id: tenant } = useTenant();
-  const isDemoMode = useDemoMode();
+  // Labels del tenant
+  const labels = useTenantLabels();
+  // Detectar modo demo directamente del hostname (más confiable)
+  const hostname = window.location.hostname;
+  const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
   const client = isDemoMode ? demoApiClient : apiClient;
   
   // --- Estados para los datos ---
@@ -159,11 +163,31 @@ const DashboardPage: React.FC = () => {
 
     setBuscandoClientes(true);
     try {
-      const response = await client.get(`/alumnos/search?q=${encodeURIComponent(termino)}`); // Still using old API endpoint
+      // En modo demo, intentar usar /clientes/search o /clientes con filtro
+      let response;
+      try {
+        response = await client.get(`/clientes/search?q=${encodeURIComponent(termino)}`);
+      } catch (e) {
+        // Si no existe /clientes/search, buscar en /clientes y filtrar localmente
+        const allClientes = await client.get('/clientes');
+        const filtrados = allClientes.data.data.filter((c: any) => 
+          c.nombre?.toLowerCase().includes(termino.toLowerCase()) ||
+          c.telefono?.includes(termino) ||
+          c.email?.toLowerCase().includes(termino.toLowerCase())
+        );
+        response = { data: { data: filtrados } };
+      }
       setClientesSugeridos(response.data.data);
     } catch (err) {
       console.error("Error buscando clientes:", err);
-      setClientesSugeridos([]);
+      // En modo demo, usar datos mock si falla
+      if (isDemoMode) {
+        const { mockApiResponses } = await import('../utils/demoMockData');
+        const mockResult = await mockApiResponses.buscarClientes(termino);
+        setClientesSugeridos(mockResult.data);
+      } else {
+        setClientesSugeridos([]);
+      }
     } finally {
       setBuscandoClientes(false);
     }
@@ -468,7 +492,7 @@ const DashboardPage: React.FC = () => {
       // Lógica inteligente para determinar qué datos usar
       if (crearNuevoCliente) {
         // Crear cliente nuevo primero
-        const response = await apiClient.post("/alumnos", { // Still using old API endpoint
+        const response = await client.post("/alumnos", { // Still using old API endpoint
           nombre: nuevoClienteNombre.trim(),
           telefono: nuevoClienteTelefono.trim(),
         });
@@ -507,14 +531,14 @@ const DashboardPage: React.FC = () => {
 
       if (modalReserva.editingReserva) {
         // Actualizar reserva existente
-        await apiClient.put(
+        await client.put(
           `/reservas/${modalReserva.editingReserva.id}`,
           reservaData
         );
         setSuccess("¡Reserva actualizada con éxito!");
       } else {
         // Crear nueva reserva
-        await apiClient.post("/reservas", reservaData);
+        await client.post("/reservas", reservaData);
         setSuccess("¡Reserva creada con éxito!");
       }
 
@@ -536,7 +560,7 @@ const DashboardPage: React.FC = () => {
       window.confirm("¿Estás seguro de que quieres eliminar esta reserva?")
     ) {
       try {
-        await apiClient.delete(`/reservas/${modalReserva.editingReserva.id}`);
+        await client.delete(`/reservas/${modalReserva.editingReserva.id}`);
         setSuccess("Reserva eliminada con éxito");
         fetchAllData();
         closeModal();
@@ -672,7 +696,7 @@ const DashboardPage: React.FC = () => {
           </div>
 
           <div className="filter-dropdown">
-            <label>Filtrar por staff:</label>
+            <label>Filtrar por {labels.colaborador.toLowerCase()}:</label>
             <div className="dropdown-container">
               <button id="filter-staff-btn"
                 className={`dropdown-trigger ${
@@ -680,7 +704,7 @@ const DashboardPage: React.FC = () => {
                 }`}
                 onClick={() => setShowStaffDropdown(!showStaffDropdown)}
               >
-                {filtroStaff || "Todos los staff"}
+                {filtroStaff || `Todos los ${labels.colaboradores.toLowerCase()}`}
                 <svg
                   className="dropdown-icon"
                   viewBox="0 0 24 24"
@@ -700,7 +724,7 @@ const DashboardPage: React.FC = () => {
                       setShowStaffDropdown(false);
                     }}
                   >
-                    Todos los staff
+                    Todos los {labels.colaboradores.toLowerCase()}
                   </button>
                   {staff.map((staffMember) => (
                     <button

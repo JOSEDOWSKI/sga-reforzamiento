@@ -31,10 +31,13 @@ const LandingNavbar: React.FC = () => {
         {/* Desktop Actions */}
         <div className="navbar-actions">
           <a href="https://panel.weekly.pe" className="nav-link">Panel Admin</a>
-          <a href="/demo" className="btn-nav-primary">
-            Probar Demo
-            <ArrowRight size={16} />
-          </a>
+          {/* Botón "Probar Demo" solo se muestra si NO estamos en demo.weekly.pe */}
+          {!window.location.hostname.includes('demo.weekly.pe') && (
+            <a href="/demo" className="btn-nav-primary">
+              Probar Demo
+              <ArrowRight size={16} />
+            </a>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -63,10 +66,13 @@ const LandingNavbar: React.FC = () => {
               <a href="https://panel.weekly.pe" className="mobile-nav-link" onClick={toggleMenu}>
                 Panel Admin
               </a>
-              <a href="/demo" className="btn-mobile-primary" onClick={toggleMenu}>
-                Probar Demo
-                <ArrowRight size={16} />
-              </a>
+              {/* Botón "Probar Demo" solo se muestra si NO estamos en demo.weekly.pe */}
+              {!window.location.hostname.includes('demo.weekly.pe') && (
+                <a href="/demo" className="btn-mobile-primary" onClick={toggleMenu}>
+                  Probar Demo
+                  <ArrowRight size={16} />
+                </a>
+              )}
             </div>
           </div>
         </div>

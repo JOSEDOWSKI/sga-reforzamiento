@@ -1,0 +1,148 @@
+/* Estilos específicos para el modal de autenticación demo */
+
+.demo-auth-modal-overlay {
+    z-index: 2000; /* Mayor que otros modales */
+}
+
+.demo-auth-modal-content {
+    max-width: 550px;
+}
+
+.demo-auth-modal-header {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.demo-auth-modal-body {
+    padding: 2.5rem !important;
+}
+
+.demo-auth-message {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.demo-auth-main-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.6;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.demo-auth-main-text strong {
+    color: #e0e7ff;
+    font-weight: 700;
+}
+
+.demo-auth-info-text {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.demo-auth-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.demo-auth-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.95rem;
+}
+
+.demo-auth-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.demo-auth-checkbox {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.demo-auth-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.demo-auth-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #8b5cf6;
+}
+
+.demo-auth-modal-footer {
+    padding: 1.5rem 2.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 0;
+}
+
+.demo-auth-modal-footer .btn-primary {
+    width: 100%;
+    justify-content: center;
+    font-size: 1.05rem;
+    padding: 1.125rem 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .demo-auth-modal-content {
+        max-width: 95%;
+    }
+
+    .demo-auth-modal-body {
+        padding: 2rem !important;
+    }
+
+    .demo-auth-main-text {
+        font-size: 1rem;
+    }
+
+    .demo-auth-info-text {
+        font-size: 0.95rem;
+    }
+
+    .demo-auth-features {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .demo-auth-modal-body {
+        padding: 1.5rem !important;
+    }
+
+    .demo-auth-modal-footer {
+        padding: 1.25rem 1.5rem 1.5rem;
+    }
+}
+

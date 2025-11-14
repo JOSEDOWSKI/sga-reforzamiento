@@ -29,7 +29,7 @@ const tenantMiddleware = async (req, res, next) => {
                 // Es una petición a api.weekly.pe pero con tenant específico en el header
                 req.tenant = headerTenant;
                 req.tenantType = 'tenant';
-                req.database = `weekly_${headerTenant}`;
+                req.database = `${process.env.DB_NAME_PREFIX || 'weekly_'}${headerTenant}`;
                 
                 // Validar formato del tenant
                 if (!isValidTenant(headerTenant)) {
@@ -111,7 +111,7 @@ const tenantMiddleware = async (req, res, next) => {
             // Panel de cliente específico
             req.tenant = subdomain;
             req.tenantType = 'tenant';
-            req.database = `weekly_${subdomain}`;
+            req.database = `${process.env.DB_NAME_PREFIX || 'weekly_'}${subdomain}`;
             
             // Validar que el tenant sea válido (formato)
             if (!isValidTenant(subdomain)) {

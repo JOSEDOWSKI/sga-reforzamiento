@@ -3,6 +3,7 @@ import './Header.css';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTenant } from '../hooks/useTenant';
+import ThemeToggleButton from './ThemeToggleButton';
 
 interface HeaderProps {
     onMenuClick: () => void;
@@ -73,58 +74,75 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, isNavOpen }) => {
             </div>
             
             <div className="mobile-header__right">
-                <div className="user-menu" ref={userMenuRef}>
-                    <button 
-                        className="user-button"
-                        onClick={() => setShowUserMenu(!showUserMenu)}
-                        aria-label="Menú de usuario"
-                    >
-                        <div className="user-avatar">
-                            {user?.nombre?.charAt(0).toUpperCase() || 'U'}
-                        </div>
-                        <span className="user-name">{user?.nombre}</span>
-                        <svg 
-                            className={`chevron ${showUserMenu ? 'open' : ''}`}
-                            width="16" 
-                            height="16" 
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" fill="none"/>
-                        </svg>
-                    </button>
+                {(() => {
+                    // Detectar si es vista de colaborador en demo (sin sidebar)
+                    const hostname = window.location.hostname;
+                    const pathname = window.location.pathname;
+                    const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+                    const isColaboradorView = isDemoMode && (pathname === '/calendario' || pathname === '/calendario/');
                     
-                    {showUserMenu && (
-                        <div className="user-dropdown">
-                            <div className="user-info">
-                                <div className="user-name-full">{user?.nombre}</div>
-                                <div className="user-email">{user?.email}</div>
-                                <div className="user-role">Rol: {user?.rol}</div>
-                            </div>
-                            <hr className="dropdown-divider" />
+                    // Mostrar toggle de tema si es vista colaborador, sino mostrar menú de usuario
+                    if (isColaboradorView) {
+                        return <ThemeToggleButton />;
+                    }
+                    
+                    return (
+                        <>
+                            <div className="user-menu" ref={userMenuRef}>
                             <button 
-                                className="logout-button"
-                                onClick={handleLogout}
+                                className="user-button"
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                                aria-label="Menú de usuario"
                             >
-                                <svg width="16" height="16" viewBox="0 0 16 16">
-                                    <path d="M6 2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H6zM5 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3z"/>
-                                    <path d="M11.5 8a.5.5 0 0 1-.5.5H8a.5.5 0 0 1 0-1h3a.5.5 0 0 1 .5.5z"/>
-                                    <path d="M10.146 7.146a.5.5 0 0 1 .708.708L9.707 9l1.147 1.146a.5.5 0 0 1-.708.708L9 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L8.293 9 7.146 7.854a.5.5 0 1 1 .708-.708L9 8.293l1.146-1.147z"/>
+                                <div className="user-avatar">
+                                    {user?.nombre?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <span className="user-name">{user?.nombre}</span>
+                                <svg 
+                                    className={`chevron ${showUserMenu ? 'open' : ''}`}
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" fill="none"/>
                                 </svg>
-                                Cerrar Sesión
                             </button>
+                            
+                            {showUserMenu && (
+                                <div className="user-dropdown">
+                                    <div className="user-info">
+                                        <div className="user-name-full">{user?.nombre}</div>
+                                        <div className="user-email">{user?.email}</div>
+                                        <div className="user-role">Rol: {user?.rol}</div>
+                                    </div>
+                                    <hr className="dropdown-divider" />
+                                    <button 
+                                        className="logout-button"
+                                        onClick={handleLogout}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 16 16">
+                                            <path d="M6 2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H6zM5 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3z"/>
+                                            <path d="M11.5 8a.5.5 0 0 1-.5.5H8a.5.5 0 0 1 0-1h3a.5.5 0 0 1 .5.5z"/>
+                                            <path d="M10.146 7.146a.5.5 0 0 1 .708.708L9.707 9l1.147 1.146a.5.5 0 0 1-.708.708L9 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L8.293 9 7.146 7.854a.5.5 0 1 1 .708-.708L9 8.293l1.146-1.147z"/>
+                                        </svg>
+                                        Cerrar Sesión
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-                
-                <button 
-                    className={`hamburger-button ${isNavOpen ? 'is-active' : ''}`} 
-                    onClick={onMenuClick}
-                    aria-label="Abrir menú"
-                >
-                    <span className="hamburger-box">
-                        <span className="hamburger-inner"></span>
-                    </span>
-                </button>
+                        
+                        <button 
+                            className={`hamburger-button ${isNavOpen ? 'is-active' : ''}`} 
+                            onClick={onMenuClick}
+                            aria-label="Abrir menú"
+                        >
+                            <span className="hamburger-box">
+                                <span className="hamburger-inner"></span>
+                            </span>
+                        </button>
+                        </>
+                    );
+                })()}
             </div>
         </header>
     );

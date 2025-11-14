@@ -14,11 +14,12 @@
   width: 100%;
   flex-grow: 1;
   padding: 3rem 4rem;
-  margin-left: 260px; /* Corresponde al ancho del Navbar en desktop */
+  margin-left: 280px; /* Actualizado para corresponder al nuevo ancho del Navbar (280px) */
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: contentFadeIn 0.6s ease-in-out;
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto; /* Permitir scroll solo en el contenido */
 }
 
 .overlay {
@@ -81,7 +82,7 @@ h2 {
 /* Pantallas muy grandes */
 @media (min-width: 1440px) {
   .content-container {
-    margin-left: 280px; /* Ajuste para navbar más ancho */
+    margin-left: 280px; /* Mantener consistente con el navbar */
     padding: 3.5rem 5rem;
   }
 }
@@ -89,7 +90,7 @@ h2 {
 /* Pantallas grandes a medianas */
 @media (max-width: 1024px) {
   .content-container {
-    margin-left: 240px; /* Ajuste para navbar más estrecho */
+    margin-left: 280px; /* Mantener consistente con el navbar */
     padding: 2.5rem 3rem;
   }
   

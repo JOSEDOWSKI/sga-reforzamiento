@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import { useRealtimeData } from '../hooks/useRealtimeData';
+import { useTenantLabels } from '../utils/tenantLabels';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
 
@@ -18,6 +19,7 @@ interface ModalState {
 }
 
 const GestionStaff: React.FC = () => {
+    const labels = useTenantLabels();
     const [staff, setStaff] = useState<Staff[]>([]);
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
@@ -215,7 +217,7 @@ const GestionStaff: React.FC = () => {
             <div className="form-and-list-container">
                 {/* Formulario para crear miembros del staff */}
                 <div className="form-section">
-                    <h2>Agregar Miembro del Staff</h2>
+                    <h2>Agregar {labels.colaborador}</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="nombre">Nombre Completo *</label>
@@ -270,7 +272,7 @@ const GestionStaff: React.FC = () => {
 
                 {/* Lista de staff */}
                 <div className="list-section">
-                    <h2>Personal Registrado</h2>
+                    <h2>{labels.colaboradores} Registrados</h2>
                     {loading ? (
                         <div className="loading-message">Cargando personal...</div>
                     ) : staff.length === 0 ? (
@@ -315,7 +317,7 @@ const GestionStaff: React.FC = () => {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h3>Editar Miembro del Staff</h3>
+                            <h3>Editar {labels.colaborador}</h3>
                             <button 
                                 className="modal-close"
                                 onClick={handleCloseModal}

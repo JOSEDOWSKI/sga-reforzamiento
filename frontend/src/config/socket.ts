@@ -35,6 +35,33 @@ function getBaseUrl(): string {
 }
 
 export function connectSocket(tenant: string): Socket {
+  // Detectar si estamos en modo demo
+  const hostname = window.location.hostname;
+  const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+  
+  // En modo demo, crear un socket mock que no se conecta realmente
+  if (isDemoMode) {
+    if (!socket) {
+      // Crear un socket que no se conecta automáticamente
+      socket = io(getBaseUrl(), {
+        path: '/socket.io',
+        transports: ['websocket', 'polling'],
+        withCredentials: true,
+        timeout: 1000, // Timeout muy corto
+        autoConnect: false, // No conectar automáticamente en demo
+        forceNew: false,
+        reconnection: false // Desactivar reconexión en demo
+      });
+      
+      // Prevenir cualquier intento de conexión
+      socket.connect = () => {
+        // No hacer nada en modo demo
+        return socket as any;
+      };
+    }
+    return socket;
+  }
+
   if (!socket) {
     socket = io(getBaseUrl(), {
       path: '/socket.io',
@@ -44,9 +71,14 @@ export function connectSocket(tenant: string): Socket {
       autoConnect: true,
       forceNew: false
     });
+    
+    // Manejar errores de conexión silenciosamente
+    socket.on('connect_error', (error) => {
+      console.warn('WebSocket connection error:', error);
+    });
   }
 
-  if (tenant && joinedTenant !== tenant) {
+  if (tenant && joinedTenant !== tenant && !isDemoMode) {
     // Cuando el socket esté conectado, unirse a la sala del tenant
     if (socket.connected) {
       socket.emit('join-tenant', tenant);

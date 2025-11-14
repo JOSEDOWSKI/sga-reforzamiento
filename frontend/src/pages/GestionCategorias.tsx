@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
+import { demoApiClient } from '../utils/demoApiClient';
 import { useRealtimeData } from '../hooks/useRealtimeData';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
@@ -22,6 +23,7 @@ interface ModalState {
 }
 
 const GestionCategorias: React.FC = () => {
+    
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [servicios, setServicios] = useState<Servicio[]>([]);
     const [nombre, setNombre] = useState('');
@@ -53,10 +55,14 @@ const GestionCategorias: React.FC = () => {
     // Función para cargar categorías y servicios
     const fetchData = async () => {
         try {
+            const hostname = window.location.hostname;
+            const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+            const client = isDemoMode ? demoApiClient : apiClient;
+            
             setLoading(true);
             const [temasRes, cursosRes] = await Promise.all([
-                apiClient.get('/categorias'),
-                apiClient.get('/servicios')
+                client.get('/categorias'),
+                client.get('/servicios')
             ]);
             setCategorias(temasRes.data.data);
             setServicios(cursosRes.data.data);
@@ -84,6 +90,10 @@ const GestionCategorias: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        const hostname = window.location.hostname;
+        const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+        const client = isDemoMode ? demoApiClient : apiClient;
+        
         if (!nombre.trim()) {
             setError('El nombre de la categoría es requerido');
             return;
@@ -101,7 +111,7 @@ const GestionCategorias: React.FC = () => {
                 curso_id: parseInt(servicioId) // Usando la misma API por ahora
             };
             
-            await apiClient.post('/categorias', categoriaData);
+            await client.post('/categorias', categoriaData);
             setSuccess('Categoría creada exitosamente');
             setNombre('');
             setServicioId('');
@@ -141,6 +151,10 @@ const GestionCategorias: React.FC = () => {
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        const hostname = window.location.hostname;
+        const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+        const client = isDemoMode ? demoApiClient : apiClient;
+        
         if (!modalNombre.trim()) {
             setModalError('El nombre de la categoría es requerido');
             return;
@@ -160,7 +174,7 @@ const GestionCategorias: React.FC = () => {
                 curso_id: parseInt(modalServicioId) // Usando la misma API por ahora
             };
             
-            await apiClient.put(`/categorias/${modalState.editingCategoria.id}`, categoriaData);
+            await client.put(`/categorias/${modalState.editingCategoria.id}`, categoriaData);
             setSuccess('Categoría actualizada exitosamente');
             setError('');
             handleCloseModal();
@@ -195,9 +209,13 @@ const GestionCategorias: React.FC = () => {
     const handleDelete = async () => {
         if (!confirmModal.categoriaId) return;
 
+        const hostname = window.location.hostname;
+        const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+        const client = isDemoMode ? demoApiClient : apiClient;
+
         try {
             setLoading(true);
-            await apiClient.delete(`/categorias/${confirmModal.categoriaId}`);
+            await client.delete(`/categorias/${confirmModal.categoriaId}`);
             setSuccess('Categoría eliminada exitosamente');
             setError('');
             handleCloseConfirmModal();

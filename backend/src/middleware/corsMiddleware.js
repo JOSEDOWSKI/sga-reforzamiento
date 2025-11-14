@@ -27,8 +27,8 @@ const corsOptions = {
         
         // En producción, permitir automáticamente dominios weekly.pe y getdevtools.com
         if (process.env.NODE_ENV === 'production') {
-            // Permitir todos los subdominios de weekly.pe
-            if (origin.includes('.weekly.pe') || origin === 'https://weekly.pe' || origin === 'http://weekly.pe') {
+            // Permitir todos los subdominios de weekly.pe (incluyendo demo.weekly.pe)
+            if (origin && (origin.includes('.weekly.pe') || origin === 'https://weekly.pe' || origin === 'http://weekly.pe')) {
                 return callback(null, true);
             }
             // Permitir dominios getdevtools.com (para desarrollo en CapRover)
