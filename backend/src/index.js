@@ -33,6 +33,22 @@ app.use(defaultRateLimit);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Middleware para TOON (Token-Oriented Object Notation)
+const { toonParser, toonResponse } = require('./middleware/toonMiddleware');
+app.use(toonParser);
+app.use(toonResponse);
+
+// Agregar helper res.toon() a todas las respuestas
+app.use((req, res, next) => {
+    res.toon = function(data) {
+        this.setHeader('Content-Type', 'application/toon; charset=utf-8');
+        const ToonParser = require('./utils/toonParser');
+        const toonData = ToonParser.stringify(data);
+        return this.send(toonData);
+    };
+    next();
+});
+
 // Middleware para detectar tenant (aplicar a todas las rutas de API)
 // En modo desarrollo, usar devModeMiddleware si hay problemas con la base de datos
 if (process.env.NODE_ENV === 'development' && process.env.USE_DEV_MODE === 'true') {
@@ -53,6 +69,10 @@ app.use('/api/global-auth', globalAuthRoutes);
 // Rutas públicas (calendario público, sin autenticación)
 const publicRoutes = require('./routes/publicRoutes');
 app.use('/api/public', publicRoutes);
+
+// Robots.txt dinámico (debe estar antes de otras rutas para que funcione correctamente)
+const robotsController = require('./controllers/robotsController');
+app.get('/robots.txt', robotsController.getRobots.bind(robotsController));
 
 // Rutas DEMO (acceso público solo lectura para demo.weekly.pe)
 const demoRoutes = require('./routes/demoRoutes');
@@ -101,6 +121,14 @@ app.use('/api/super-admin/tenants', tenantRoutes);
 // Rutas de configuración de tenant
 const tenantConfigRoutes = require('./routes/tenantConfigRoutes');
 app.use('/api/tenants', tenantConfigRoutes);
+
+// Rutas de autenticación móvil
+const mobileAuthRoutes = require('./routes/mobileAuthRoutes');
+app.use('/api/auth/mobile', mobileAuthRoutes);
+
+// Rutas de discovery de tenants (para app móvil)
+const tenantDiscoveryRoutes = require('./routes/tenantDiscoveryRoutes');
+app.use('/api/public', tenantDiscoveryRoutes);
 
 // Ruta de salud del sistema
 app.get('/health', (req, res) => {
