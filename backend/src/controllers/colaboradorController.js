@@ -11,18 +11,34 @@ class ColaboradorController {
     async getAll(req, res) {
         try {
             const { db } = req;
+            // LEFT JOIN para incluir colaboradores sin establecimiento asignado
             const result = await db.query(
-                `SELECT c.*, e.nombre as establecimiento_nombre, e.tipo_negocio
+                `SELECT 
+                    c.id,
+                    c.nombre,
+                    c.email,
+                    c.telefono,
+                    c.especialidades,
+                    c.activo,
+                    c.establecimiento_id,
+                    e.nombre as establecimiento_nombre,
+                    e.tipo_negocio
                  FROM colaboradores c
-                 JOIN establecimientos e ON c.establecimiento_id = e.id
+                 LEFT JOIN establecimientos e ON c.establecimiento_id = e.id
                  WHERE c.activo = true 
                  ORDER BY c.nombre ASC`
             );
             
+            // Mapear especialidades a especialidad para compatibilidad con frontend
+            const mappedData = result.rows.map(row => ({
+                ...row,
+                especialidad: row.especialidades || ''
+            }));
+            
             res.json({
                 success: true,
-                data: result.rows,
-                count: result.rows.length
+                data: mappedData,
+                count: mappedData.length
             });
         } catch (error) {
             console.error('Error obteniendo colaboradores:', error);
@@ -43,9 +59,18 @@ class ColaboradorController {
             const { db } = req;
             
             const result = await db.query(
-                `SELECT c.*, e.nombre as establecimiento_nombre, e.tipo_negocio
+                `SELECT 
+                    c.id,
+                    c.nombre,
+                    c.email,
+                    c.telefono,
+                    c.especialidades,
+                    c.activo,
+                    c.establecimiento_id,
+                    e.nombre as establecimiento_nombre,
+                    e.tipo_negocio
                  FROM colaboradores c
-                 JOIN establecimientos e ON c.establecimiento_id = e.id
+                 LEFT JOIN establecimientos e ON c.establecimiento_id = e.id
                  WHERE c.id = $1 AND c.activo = true`,
                 [id]
             );
@@ -57,9 +82,15 @@ class ColaboradorController {
                 });
             }
             
+            // Mapear especialidades a especialidad para compatibilidad con frontend
+            const mappedData = {
+                ...result.rows[0],
+                especialidad: result.rows[0].especialidades || ''
+            };
+            
             res.json({
                 success: true,
-                data: result.rows[0]
+                data: mappedData
             });
         } catch (error) {
             console.error('Error obteniendo colaborador:', error);
