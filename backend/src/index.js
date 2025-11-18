@@ -26,13 +26,47 @@ app.set('trust proxy', true);
 // Middleware para CORS (aplicar antes de cualquier otro para asegurar headers en errores)
 app.use(corsMiddleware);
 
-// Handler explícito para OPTIONS requests (CORS preflight)
+// Handler explícito para OPTIONS requests (CORS preflight) - DEBE estar antes de tenantMiddleware
+// Manejar OPTIONS para todas las rutas, especialmente /api/*
 app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Tenant');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.sendStatus(200);
+    const origin = req.headers.origin;
+    
+    // Verificar si el origin está permitido (misma lógica que corsMiddleware)
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
+    let isAllowed = false;
+    
+    if (process.env.NODE_ENV === 'production') {
+        if (origin && (origin.includes('.weekly.pe') || origin === 'https://weekly.pe' || origin === 'http://weekly.pe')) {
+            isAllowed = true;
+        }
+        if (origin && (origin.includes('.getdevtools.com') || origin.includes('getdevtools.com'))) {
+            isAllowed = true;
+        }
+    }
+    
+    if (!isAllowed && origin) {
+        isAllowed = allowedOrigins.some(allowedOrigin => {
+            if (!allowedOrigin) return false;
+            if (allowedOrigin.startsWith('*.')) {
+                const domain = allowedOrigin.substring(2);
+                return origin.endsWith(domain);
+            }
+            return origin === allowedOrigin;
+        });
+    }
+    
+    // Si no hay origin o está permitido, responder con headers CORS
+    if (!origin || isAllowed || process.env.NODE_ENV === 'development') {
+        res.header('Access-Control-Allow-Origin', origin || '*');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Tenant');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Max-Age', '86400'); // Cache preflight por 24 horas
+        return res.sendStatus(200);
+    }
+    
+    // Si no está permitido, rechazar
+    res.status(403).json({ error: 'CORS policy violation' });
 });
 
 // Middleware de rate limiting (aplicar después de CORS para no romper preflights)

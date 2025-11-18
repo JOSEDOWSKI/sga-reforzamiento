@@ -6,6 +6,11 @@ const { getTenantDatabase } = require('../config/tenantDatabase');
  */
 const tenantMiddleware = async (req, res, next) => {
     try {
+        // Ignorar requests OPTIONS (CORS preflight) - ya se manejan antes
+        if (req.method === 'OPTIONS') {
+            return next();
+        }
+        
         // Primero verificar si hay un header X-Tenant (viene del frontend)
         const headerTenant = req.get('X-Tenant');
         
