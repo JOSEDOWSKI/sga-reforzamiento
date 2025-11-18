@@ -16,9 +16,13 @@ class ColaboradorController {
                 `SELECT 
                     c.id,
                     c.nombre,
+                    c.apellido,
                     c.email,
                     c.telefono,
+                    c.dni,
                     c.especialidades,
+                    c.precio,
+                    c.tarifa_por_hora,
                     c.activo,
                     c.establecimiento_id,
                     e.nombre as establecimiento_nombre,
@@ -26,13 +30,14 @@ class ColaboradorController {
                  FROM colaboradores c
                  LEFT JOIN establecimientos e ON c.establecimiento_id = e.id
                  WHERE c.activo = true 
-                 ORDER BY c.nombre ASC`
+                 ORDER BY c.nombre ASC, c.apellido ASC`
             );
             
             // Mapear especialidades a especialidad para compatibilidad con frontend
             const mappedData = result.rows.map(row => ({
                 ...row,
-                especialidad: row.especialidades || ''
+                especialidad: row.especialidades || '',
+                nombre_completo: `${row.nombre || ''} ${row.apellido || ''}`.trim() || row.nombre
             }));
             
             res.json({
@@ -62,9 +67,13 @@ class ColaboradorController {
                 `SELECT 
                     c.id,
                     c.nombre,
+                    c.apellido,
                     c.email,
                     c.telefono,
+                    c.dni,
                     c.especialidades,
+                    c.precio,
+                    c.tarifa_por_hora,
                     c.activo,
                     c.establecimiento_id,
                     e.nombre as establecimiento_nombre,
@@ -85,7 +94,8 @@ class ColaboradorController {
             // Mapear especialidades a especialidad para compatibilidad con frontend
             const mappedData = {
                 ...result.rows[0],
-                especialidad: result.rows[0].especialidades || ''
+                especialidad: result.rows[0].especialidades || '',
+                nombre_completo: `${result.rows[0].nombre || ''} ${result.rows[0].apellido || ''}`.trim() || result.rows[0].nombre
             };
             
             res.json({
@@ -107,22 +117,23 @@ class ColaboradorController {
      */
     async create(req, res) {
         try {
-            const { nombre, email, telefono, especialidades, tarifa_por_hora, establecimiento_id } = req.body;
+            const { nombre, apellido, email, telefono, dni, especialidades, precio, tarifa_por_hora, establecimiento_id } = req.body;
             const { db } = req;
             
             // Validaciones básicas
-            if (!nombre || !email || !establecimiento_id) {
+            if (!nombre || !email) {
                 return res.status(400).json({
                     success: false,
-                    error: 'Nombre, email y establecimiento son obligatorios'
+                    error: 'Nombre y email son obligatorios'
                 });
             }
             
+            // Si no hay establecimiento_id, permitir NULL (opcional)
             const result = await db.query(
-                `INSERT INTO colaboradores (nombre, email, telefono, especialidades, tarifa_por_hora, establecimiento_id)
-                 VALUES ($1, $2, $3, $4, $5, $6)
+                `INSERT INTO colaboradores (nombre, apellido, email, telefono, dni, especialidades, precio, tarifa_por_hora, establecimiento_id)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                  RETURNING *`,
-                [nombre, email, telefono, especialidades, tarifa_por_hora, establecimiento_id]
+                [nombre, apellido || null, email, telefono || null, dni || null, especialidades || null, precio || null, tarifa_por_hora || null, establecimiento_id || null]
             );
             
             res.status(201).json({
@@ -154,16 +165,16 @@ class ColaboradorController {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const { nombre, email, telefono, especialidades, tarifa_por_hora, establecimiento_id, activo } = req.body;
+            const { nombre, apellido, email, telefono, dni, especialidades, precio, tarifa_por_hora, establecimiento_id, activo } = req.body;
             const { db } = req;
             
             const result = await db.query(
                 `UPDATE colaboradores 
-                 SET nombre = $1, email = $2, telefono = $3, especialidades = $4, 
-                     tarifa_por_hora = $5, establecimiento_id = $6, activo = $7, updated_at = CURRENT_TIMESTAMP
-                 WHERE id = $8
+                 SET nombre = $1, apellido = $2, email = $3, telefono = $4, dni = $5, especialidades = $6, 
+                     precio = $7, tarifa_por_hora = $8, establecimiento_id = $9, activo = $10, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = $11
                  RETURNING *`,
-                [nombre, email, telefono, especialidades, tarifa_por_hora, establecimiento_id, activo, id]
+                [nombre, apellido || null, email, telefono || null, dni || null, especialidades || null, precio || null, tarifa_por_hora || null, establecimiento_id || null, activo !== undefined ? activo : true, id]
             );
             
             if (result.rows.length === 0) {

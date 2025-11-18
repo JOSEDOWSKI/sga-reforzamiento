@@ -147,6 +147,9 @@ const colaboradorRoutes = require('./routes/colaboradorRoutes');
 app.use('/api/colaboradores', colaboradorRoutes);
 app.use('/api/staff', colaboradorRoutes); // Alias para compatibilidad
 
+const inmuebleRoutes = require('./routes/inmuebleRoutes');
+app.use('/api/inmuebles', inmuebleRoutes);
+
 const clienteRoutes = require('./routes/clienteRoutes');
 app.use('/api/clientes', clienteRoutes);
 
