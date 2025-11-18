@@ -35,7 +35,8 @@ const Configuracion: React.FC = () => {
   const [features, setFeatures] = useState({
     servicios: true,
     categorias: true,
-    recursos_fisicos: false
+    recursos_fisicos: false,
+    colaboradores: true
   });
   const [uiLabels, setUiLabels] = useState({
     colaborador: 'Colaborador',
@@ -81,7 +82,7 @@ const Configuracion: React.FC = () => {
         try {
           const configData = JSON.parse(saved);
           setDisplayName(configData.displayName || '');
-          setFeatures(configData.features || { servicios: true, categorias: true, recursos_fisicos: false });
+          setFeatures(configData.features || { servicios: true, categorias: true, recursos_fisicos: false, colaboradores: true });
           if (configData.uiLabels) {
             setUiLabels({
               colaborador: configData.uiLabels.colaborador || 'Colaborador',
@@ -483,6 +484,21 @@ const Configuracion: React.FC = () => {
                       type="checkbox"
                       checked={features.recursos_fisicos}
                       onChange={() => setFeatures(prev => ({ ...prev, recursos_fisicos: !prev.recursos_fisicos }))}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Colaboradores / Staff</label>
+                <div className="form-control-inline">
+                  <p className="help-text">Permite gestionar colaboradores, staff o recursos que trabajan (ej: canchas, empleados)</p>
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={features.colaboradores}
+                      onChange={() => setFeatures(prev => ({ ...prev, colaboradores: !prev.colaboradores }))}
                     />
                     <span className="toggle-slider"></span>
                   </label>

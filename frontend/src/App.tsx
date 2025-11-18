@@ -186,7 +186,11 @@ function TenantAppContent() {
                   </ProtectedFeatureRoute>
                 } />
                 <Route path="/clientes" element={<GestionClientes />} />
-                <Route path="/staff" element={<GestionStaff />} />
+                <Route path="/staff" element={
+                  <ProtectedFeatureRoute feature="colaboradores">
+                    <GestionStaff />
+                  </ProtectedFeatureRoute>
+                } />
                 <Route path="/categorias" element={
                   <ProtectedFeatureRoute feature="categorias">
                     <GestionCategorias />
@@ -228,7 +232,11 @@ function TenantAppContent() {
                   </ProtectedFeatureRoute>
                 } />
                 <Route path="/clientes" element={<GestionClientes />} />
-                <Route path="/staff" element={<GestionStaff />} />
+                <Route path="/staff" element={
+                  <ProtectedFeatureRoute feature="colaboradores">
+                    <GestionStaff />
+                  </ProtectedFeatureRoute>
+                } />
                 <Route path="/categorias" element={
                   <ProtectedFeatureRoute feature="categorias">
                     <GestionCategorias />

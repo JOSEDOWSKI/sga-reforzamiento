@@ -37,7 +37,8 @@ export const useTenantLabels = () => {
     features: {
       servicios: isFeatureEnabled('servicios'),
       categorias: isFeatureEnabled('categorias'),
-      recursos_fisicos: isFeatureEnabled('recursos_fisicos')
+      recursos_fisicos: isFeatureEnabled('recursos_fisicos'),
+      colaboradores: isFeatureEnabled('colaboradores')
     },
     
     // Modo de reserva

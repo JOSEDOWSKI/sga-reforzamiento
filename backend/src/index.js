@@ -26,6 +26,15 @@ app.set('trust proxy', true);
 // Middleware para CORS (aplicar antes de cualquier otro para asegurar headers en errores)
 app.use(corsMiddleware);
 
+// Handler explícito para OPTIONS requests (CORS preflight)
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Tenant');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.sendStatus(200);
+});
+
 // Middleware de rate limiting (aplicar después de CORS para no romper preflights)
 app.use(defaultRateLimit);
 

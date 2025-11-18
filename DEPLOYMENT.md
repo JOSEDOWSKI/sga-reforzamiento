@@ -63,7 +63,7 @@ En CapRover → weekly-app → App Configs → Environment Variables:
 
 ```bash
 # Base de Datos
-DB_HOST=srv-captain--weekly-postgres
+DB_HOST=srv-captain--weekly-postgres  # Nombre interno de PostgreSQL en CapRover
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=tu_password

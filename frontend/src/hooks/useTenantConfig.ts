@@ -29,6 +29,7 @@ interface PersonalizationConfig {
     servicios: boolean;
     categorias: boolean;
     recursos_fisicos: boolean;
+    colaboradores: boolean;
   };
   reservationMode: 'servicio' | 'recurso' | 'servicio_recurso';
   uiLabels: {
@@ -60,7 +61,8 @@ const defaultConfig: PersonalizationConfig = {
   features: {
     servicios: true,
     categorias: true,
-    recursos_fisicos: false
+    recursos_fisicos: false,
+    colaboradores: true
   },
   reservationMode: 'servicio',
   uiLabels: {

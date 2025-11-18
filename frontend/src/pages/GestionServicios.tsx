@@ -5,6 +5,7 @@ import { useDemoMode } from '../components/DemoModeWrapper';
 import { useRealtimeData } from '../hooks/useRealtimeData';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { logger } from '../utils/logger';
+import { useTenantLabels } from '../utils/tenantLabels';
 import '../styles/GestionPage.css'; // Importar los estilos compartidos
 import '../styles/Modal.css'; // Importar los estilos del modal
 
@@ -25,6 +26,7 @@ interface ModalState {
 const GestionServicios: React.FC = () => {
     const isDemoMode = useDemoMode();
     const client = isDemoMode ? demoApiClient : apiClient;
+    const labels = useTenantLabels();
     const [servicios, setServicios] = useState<Servicio[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -61,7 +63,7 @@ const GestionServicios: React.FC = () => {
             setError('');
         } catch (err: any) {
             logger.error('Error al cargar servicios:', err);
-            setError('Error al cargar servicios. Por favor, intenta de nuevo.');
+            setError(`Error al cargar ${labels.establecimientos.toLowerCase()}. Por favor, intenta de nuevo.`);
         } finally {
             setLoading(false);
         }
@@ -83,7 +85,7 @@ const GestionServicios: React.FC = () => {
         e.preventDefault();
         
         if (!nombre.trim()) {
-            setError('El nombre del servicio es requerido');
+            setError(`El nombre del ${labels.establecimiento.toLowerCase()} es requerido`);
             return;
         }
 
@@ -97,11 +99,11 @@ const GestionServicios: React.FC = () => {
             };
             
             if (isDemoMode) {
-                setError('En modo demo no se pueden crear servicios. Esta es solo una demostración.');
+                setError(`En modo demo no se pueden crear ${labels.establecimientos.toLowerCase()}. Esta es solo una demostración.`);
                 return;
             }
             await client.post('/servicios', servicioData);
-            setSuccess('Servicio creado exitosamente');
+            setSuccess(`${labels.establecimiento} creado exitosamente`);
             setNombre('');
             setDescripcion('');
             setPrecio('');
@@ -110,7 +112,7 @@ const GestionServicios: React.FC = () => {
             fetchServicios();
         } catch (err: any) {
             logger.error('Error al crear servicio:', err);
-            setError('Error al crear servicio. Por favor, intenta de nuevo.');
+            setError(`Error al crear ${labels.establecimiento.toLowerCase()}. Por favor, intenta de nuevo.`);
         } finally {
             setLoading(false);
         }
@@ -147,7 +149,7 @@ const GestionServicios: React.FC = () => {
         e.preventDefault();
         
         if (!modalNombre.trim()) {
-            setModalError('El nombre del servicio es requerido');
+            setModalError(`El nombre del ${labels.establecimiento.toLowerCase()} es requerido`);
             return;
         }
 
@@ -163,17 +165,17 @@ const GestionServicios: React.FC = () => {
             };
             
             if (isDemoMode) {
-                setModalError('En modo demo no se pueden editar servicios. Esta es solo una demostración.');
+                setModalError(`En modo demo no se pueden editar ${labels.establecimientos.toLowerCase()}. Esta es solo una demostración.`);
                 return;
             }
             await client.put(`/servicios/${modalState.editingServicio.id}`, servicioData);
-            setSuccess('Servicio actualizado exitosamente');
+            setSuccess(`${labels.establecimiento} actualizado exitosamente`);
             setError('');
             handleCloseModal();
             fetchServicios();
         } catch (err: any) {
             logger.error('Error al actualizar servicio:', err);
-            setModalError('Error al actualizar servicio. Por favor, intenta de nuevo.');
+            setModalError(`Error al actualizar ${labels.establecimiento.toLowerCase()}. Por favor, intenta de nuevo.`);
         } finally {
             setLoading(false);
         }
@@ -204,18 +206,18 @@ const GestionServicios: React.FC = () => {
         try {
             setLoading(true);
             if (isDemoMode) {
-                setError('En modo demo no se pueden eliminar servicios. Esta es solo una demostración.');
+                setError(`En modo demo no se pueden eliminar ${labels.establecimientos.toLowerCase()}. Esta es solo una demostración.`);
                 setConfirmModal({ isOpen: false, servicioId: null, servicioNombre: '' });
                 return;
             }
             await client.delete(`/servicios/${confirmModal.servicioId}`);
-            setSuccess('Servicio eliminado exitosamente');
+            setSuccess(`${labels.establecimiento} eliminado exitosamente`);
             setError('');
             handleCloseConfirmModal();
             fetchServicios();
         } catch (err: any) {
             logger.error('Error al eliminar servicio:', err);
-            setError('Error al eliminar servicio. Por favor, intenta de nuevo.');
+            setError(`Error al eliminar ${labels.establecimiento.toLowerCase()}. Por favor, intenta de nuevo.`);
         } finally {
             setLoading(false);
         }
@@ -226,10 +228,10 @@ const GestionServicios: React.FC = () => {
             <div className="form-and-list-container">
                 {/* Formulario para crear servicios */}
                 <div className="form-section">
-                    <h2>Crear Nuevo Servicio</h2>
+                    <h2>Crear Nuevo {labels.establecimiento}</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <label htmlFor="nombre">Nombre del Servicio *</label>
+                            <label htmlFor="nombre">Nombre del {labels.establecimiento} *</label>
                             <input
                                 type="text"
                                 id="nombre"
@@ -273,7 +275,7 @@ const GestionServicios: React.FC = () => {
                             />
                         </div>
                         <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? 'Creando...' : 'Crear Servicio'}
+                            {loading ? 'Creando...' : `Crear ${labels.establecimiento}`}
                         </button>
                     </form>
                     
@@ -283,11 +285,11 @@ const GestionServicios: React.FC = () => {
 
                 {/* Lista de servicios */}
                 <div className="list-section">
-                    <h2>Servicios Registrados</h2>
+                    <h2>{labels.establecimientos} Registrados</h2>
                     {loading ? (
                         <SkeletonLoader variant="list" count={3} />
                     ) : servicios.length === 0 ? (
-                        <div className="empty-message">No hay servicios registrados</div>
+                        <div className="empty-message">No hay {labels.establecimientos.toLowerCase()} registrados</div>
                     ) : (
                         <div className="list-container">
                             {servicios.map((servicio) => (
@@ -409,7 +411,7 @@ const GestionServicios: React.FC = () => {
                             </button>
                         </div>
                         <div className="modal-body">
-                            <p>¿Estás seguro de que quieres eliminar el servicio <strong>"{confirmModal.servicioNombre}"</strong>?</p>
+                            <p>¿Estás seguro de que quieres eliminar el {labels.establecimiento.toLowerCase()} <strong>"{confirmModal.servicioNombre}"</strong>?</p>
                             <p className="warning-text">Esta acción no se puede deshacer.</p>
                         </div>
                         <div className="modal-actions">

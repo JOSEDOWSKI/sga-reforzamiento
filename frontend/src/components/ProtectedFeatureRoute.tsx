@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useTenantLabels } from '../utils/tenantLabels';
 
 interface ProtectedFeatureRouteProps {
-  feature: 'servicios' | 'categorias' | 'recursos_fisicos';
+  feature: 'servicios' | 'categorias' | 'recursos_fisicos' | 'colaboradores';
   children: React.ReactNode;
 }
 

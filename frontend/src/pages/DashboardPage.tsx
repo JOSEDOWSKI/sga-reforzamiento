@@ -432,13 +432,13 @@ const DashboardPage: React.FC = () => {
     const camposFaltantes = [];
 
     if (!selectedServicio) {
-      camposFaltantes.push("Servicio");
+      camposFaltantes.push(labels.establecimiento);
     }
     if (!selectedCategoria) {
       camposFaltantes.push("Categoría");
     }
     if (!selectedStaff) {
-      camposFaltantes.push("Staff");
+      camposFaltantes.push(labels.colaborador);
     }
     if (!fechaHora) {
       camposFaltantes.push("Fecha y hora");
@@ -448,14 +448,14 @@ const DashboardPage: React.FC = () => {
     if (crearNuevoCliente) {
       // Si está en modo crear cliente, validar nombre y teléfono
       if (!nuevoClienteNombre.trim()) {
-        camposFaltantes.push("Nombre del cliente");
+        camposFaltantes.push(`Nombre del ${labels.cliente.toLowerCase()}`);
       }
       if (!nuevoClienteTelefono.trim()) {
-        camposFaltantes.push("Teléfono del cliente");
+        camposFaltantes.push(`Teléfono del ${labels.cliente.toLowerCase()}`);
       }
     } else if (!clienteSeleccionado && !busquedaCliente.trim()) {
       // Si no está creando cliente y no hay búsqueda, es obligatorio
-      camposFaltantes.push("Cliente");
+      camposFaltantes.push(labels.cliente);
     }
 
     if (camposFaltantes.length > 0) {
@@ -480,7 +480,7 @@ const DashboardPage: React.FC = () => {
       const fechaInicio = new Date(fechaHora);
       const ahora = new Date();
       if (fechaInicio < ahora) {
-        setError("No puedes crear reservas en el pasado.");
+        setError(`No puedes crear ${labels.reservas.toLowerCase()} en el pasado.`);
         return;
       }
     }
@@ -535,11 +535,11 @@ const DashboardPage: React.FC = () => {
           `/reservas/${modalReserva.editingReserva.id}`,
           reservaData
         );
-        setSuccess("¡Reserva actualizada con éxito!");
+        setSuccess(`¡${labels.reserva} actualizada con éxito!`);
       } else {
         // Crear nueva reserva
         await client.post("/reservas", reservaData);
-        setSuccess("¡Reserva creada con éxito!");
+        setSuccess(`¡${labels.reserva} creada con éxito!`);
       }
 
       fetchAllData();
@@ -547,8 +547,8 @@ const DashboardPage: React.FC = () => {
 
       setTimeout(() => setSuccess(""), 3000);
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.error || "No se pudo guardar la reserva.";
+        const errorMessage =
+        err.response?.data?.error || `No se pudo guardar la ${labels.reserva.toLowerCase()}.`;
       setError(errorMessage);
     }
   };
@@ -557,16 +557,16 @@ const DashboardPage: React.FC = () => {
   const handleDeleteReserva = async () => {
     if (
       modalReserva.editingReserva &&
-      window.confirm("¿Estás seguro de que quieres eliminar esta reserva?")
+      window.confirm(`¿Estás seguro de que quieres eliminar esta ${labels.reserva.toLowerCase()}?`)
     ) {
       try {
         await client.delete(`/reservas/${modalReserva.editingReserva.id}`);
-        setSuccess("Reserva eliminada con éxito");
+        setSuccess(`${labels.reserva} eliminada con éxito`);
         fetchAllData();
         closeModal();
         setTimeout(() => setSuccess(""), 3000);
       } catch (err: any) {
-        setError("Error al eliminar la reserva");
+        setError(`Error al eliminar la ${labels.reserva.toLowerCase()}`);
       }
     }
   };
@@ -624,7 +624,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div>
-      <h1>Dashboard de Reservas</h1>
+      <h1>Dashboard de {labels.reservas}</h1>
       {/* Mensajes de éxito y error */}
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
@@ -636,7 +636,7 @@ const DashboardPage: React.FC = () => {
 
           <div className="filters-stats">
             <span>
-              Mostrando {reservasFiltradas.length} de {reservas.length} reservas
+              Mostrando {reservasFiltradas.length} de {reservas.length} {labels.reservas.toLowerCase()}
             </span>
             {(filtroServicio || filtroStaff) && (
               <button className="clear-filters-btn" onClick={clearFilters}>
@@ -647,7 +647,7 @@ const DashboardPage: React.FC = () => {
         </div>
         <div className="filters-row">
           <div className="filter-dropdown">
-            <label>Filtrar por servicio:</label>
+            <label>Filtrar por {labels.establecimiento.toLowerCase()}:</label>
             <div className="dropdown-container">
               <button
                 id="filter-servicio-btn"
@@ -656,7 +656,7 @@ const DashboardPage: React.FC = () => {
                 }`}
                 onClick={() => setShowServicioDropdown(!showServicioDropdown)}
               >
-                {filtroServicio || "Todos los servicios"}
+                {filtroServicio || `Todos los ${labels.establecimientos.toLowerCase()}`}
                 <svg
                   className="dropdown-icon"
                   viewBox="0 0 24 24"
@@ -676,7 +676,7 @@ const DashboardPage: React.FC = () => {
                       setShowServicioDropdown(false);
                     }}
                   >
-                    Todos los servicios
+                    Todos los {labels.establecimientos.toLowerCase()}
                   </button>
                   {servicios.map((servicio) => (
                     <button
@@ -832,8 +832,8 @@ const DashboardPage: React.FC = () => {
             <div className="modal-header">
               <h2>
                 {modalReserva.editingReserva
-                  ? "Editar Reserva"
-                  : "Nueva Reserva"}
+                  ? `Editar ${labels.reserva}`
+                  : `Nueva ${labels.reserva}`}
               </h2>
               <button className="modal-close" onClick={closeModal}>
                 &times;
@@ -842,14 +842,14 @@ const DashboardPage: React.FC = () => {
             <form onSubmit={handleBooking} className="modal-form" noValidate>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="modal-servicio">Servicio:</label>
+                  <label htmlFor="modal-servicio">{labels.establecimiento}:</label>
                   <select
                     id="modal-servicio"
                     value={selectedServicio}
                     onChange={(e) => setSelectedServicio(e.target.value)}
                     className={!selectedServicio && error ? "field-error" : ""}
                   >
-                    <option value="">Seleccione un servicio</option>
+                    <option value="">Seleccione un {labels.establecimiento.toLowerCase()}</option>
                     {servicios.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.nombre}
@@ -858,7 +858,7 @@ const DashboardPage: React.FC = () => {
                   </select>
                   {!selectedServicio && error && (
                     <span className="field-error-message">
-                      Seleccione un servicio
+                      Seleccione un {labels.establecimiento.toLowerCase()}
                     </span>
                   )}
                 </div>
@@ -887,14 +887,14 @@ const DashboardPage: React.FC = () => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="modal-staff">Staff:</label>
+                  <label htmlFor="modal-staff">{labels.colaborador}:</label>
                   <select
                     id="modal-staff"
                     value={selectedStaff}
                     onChange={(e) => setSelectedStaff(e.target.value)}
                     className={!selectedStaff && error ? "field-error" : ""}
                   >
-                    <option value="">Seleccione un staff</option>
+                    <option value="">Seleccione un {labels.colaborador.toLowerCase()}</option>
                     {staff.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.nombre}
@@ -903,7 +903,7 @@ const DashboardPage: React.FC = () => {
                   </select>
                   {!selectedStaff && error && (
                     <span className="field-error-message">
-                      Seleccione un staff
+                      Seleccione un {labels.colaborador.toLowerCase()}
                     </span>
                   )}
                 </div>
@@ -956,7 +956,7 @@ const DashboardPage: React.FC = () => {
                   {!crearNuevoCliente ? (
                     <>
                       <label htmlFor="modal-busqueda-cliente">
-                        Buscar Cliente:
+                        Buscar {labels.cliente}:
                       </label>
                       <div className="cliente-search-container">
                         <div className="cliente-search-input-container">
@@ -970,7 +970,7 @@ const DashboardPage: React.FC = () => {
                               setClienteSeleccionado(null);
                             }}
                             onFocus={() => setMostrarSugerencias(true)}
-                            placeholder="Escriba el nombre del cliente..."
+                            placeholder={`Escriba el nombre del ${labels.cliente.toLowerCase()}...`}
                             className={
                               (!clienteSeleccionado && !busquedaCliente.trim()) && error ? "field-error" : ""
                             }
@@ -1017,14 +1017,14 @@ const DashboardPage: React.FC = () => {
 
                         {(!clienteSeleccionado && !busquedaCliente.trim()) && error && (
                           <span className="field-error-message">
-                            Seleccione o busque un cliente
+                            Seleccione o busque un {labels.cliente.toLowerCase()}
                           </span>
                         )}
                       </div>
                     </>
                   ) : (
                     <>
-                      <label>Crear Nuevo Cliente:</label>
+                      <label>Crear Nuevo {labels.cliente}:</label>
                       <div className="nuevo-alumno-form">
                         <div className="form-row">
                           <div className="form-group">
@@ -1033,7 +1033,7 @@ const DashboardPage: React.FC = () => {
                               type="text"
                               value={nuevoClienteNombre}
                               onChange={(e) => setNuevoClienteNombre(e.target.value)}
-                              placeholder="Nombre del cliente"
+                              placeholder={`Nombre del ${labels.cliente.toLowerCase()}`}
                               className={!nuevoClienteNombre.trim() && error ? "field-error" : ""}
                             />
                             {!nuevoClienteNombre.trim() && error && (
@@ -1048,7 +1048,7 @@ const DashboardPage: React.FC = () => {
                               type="tel"
                               value={nuevoClienteTelefono}
                               onChange={(e) => setNuevoClienteTelefono(e.target.value)}
-                              placeholder="Teléfono del cliente"
+                              placeholder={`Teléfono del ${labels.cliente.toLowerCase()}`}
                               className={!nuevoClienteTelefono.trim() && error ? "field-error" : ""}
                             />
                             {!nuevoClienteTelefono.trim() && error && (
@@ -1099,7 +1099,7 @@ const DashboardPage: React.FC = () => {
                   className="btn-primary"
                   disabled={loading}
                 >
-                  {modalReserva.editingReserva ? "Actualizar" : "Crear Reserva"}
+                  {modalReserva.editingReserva ? "Actualizar" : `Crear ${labels.reserva}`}
                 </button>
                 <button
                   type="button"

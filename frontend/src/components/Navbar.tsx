@@ -38,9 +38,11 @@ const Navbar: React.FC<NavbarProps> = ({ isNavOpen }) => {
                         <CoursesIcon /> {labels.establecimientos}
                     </NavLink>
                 )}
-                <NavLink id="nav-staff" to="/staff" data-tooltip={`Administrar ${labels.colaboradores.toLowerCase()}`}>
-                    <ProfessorsIcon /> {labels.colaboradores}
-                </NavLink>
+                {labels.features.colaboradores && (
+                    <NavLink id="nav-staff" to="/staff" data-tooltip={`Administrar ${labels.colaboradores.toLowerCase()}`}>
+                        <ProfessorsIcon /> {labels.colaboradores}
+                    </NavLink>
+                )}
                 <NavLink id="nav-clientes" to="/clientes" data-tooltip={`Administrar ${labels.clientes.toLowerCase()}`}>
                     <StudentsIcon /> {labels.clientes}
                 </NavLink>

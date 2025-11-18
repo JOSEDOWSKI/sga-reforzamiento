@@ -19,7 +19,8 @@ function getDefaultConfig() {
         features: {
             servicios: true,        // Usar tabla de servicios/establecimientos
             categorias: true,       // Usar categorías
-            recursos_fisicos: false // Usar recursos físicos (canchas, sillones, etc.)
+            recursos_fisicos: false, // Usar recursos físicos (canchas, sillones, etc.)
+            colaboradores: true      // Usar colaboradores/staff (canchas, empleados, etc.)
         },
         reservationMode: "servicio", // "servicio" | "recurso" | "servicio_recurso"
         uiLabels: {
