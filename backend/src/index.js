@@ -1,3 +1,12 @@
+// Script de diagnóstico al inicio
+console.log('🚀 Iniciando Weekly Backend...');
+console.log('📋 Variables de entorno críticas:');
+console.log('   NODE_ENV:', process.env.NODE_ENV || 'no definido');
+console.log('   PORT:', process.env.PORT || 'no definido (usará 4000)');
+console.log('   DB_HOST:', process.env.DB_HOST || 'no definido');
+console.log('   DB_NAME:', process.env.DB_NAME || 'no definido');
+console.log('   DB_USER:', process.env.DB_USER || 'no definido');
+
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
