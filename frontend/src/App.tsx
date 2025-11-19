@@ -358,34 +358,10 @@ function AppContent() {
     return <DemoLandingPage />;
   }
   
-  // Si es merchants.weekly.pe, mostrar landing page
-  if (hostname === 'merchants.weekly.pe' || subdomain === 'merchants') {
-    // Si es /booking, mostrar calendario público global
-    if (pathname === '/booking' || pathname === '/booking/') {
-      return <PublicCalendarPage />;
-    }
-    // Si no, mostrar landing page
-    return <LandingPage />;
-  }
-  
-  // Si es weekly.pe o www.weekly.pe, mostrar marketplace/ecommerce
-  // IMPORTANTE: Esta verificación debe estar ANTES de verificar subdominios genéricos
-  const isMainDomain = 
-    hostname === 'weekly.pe' || 
-    hostname === 'www.weekly.pe' ||
-    (hostname === 'localhost' && !subdomain); // Para desarrollo local
-  
-  console.log('🔍 isMainDomain check:', { 
-    hostname, 
-    isMainDomain, 
-    'hostname === weekly.pe': hostname === 'weekly.pe',
-    'hostname === www.weekly.pe': hostname === 'www.weekly.pe',
-    subdomain,
-    pathname
-  });
-  
-  if (isMainDomain) {
-    console.log('✅ isMainDomain es TRUE - Mostrando MarketplacePage');
+  // PRIORIDAD 1: Si es weekly.pe o www.weekly.pe, mostrar marketplace/ecommerce
+  // ESTO DEBE ESTAR PRIMERO para evitar cualquier conflicto
+  if (hostname === 'weekly.pe' || hostname === 'www.weekly.pe') {
+    console.log('✅ PRIORIDAD 1: Detectado weekly.pe - Mostrando MarketplacePage');
     // Si es /booking en el dominio principal, mostrar calendario público global
     if (pathname === '/booking' || pathname === '/booking/') {
       return <PublicCalendarPage />;
@@ -395,11 +371,34 @@ function AppContent() {
       return <ServiceDetailPage />;
     }
     // Si no, mostrar marketplace
-    console.log('📦 Retornando MarketplacePage para weekly.pe');
     return <MarketplacePage />;
   }
   
-  console.log('❌ isMainDomain es FALSE - Continuando con otras verificaciones');
+  // PRIORIDAD 2: Si es merchants.weekly.pe, mostrar landing page
+  if (hostname === 'merchants.weekly.pe' || subdomain === 'merchants') {
+    console.log('✅ PRIORIDAD 2: Detectado merchants.weekly.pe - Mostrando LandingPage');
+    // Si es /booking, mostrar calendario público global
+    if (pathname === '/booking' || pathname === '/booking/') {
+      return <PublicCalendarPage />;
+    }
+    // Si no, mostrar landing page
+    return <LandingPage />;
+  }
+  
+  // Si es localhost sin subdominio, también mostrar marketplace (desarrollo)
+  const isMainDomain = hostname === 'localhost' && !subdomain;
+  
+  // Solo para localhost en desarrollo
+  if (isMainDomain) {
+    console.log('✅ Desarrollo local: Mostrando MarketplacePage');
+    if (pathname === '/booking' || pathname === '/booking/') {
+      return <PublicCalendarPage />;
+    }
+    if (pathname.startsWith('/service/')) {
+      return <ServiceDetailPage />;
+    }
+    return <MarketplacePage />;
+  }
   
   // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
   if (hostname === 'panel.weekly' || hostname === 'panel.weekly.pe' || subdomain === 'panel') {
