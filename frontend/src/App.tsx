@@ -365,6 +365,11 @@ function AppContent() {
     hostname === 'www.weekly.pe' ||
     (hostname === 'localhost' && !subdomain); // Para desarrollo local
   
+  // Debug: Log para verificar qué se está detectando
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Routing Debug:', { hostname, subdomain, isMainDomain, pathname });
+  }
+  
   if (isMainDomain) {
     // Si es /booking en el dominio principal, mostrar calendario público global
     if (pathname === '/booking' || pathname === '/booking/') {
