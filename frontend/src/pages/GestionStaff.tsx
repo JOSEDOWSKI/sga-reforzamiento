@@ -8,14 +8,9 @@ import '../styles/Modal.css'; // Importar los estilos del modal
 interface Staff {
     id: number;
     nombre: string;
-    apellido?: string;
     email: string;
+    especialidad: string;
     telefono?: string;
-    dni?: string;
-    especialidad?: string;
-    especialidades?: string[];
-    precio?: number;
-    tarifa_por_hora?: number;
 }
 
 interface ModalState {
@@ -27,12 +22,9 @@ const GestionStaff: React.FC = () => {
     const labels = useTenantLabels();
     const [staff, setStaff] = useState<Staff[]>([]);
     const [nombre, setNombre] = useState('');
-    const [apellido, setApellido] = useState('');
     const [email, setEmail] = useState('');
-    const [telefono, setTelefono] = useState('');
-    const [dni, setDni] = useState('');
     const [especialidad, setEspecialidad] = useState('');
-    const [precio, setPrecio] = useState('');
+    const [telefono, setTelefono] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
@@ -43,12 +35,9 @@ const GestionStaff: React.FC = () => {
         editingStaff: null
     });
     const [modalNombre, setModalNombre] = useState('');
-    const [modalApellido, setModalApellido] = useState('');
     const [modalEmail, setModalEmail] = useState('');
-    const [modalTelefono, setModalTelefono] = useState('');
-    const [modalDni, setModalDni] = useState('');
     const [modalEspecialidad, setModalEspecialidad] = useState('');
-    const [modalPrecio, setModalPrecio] = useState('');
+    const [modalTelefono, setModalTelefono] = useState('');
     const [modalError, setModalError] = useState('');
     
     // Estados para el modal de confirmación
@@ -101,23 +90,17 @@ const GestionStaff: React.FC = () => {
             setLoading(true);
             const staffData = {
                 nombre: nombre.trim(),
-                apellido: apellido.trim() || null,
                 email: email.trim(),
-                telefono: telefono.trim() || null,
-                dni: dni.trim() || null,
-                especialidades: especialidad.trim() ? [especialidad.trim()] : null,
-                precio: precio ? parseFloat(precio) : null
+                especialidad: especialidad.trim(),
+                telefono: telefono.trim()
             };
             
             await apiClient.post('/staff', staffData);
             setSuccess('Miembro del staff creado exitosamente');
             setNombre('');
-            setApellido('');
             setEmail('');
-            setTelefono('');
-            setDni('');
             setEspecialidad('');
-            setPrecio('');
+            setTelefono('');
             setError('');
             fetchStaff();
         } catch (err: any) {
@@ -135,12 +118,9 @@ const GestionStaff: React.FC = () => {
             editingStaff: staffMember
         });
         setModalNombre(staffMember.nombre);
-        setModalApellido(staffMember.apellido || '');
         setModalEmail(staffMember.email);
+        setModalEspecialidad(staffMember.especialidad || '');
         setModalTelefono(staffMember.telefono || '');
-        setModalDni(staffMember.dni || '');
-        setModalEspecialidad(staffMember.especialidad || (staffMember.especialidades && staffMember.especialidades[0]) || '');
-        setModalPrecio(staffMember.precio?.toString() || '');
         setModalError('');
     };
 
@@ -151,12 +131,9 @@ const GestionStaff: React.FC = () => {
             editingStaff: null
         });
         setModalNombre('');
-        setModalApellido('');
         setModalEmail('');
-        setModalTelefono('');
-        setModalDni('');
         setModalEspecialidad('');
-        setModalPrecio('');
+        setModalTelefono('');
         setModalError('');
     };
 
@@ -180,12 +157,9 @@ const GestionStaff: React.FC = () => {
             setLoading(true);
             const staffData = {
                 nombre: modalNombre.trim(),
-                apellido: modalApellido.trim() || null,
                 email: modalEmail.trim(),
-                telefono: modalTelefono.trim() || null,
-                dni: modalDni.trim() || null,
-                especialidades: modalEspecialidad.trim() ? [modalEspecialidad.trim()] : null,
-                precio: modalPrecio ? parseFloat(modalPrecio) : null
+                especialidad: modalEspecialidad.trim(),
+                telefono: modalTelefono.trim()
             };
             
             await apiClient.put(`/staff/${modalState.editingStaff.id}`, staffData);
@@ -246,24 +220,14 @@ const GestionStaff: React.FC = () => {
                     <h2>Agregar {labels.colaborador}</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <label htmlFor="nombre">Nombre *</label>
+                            <label htmlFor="nombre">Nombre Completo *</label>
                             <input
                                 type="text"
                                 id="nombre"
                                 value={nombre}
                                 onChange={(e) => setNombre(e.target.value)}
-                                placeholder="Ej: María"
+                                placeholder="Ej: María González"
                                 required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="apellido">Apellido</label>
-                            <input
-                                type="text"
-                                id="apellido"
-                                value={apellido}
-                                onChange={(e) => setApellido(e.target.value)}
-                                placeholder="Ej: González"
                             />
                         </div>
                         <div className="form-group">
@@ -278,6 +242,16 @@ const GestionStaff: React.FC = () => {
                             />
                         </div>
                         <div className="form-group">
+                            <label htmlFor="especialidad">Especialidad</label>
+                            <input
+                                type="text"
+                                id="especialidad"
+                                value={especialidad}
+                                onChange={(e) => setEspecialidad(e.target.value)}
+                                placeholder="Ej: Estilista, Masajista, Instructor"
+                            />
+                        </div>
+                        <div className="form-group">
                             <label htmlFor="telefono">Teléfono</label>
                             <input
                                 type="tel"
@@ -285,38 +259,6 @@ const GestionStaff: React.FC = () => {
                                 value={telefono}
                                 onChange={(e) => setTelefono(e.target.value)}
                                 placeholder="987 654 321"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="dni">DNI (Opcional)</label>
-                            <input
-                                type="text"
-                                id="dni"
-                                value={dni}
-                                onChange={(e) => setDni(e.target.value)}
-                                placeholder="12345678"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="especialidad">Especialidad / Servicio</label>
-                            <input
-                                type="text"
-                                id="especialidad"
-                                value={especialidad}
-                                onChange={(e) => setEspecialidad(e.target.value)}
-                                placeholder="Ej: Estilista, Masajista, Instructor (opcional)"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="precio">Precio</label>
-                            <input
-                                type="number"
-                                id="precio"
-                                value={precio}
-                                onChange={(e) => setPrecio(e.target.value)}
-                                placeholder="0.00"
-                                step="0.01"
-                                min="0"
                             />
                         </div>
                         <button type="submit" className="btn-primary" disabled={loading}>
@@ -340,21 +282,13 @@ const GestionStaff: React.FC = () => {
                             {staff.map((staffMember) => (
                                 <div key={staffMember.id} className="list-item">
                                     <div className="item-content">
-                                        <h3 className="item-title">
-                                            {staffMember.nombre} {staffMember.apellido || ''}
-                                        </h3>
+                                        <h3 className="item-title">{staffMember.nombre}</h3>
                                         <p className="item-email">{staffMember.email}</p>
-                                        {staffMember.telefono && (
-                                            <p className="item-phone">📞 {staffMember.telefono}</p>
-                                        )}
-                                        {staffMember.dni && (
-                                            <p className="item-dni">🆔 DNI: {staffMember.dni}</p>
-                                        )}
                                         {staffMember.especialidad && (
-                                            <p className="item-specialty">✨ {staffMember.especialidad}</p>
+                                            <p className="item-specialty">{staffMember.especialidad}</p>
                                         )}
-                                        {staffMember.precio && (
-                                            <p className="item-price">💰 S/ {staffMember.precio.toFixed(2)}</p>
+                                        {staffMember.telefono && (
+                                            <p className="item-phone">{staffMember.telefono}</p>
                                         )}
                                     </div>
                                     <div className="item-actions">
@@ -393,22 +327,13 @@ const GestionStaff: React.FC = () => {
                         </div>
                         <form onSubmit={handleUpdate}>
                             <div className="form-group">
-                                <label htmlFor="modal-nombre">Nombre *</label>
+                                <label htmlFor="modal-nombre">Nombre Completo *</label>
                                 <input
                                     type="text"
                                     id="modal-nombre"
                                     value={modalNombre}
                                     onChange={(e) => setModalNombre(e.target.value)}
                                     required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="modal-apellido">Apellido</label>
-                                <input
-                                    type="text"
-                                    id="modal-apellido"
-                                    value={modalApellido}
-                                    onChange={(e) => setModalApellido(e.target.value)}
                                 />
                             </div>
                             <div className="form-group">
@@ -422,25 +347,7 @@ const GestionStaff: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="modal-telefono">Teléfono</label>
-                                <input
-                                    type="tel"
-                                    id="modal-telefono"
-                                    value={modalTelefono}
-                                    onChange={(e) => setModalTelefono(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="modal-dni">DNI (Opcional)</label>
-                                <input
-                                    type="text"
-                                    id="modal-dni"
-                                    value={modalDni}
-                                    onChange={(e) => setModalDni(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="modal-especialidad">Especialidad / Servicio</label>
+                                <label htmlFor="modal-especialidad">Especialidad</label>
                                 <input
                                     type="text"
                                     id="modal-especialidad"
@@ -449,15 +356,12 @@ const GestionStaff: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="modal-precio">Precio</label>
+                                <label htmlFor="modal-telefono">Teléfono</label>
                                 <input
-                                    type="number"
-                                    id="modal-precio"
-                                    value={modalPrecio}
-                                    onChange={(e) => setModalPrecio(e.target.value)}
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    min="0"
+                                    type="tel"
+                                    id="modal-telefono"
+                                    value={modalTelefono}
+                                    onChange={(e) => setModalTelefono(e.target.value)}
                                 />
                             </div>
                             {modalError && <div className="error-message">{modalError}</div>}
