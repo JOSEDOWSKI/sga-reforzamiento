@@ -436,7 +436,16 @@ function AppContent() {
     return <TenantAppContent />;
   }
   
-  // Default: TenantAppContent para rutas autenticadas
+  // Fallback: Si es weekly.pe sin subdominio, mostrar marketplace
+  // Esto es un safety net por si acaso la verificación anterior falla
+  if (hostname === 'weekly.pe' || hostname === 'www.weekly.pe') {
+    console.log('🔄 Fallback: Detectado weekly.pe, mostrando MarketplacePage');
+    return <MarketplacePage />;
+  }
+  
+  // Default: Si llegamos aquí sin match, algo está mal
+  console.error('⚠️ AppContent: No se encontró match para:', { hostname, subdomain, pathname });
+  console.error('⚠️ Esto NO debería pasar. Retornando TenantAppContent como fallback.');
   return <TenantAppContent />;
 }
 
