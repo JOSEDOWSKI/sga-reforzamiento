@@ -102,19 +102,27 @@ const PublicCalendarPage: React.FC = () => {
     useEffect(() => {
         const fetchColaboradores = async () => {
             try {
-                const response = await client.get('/public/staff');
-                let staffData = response.data.data || [];
+                // Si hay un servicio seleccionado, filtrar por servicio_id
+                const url = selectedServicio 
+                    ? `/public/staff?servicio_id=${selectedServicio.id}`
+                    : '/public/staff';
                 
-                // Filtrar por servicio si hay uno seleccionado
-                if (selectedServicio) {
-                    // TODO: Filtrar colaboradores que ofrecen este servicio
-                    // Por ahora, mostrar todos los colaboradores
-                }
+                const response = await client.get(url);
+                const staffData = response.data.data || [];
                 
                 setColaboradores(staffData);
-                // Seleccionar el primer colaborador por defecto solo si no hay uno seleccionado
-                if (staffData.length > 0 && !selectedColaborador) {
-                    setSelectedColaborador(staffData[0]);
+                
+                // Si cambió el servicio y el colaborador actual no está en la lista, seleccionar el primero
+                if (staffData.length > 0) {
+                    const currentColaboradorExists = selectedColaborador && 
+                        staffData.some((c: Colaborador) => c.id === selectedColaborador.id);
+                    
+                    if (!currentColaboradorExists) {
+                        setSelectedColaborador(staffData[0]);
+                    }
+                } else {
+                    // Si no hay colaboradores para este servicio, limpiar selección
+                    setSelectedColaborador(null);
                 }
             } catch (err: any) {
                 console.error('Error obteniendo colaboradores:', err);
@@ -376,8 +384,22 @@ const PublicCalendarPage: React.FC = () => {
     };
 
     return (
-        <div className="reservas-page">
-            <div className="reservas-grid">
+        <div className="public-calendar-page">
+            {/* Header sticky */}
+            <div className="calendar-header-sticky">
+                <button 
+                    className="back-button"
+                    onClick={() => window.history.back()}
+                    aria-label="Volver"
+                >
+                    <span className="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 className="calendar-title">Selecciona Fecha y Hora</h1>
+                <div className="header-spacer"></div>
+            </div>
+
+            <div className="reservas-page">
+                <div className="reservas-grid">
                 {/* Primera columna: Información de la empresa y colaboradores */}
                 <div className="columna-info">
                     <div className="empresa-info">

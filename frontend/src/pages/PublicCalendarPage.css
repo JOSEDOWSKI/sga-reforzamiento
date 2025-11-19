@@ -1,11 +1,66 @@
-.reservas-page {
-    padding: 2rem;
-    background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+/* Página principal con estilos de app móvil */
+.public-calendar-page {
     min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header sticky */
+.calendar-header-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    padding-bottom: 0.5rem;
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
+}
+
+.back-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: transparent;
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    border-radius: var(--radius-full);
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: var(--muted);
+}
+
+.calendar-title {
+    flex: 1;
+    text-align: center;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0;
+    padding-right: 2.5rem; /* Compensar el botón de volver */
+}
+
+.header-spacer {
+    width: 2.5rem; /* Mismo ancho que el botón para centrar el título */
+}
+
+.reservas-page {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-family: var(--font-sans);
 }
 
 .reservas-grid {
@@ -243,9 +298,10 @@
 }
 
 .calendario {
-    border: 1px solid rgba(170, 223, 173, 0.15);
-    border-radius: 12px;
-    background: rgba(170, 223, 173, 0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--card);
+    padding: 0;
     overflow: hidden;
 }
 
@@ -258,23 +314,31 @@
 }
 
 .calendar-header h3 {
-    color: #AADFAD;
+    color: var(--foreground);
     margin: 0;
     text-transform: capitalize;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1rem;
 }
 
 .calendar-header button {
-    background: linear-gradient(135deg, #AADFAD 0%, #85c987 100%);
-    color: #0f1419;
+    background: transparent;
+    color: var(--foreground);
     border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
+    padding: 0.5rem;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 700;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.25rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.calendar-header button:hover {
+    background-color: var(--muted);
 }
 
 .calendar-header button:hover {
@@ -291,14 +355,12 @@
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    padding: 1rem 1.2rem;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
     font-weight: 700;
-    color: #AADFAD;
+    color: var(--muted-foreground);
     text-align: center;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.875rem;
 }
 
 .calendar-days {
@@ -313,21 +375,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(170, 223, 173, 0.2);
-    border-radius: 8px;
+    border: none;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(170, 223, 173, 0.05);
-    font-weight: 600;
-    color: #a0aec0;
+    transition: all 0.2s;
+    background: transparent;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    height: 3rem;
 }
 
-.calendar-day:not(.empty):hover {
-    background: rgba(170, 223, 173, 0.15);
-    border-color: #AADFAD;
-    box-shadow: 0 0 20px rgba(170, 223, 173, 0.25),
-                inset 0 0 10px rgba(170, 223, 173, 0.1);
-    transform: scale(1.05);
+.calendar-day:not(.empty):not(.past):hover {
+    background-color: rgba(22, 163, 74, 0.1);
 }
 
 .calendar-day.empty {
@@ -337,12 +397,10 @@
 }
 
 .calendar-day.selected {
-    background: linear-gradient(135deg, #AADFAD 0%, #85c987 100%);
-    color: #0f1419;
-    border-color: #AADFAD;
-    box-shadow: 0 0 30px rgba(170, 223, 173, 0.5),
-                inset 0 0 15px rgba(255, 255, 255, 0.2);
+    background-color: var(--primary);
+    color: white;
     font-weight: 700;
+    border: 2px solid var(--primary);
 }
 
 /* Tercera columna: Horarios */
@@ -369,33 +427,33 @@
 }
 
 .hora-btn {
-    padding: 0.6rem 0.8rem;
-    border: 1px solid rgba(170, 223, 173, 0.2);
-    border-radius: 10px;
-    background: rgba(170, 223, 173, 0.05);
-    color: #a0aec0;
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    color: var(--foreground);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 600;
-    font-size: 0.85rem;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 0.875rem;
+    min-width: 5rem;
 }
 
-.hora-btn:hover {
-    background: rgba(170, 223, 173, 0.12);
-    border-color: #AADFAD;
-    box-shadow: 0 0 25px rgba(170, 223, 173, 0.3),
-                inset 0 0 15px rgba(170, 223, 173, 0.1);
-    transform: translateY(-3px);
-    color: #AADFAD;
+.hora-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background-color: rgba(22, 163, 74, 0.05);
+}
+
+.hora-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
 }
 
 .hora-btn.selected {
-    background: linear-gradient(135deg, #AADFAD 0%, #85c987 100%);
-    color: #0f1419;
-    border-color: #AADFAD;
-    box-shadow: 0 0 35px rgba(170, 223, 173, 0.5),
-                0 0 20px rgba(170, 223, 173, 0.3),
-                inset 0 0 20px rgba(255, 255, 255, 0.2);
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
     font-weight: 700;
 }
 
