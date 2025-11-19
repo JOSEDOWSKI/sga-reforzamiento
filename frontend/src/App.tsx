@@ -359,9 +359,11 @@ function AppContent() {
   }
   
   // Si es weekly.pe o www.weekly.pe, mostrar marketplace/ecommerce
+  // IMPORTANTE: Esta verificación debe estar ANTES de verificar subdominios genéricos
   const isMainDomain = 
     hostname === 'weekly.pe' || 
-    hostname === 'www.weekly.pe';
+    hostname === 'www.weekly.pe' ||
+    (hostname === 'localhost' && !subdomain); // Para desarrollo local
   
   if (isMainDomain) {
     // Si es /booking en el dominio principal, mostrar calendario público global
