@@ -17,9 +17,20 @@ const pool = new Pool(dbConfig);
 const initializeDatabase = async () => {
     let client;
     try {
-        // 1. Probar la conexión
-        client = await pool.connect();
-        console.log(`Conectado a la base de datos PostgreSQL: ${dbConfig.database}`);
+        console.log(`🔌 Intentando conectar a la base de datos...`);
+        console.log(`   Host: ${dbConfig.host}`);
+        console.log(`   Port: ${dbConfig.port}`);
+        console.log(`   Database: ${dbConfig.database}`);
+        console.log(`   User: ${dbConfig.user}`);
+        
+        // 1. Probar la conexión con timeout de 10 segundos
+        const connectPromise = pool.connect();
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+        );
+        
+        client = await Promise.race([connectPromise, timeoutPromise]);
+        console.log(`✅ Conectado a la base de datos PostgreSQL: ${dbConfig.database}`);
 
         // 2. Comprobar si la tabla 'establecimientos' ya existe (nueva estructura)
         // Fallback a 'tenants' para BD global o 'usuarios' para tenant
