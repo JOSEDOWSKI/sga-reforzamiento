@@ -101,7 +101,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// Middleware para detectar tenant (aplicar a todas las rutas de API)
+// Rutas públicas (calendario público, sin autenticación)
+// IMPORTANTE: Estas rutas NO pasan por tenantMiddleware, son completamente públicas
+// Deben estar ANTES del tenantMiddleware para evitar conflictos
+const publicRoutes = require('./routes/publicRoutes');
+app.use('/api/public', publicRoutes);
+
+// Middleware para detectar tenant (aplicar a todas las rutas de API EXCEPTO /api/public)
 // En modo desarrollo, usar devModeMiddleware si hay problemas con la base de datos
 if (process.env.NODE_ENV === 'development' && process.env.USE_DEV_MODE === 'true') {
   console.log('🔧 Usando modo de desarrollo (sin base de datos)');
@@ -117,11 +123,6 @@ app.use('/api/auth', authRoutes);
 // Rutas de autenticación global (super admin)
 const globalAuthRoutes = require('./routes/globalAuthRoutes');
 app.use('/api/global-auth', globalAuthRoutes);
-
-// Rutas públicas (calendario público, sin autenticación)
-// NOTA: publicRoutes se monta primero, tenantDiscoveryRoutes se monta después y puede sobrescribir rutas
-const publicRoutes = require('./routes/publicRoutes');
-app.use('/api/public', publicRoutes);
 
 // Robots.txt dinámico (debe estar antes de otras rutas para que funcione correctamente)
 const robotsController = require('./controllers/robotsController');
