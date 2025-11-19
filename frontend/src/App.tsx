@@ -308,6 +308,16 @@ function AppContent() {
   const parts = hostname.split('.');
   const subdomain = parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
   
+  // Logs de depuración en producción también
+  console.log('🔍 AppContent Routing:', { 
+    hostname, 
+    subdomain, 
+    pathname, 
+    parts: parts.length,
+    isWeeklyPe: hostname === 'weekly.pe',
+    isWwwWeeklyPe: hostname === 'www.weekly.pe'
+  });
+  
   // Si es demo.weekly.pe, mostrar landing page o booking
   if (hostname === 'demo.weekly.pe' || subdomain === 'demo') {
     // Si la ruta es /booking, mostrar calendario público
@@ -365,12 +375,17 @@ function AppContent() {
     hostname === 'www.weekly.pe' ||
     (hostname === 'localhost' && !subdomain); // Para desarrollo local
   
-  // Debug: Log para verificar qué se está detectando
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 Routing Debug:', { hostname, subdomain, isMainDomain, pathname });
-  }
+  console.log('🔍 isMainDomain check:', { 
+    hostname, 
+    isMainDomain, 
+    'hostname === weekly.pe': hostname === 'weekly.pe',
+    'hostname === www.weekly.pe': hostname === 'www.weekly.pe',
+    subdomain,
+    pathname
+  });
   
   if (isMainDomain) {
+    console.log('✅ isMainDomain es TRUE - Mostrando MarketplacePage');
     // Si es /booking en el dominio principal, mostrar calendario público global
     if (pathname === '/booking' || pathname === '/booking/') {
       return <PublicCalendarPage />;
@@ -380,8 +395,11 @@ function AppContent() {
       return <ServiceDetailPage />;
     }
     // Si no, mostrar marketplace
+    console.log('📦 Retornando MarketplacePage para weekly.pe');
     return <MarketplacePage />;
   }
+  
+  console.log('❌ isMainDomain es FALSE - Continuando con otras verificaciones');
   
   // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
   if (hostname === 'panel.weekly' || hostname === 'panel.weekly.pe' || subdomain === 'panel') {
