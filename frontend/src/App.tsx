@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth';
 import DashboardPage from './pages/DashboardPage';
 import GestionServicios from './pages/GestionServicios';
 import GestionStaff from './pages/GestionStaff';
+import GestionInmuebles from './pages/GestionInmuebles';
 import GestionClientes from './pages/GestionClientes';
 import GestionCategorias from './pages/GestionCategorias';
 import EstadisticasPage from './pages/EstadisticasPage';
@@ -191,6 +192,7 @@ function TenantAppContent() {
                     <GestionStaff />
                   </ProtectedFeatureRoute>
                 } />
+                <Route path="/inmuebles" element={<GestionInmuebles />} />
                 <Route path="/categorias" element={
                   <ProtectedFeatureRoute feature="categorias">
                     <GestionCategorias />
@@ -237,6 +239,7 @@ function TenantAppContent() {
                     <GestionStaff />
                   </ProtectedFeatureRoute>
                 } />
+                <Route path="/inmuebles" element={<GestionInmuebles />} />
                 <Route path="/categorias" element={
                   <ProtectedFeatureRoute feature="categorias">
                     <GestionCategorias />
