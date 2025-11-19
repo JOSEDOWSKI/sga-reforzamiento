@@ -63,16 +63,25 @@ const initializeDatabase = async () => {
             console.log('✅ Las tablas ya existen. Base de datos inicializada.');
         }
     } catch (err) {
-        console.error('❌ Error al inicializar la base de datos:', err.message);
-        // Si la base de datos no existe
-        if (err.message.includes('does not exist')) {
-            console.log('\n---');
-            console.log(`⚠️  LA BASE DE DATOS "${dbConfig.database}" NO EXISTE.`);
-            console.log('Por favor, créala con el comando:');
-            console.log(`psql -U ${dbConfig.user} -c "CREATE DATABASE ${dbConfig.database};"`);
-            console.log('---');
+        console.error('❌ Error al inicializar la base de datos:');
+        console.error('   Mensaje:', err.message);
+        console.error('   Código:', err.code);
+        
+        if (err.code === 'ECONNREFUSED') {
+            console.error('⚠️  No se pudo conectar a PostgreSQL. Verifica que:');
+            console.error('   1. PostgreSQL esté corriendo');
+            console.error('   2. DB_HOST y DB_PORT sean correctos');
+            console.error('   3. El servicio esté accesible desde el contenedor');
+            console.error(`   Host intentado: ${dbConfig.host}:${dbConfig.port}`);
+        } else if (err.code === '28P01') {
+            console.error('⚠️  Error de autenticación. Verifica DB_USER y DB_PASSWORD');
+        } else if (err.code === '3D000' || err.message.includes('does not exist')) {
+            console.error(`⚠️  La base de datos "${dbConfig.database}" no existe`);
+            console.error(`   Créala con: CREATE DATABASE ${dbConfig.database};`);
         }
-        // No cerramos el pool aquí. Dejamos que los siguientes intentos puedan funcionar.
+        
+        // Re-lanzar el error para que el llamador pueda manejarlo
+        throw err;
     } finally {
         if (client) {
             client.release(); // Liberamos el cliente si fue conectado
