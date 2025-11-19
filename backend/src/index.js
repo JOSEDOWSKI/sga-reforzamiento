@@ -119,6 +119,7 @@ const globalAuthRoutes = require('./routes/globalAuthRoutes');
 app.use('/api/global-auth', globalAuthRoutes);
 
 // Rutas públicas (calendario público, sin autenticación)
+// NOTA: publicRoutes se monta primero, tenantDiscoveryRoutes se monta después y puede sobrescribir rutas
 const publicRoutes = require('./routes/publicRoutes');
 app.use('/api/public', publicRoutes);
 
@@ -182,8 +183,10 @@ const mobileAuthRoutes = require('./routes/mobileAuthRoutes');
 app.use('/api/auth/mobile', mobileAuthRoutes);
 
 // Rutas de discovery de tenants (para app móvil)
-const tenantDiscoveryRoutes = require('./routes/tenantDiscoveryRoutes');
-app.use('/api/public', tenantDiscoveryRoutes);
+// NOTA: Estas rutas pueden sobrescribir rutas de publicRoutes si tienen el mismo path
+// Por ahora, comentamos esto para evitar conflictos con /api/public/tenants
+// const tenantDiscoveryRoutes = require('./routes/tenantDiscoveryRoutes');
+// app.use('/api/public', tenantDiscoveryRoutes);
 
 // Ruta de salud del sistema
 app.get('/health', (req, res) => {

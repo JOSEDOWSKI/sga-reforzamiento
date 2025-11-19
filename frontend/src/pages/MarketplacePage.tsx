@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../config/api';
 import './MarketplacePage.css';
 
 interface Service {
@@ -24,44 +25,48 @@ const MarketplacePage: React.FC = () => {
   // const [showMap, setShowMap] = useState(false); // TODO: Implementar vista de mapa en el futuro
 
   useEffect(() => {
-    // TODO: Cargar servicios desde API
-    // Por ahora datos de ejemplo con tenant_name
-    setServices([
-      {
-        id: 1,
-        nombre: 'Salón de Belleza Bella Vista',
-        descripcion: 'Cortes, peinados y tratamientos capilares',
-        precio: 50,
-        ubicacion: 'Lima, Perú',
-        rating: 4.9,
-        reviews: 120,
-        categoria: 'Belleza',
-        tenant_name: 'peluqueria' // Ejemplo: navegar a peluqueria.weekly.pe/booking
-      },
-      {
-        id: 2,
-        nombre: 'Cancha de Fútbol 5',
-        descripcion: 'Cancha sintética con iluminación',
-        precio: 80,
-        ubicacion: 'San Isidro, Lima',
-        rating: 4.8,
-        reviews: 88,
-        categoria: 'Deportes',
-        tenant_name: 'cancha'
-      },
-      {
-        id: 3,
-        nombre: 'Academia de Refuerzo',
-        descripcion: 'Clases particulares y grupales',
-        precio: 60,
-        ubicacion: 'Miraflores, Lima',
-        rating: 5.0,
-        reviews: 210,
-        categoria: 'Educación',
-        tenant_name: 'academia'
+    const fetchTenants = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/public/tenants');
+        const data = response.data;
+        
+        // Mapear tenants a servicios para el marketplace
+        const servicesData = (data.data || data.tenants || []).map((tenant: any) => ({
+          id: tenant.id,
+          nombre: tenant.name || tenant.display_name || tenant.cliente_nombre || tenant.tenant_name,
+          descripcion: tenant.address || tenant.cliente_direccion || 'Servicio disponible',
+          precio: 0, // Los precios se pueden obtener de los servicios del tenant
+          ubicacion: tenant.address || tenant.cliente_direccion || 'Ubicación no disponible',
+          rating: 4.5, // TODO: Implementar sistema de ratings
+          reviews: 0, // TODO: Implementar sistema de reviews
+          categoria: tenant.category || 'Servicio',
+          tenant_name: tenant.tenant_name
+        }));
+        
+        setServices(servicesData);
+      } catch (error) {
+        console.error('Error cargando tenants:', error);
+        // En caso de error, usar datos de ejemplo
+        setServices([
+          {
+            id: 1,
+            nombre: 'Salón de Belleza Bella Vista',
+            descripcion: 'Cortes, peinados y tratamientos capilares',
+            precio: 50,
+            ubicacion: 'Lima, Perú',
+            rating: 4.9,
+            reviews: 120,
+            categoria: 'Belleza',
+            tenant_name: 'peluqueria'
+          }
+        ]);
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
+    };
+    
+    fetchTenants();
   }, []);
 
   const filteredServices = services.filter(service =>
