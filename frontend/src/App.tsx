@@ -23,6 +23,8 @@ import LoginPage from './pages/LoginPage';
 // Landing pages
 import LandingPage from './pages/LandingPage';
 import DemoLandingPage from './pages/DemoLandingPage';
+import MarketplacePage from './pages/MarketplacePage';
+import ServiceDetailPage from './pages/ServiceDetailPage';
 
 // Calendario público (sin autenticación)
 import PublicCalendarPage from './pages/PublicCalendarPage';
@@ -346,7 +348,17 @@ function AppContent() {
     return <DemoLandingPage />;
   }
   
-  // Si es weekly.pe o www.weekly.pe, mostrar landing page o calendario público global
+  // Si es merchants.weekly.pe, mostrar landing page
+  if (hostname === 'merchants.weekly.pe' || subdomain === 'merchants') {
+    // Si es /booking, mostrar calendario público global
+    if (pathname === '/booking' || pathname === '/booking/') {
+      return <PublicCalendarPage />;
+    }
+    // Si no, mostrar landing page
+    return <LandingPage />;
+  }
+  
+  // Si es weekly.pe o www.weekly.pe, mostrar marketplace/ecommerce
   const isMainDomain = 
     hostname === 'weekly.pe' || 
     hostname === 'www.weekly.pe';
@@ -356,8 +368,12 @@ function AppContent() {
     if (pathname === '/booking' || pathname === '/booking/') {
       return <PublicCalendarPage />;
     }
-    // Si no, mostrar landing page
-    return <LandingPage />;
+    // Si es /service/:id, mostrar detalle del servicio
+    if (pathname.startsWith('/service/')) {
+      return <ServiceDetailPage />;
+    }
+    // Si no, mostrar marketplace
+    return <MarketplacePage />;
   }
   
   // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
@@ -411,6 +427,8 @@ function App() {
               <Route path="/calendario-publico" element={<PublicCalendarPage />} />
               
               {/* Todas las rutas pasan por AppContent que maneja el routing según subdominio */}
+              {/* merchants.weekly.pe → LandingPage (página de información para merchants) */}
+              {/* weekly.pe → MarketplacePage (marketplace/ecommerce) */}
               {/* /booking en tenant.weekly.pe muestra el calendario público del tenant */}
               {/* /booking en weekly.pe muestra el calendario público global */}
               {/* demo.weekly.pe muestra landing page en raíz y /booking para usuarios */}
