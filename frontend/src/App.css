@@ -22,6 +22,31 @@
   overflow-y: auto; /* Permitir scroll solo en el contenido */
 }
 
+/* Contenedor con max-width para desktop (no usar todo el ancho) */
+/* Solo aplicar en pantallas grandes (desktop) */
+@media (min-width: 1024px) {
+  .content-container .page-container {
+    max-width: 1400px; /* Limitar ancho máximo en desktop */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Para otros contenedores principales */
+  .content-container > div:not(.page-container) {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* En pantallas muy grandes, centrar el contenido */
+@media (min-width: 1920px) {
+  .content-container .page-container,
+  .content-container > div:not(.page-container) {
+    max-width: 1600px;
+  }
+}
+
 .overlay {
   position: fixed;
   top: 0;

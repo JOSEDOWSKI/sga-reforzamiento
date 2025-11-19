@@ -65,7 +65,7 @@
 .color-switcher {
   --theme-color-violet: hsl(262.1 83.3% 57.8%);
   --theme-color-blue: hsl(217.2 91.2% 59.8%);
-  --theme-color-green: hsl(142.1 76.2% 36.3%);
+  --theme-color-green: #16a34a; /* Verde de la app móvil */
   --theme-color-orange: hsl(24.6 95% 53.1%);
   --theme-color-rose: hsl(346.8 77.2% 49.8%);
 }

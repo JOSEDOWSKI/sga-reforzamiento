@@ -67,8 +67,8 @@ const Configuracion: React.FC = () => {
   useEffect(() => {
     if (loadingConfig) return;
     
-    // Cargar color theme
-    const savedColorTheme = localStorage.getItem('color-theme') || 'violet';
+    // Cargar color theme (verde por defecto para coincidir con app móvil)
+    const savedColorTheme = localStorage.getItem('color-theme') || 'green';
     setColorTheme(savedColorTheme);
     document.documentElement.setAttribute('data-color-theme', savedColorTheme);
     

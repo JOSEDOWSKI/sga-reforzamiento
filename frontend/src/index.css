@@ -1,71 +1,96 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import './styles/LiquidGlass.css';
 
 :root {
-  --font-sans: 'Manrope', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  /* renovada paleta de colores para el modo claro (Light mode) */
-  --background: hsl(240 10% 99%);
-  --foreground: hsl(240 10% 3.9%);
-  --muted: hsl(240 5% 96.1%);
-  --muted-foreground: hsl(240 4% 46.1%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 3.9%);
-  --card: hsl(0 0% 100% / 0.75);
-  --card-foreground: hsl(240 10% 3.9%);
-  --border: hsl(240 6% 90%);
-  --input: hsl(240 6% 90%);
-  --primary: hsl(262.1 83.3% 57.8%);
-  --primary-foreground: hsl(210 20% 98%);
-  --secondary: hsl(240 5% 96.1%);
-  --secondary-foreground: hsl(240 6% 10%);
-  --accent: hsl(240 5% 96.1%);
-  --accent-foreground: hsl(240 6% 10%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(210 20% 98%);
-  --success: hsl(142.1 76.2% 36.3%);
-  --success-foreground: hsl(210 20% 98%);
-  --ring: hsl(262.1 83.3% 57.8%);
+  /* Paleta de colores de la app móvil - Modo claro (Light mode) */
+  --primary: #16a34a; /* Verde principal */
+  --background: #f6f7f8; /* background-light */
+  --foreground: #0d141b; /* text-primary-light */
+  --muted: #f6f7f8;
+  --muted-foreground: #4c739a; /* text-secondary-light */
+  --popover: #ffffff; /* surface-light */
+  --popover-foreground: #0d141b;
+  --card: #ffffff; /* surface-light */
+  --card-foreground: #0d141b;
+  --border: #e7edf3; /* border-light */
+  --input: #e7edf3;
+  --primary-foreground: #ffffff;
+  --secondary: #f6f7f8;
+  --secondary-foreground: #0d141b;
+  --accent: #f6f7f8;
+  --accent-foreground: #0d141b;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --ring: #16a34a;
 
-  --radius: 0.75rem;
+  /* Colores adicionales de la app móvil */
+  --surface-light: #ffffff;
+  --surface-dark: #1b2734;
+  --text-primary-light: #0d141b;
+  --text-primary-dark: #f0f4f8;
+  --text-secondary-light: #4c739a;
+  --text-secondary-dark: #94a3b8;
+  --border-light: #e7edf3;
+  --border-dark: #334155;
+
+  /* Border radius de la app móvil */
+  --radius: 0.25rem; /* DEFAULT */
+  --radius-lg: 0.5rem; /* lg */
+  --radius-xl: 0.75rem; /* xl */
+  --radius-full: 9999px; /* full */
 }
 
-/* Temas de color - Claro */
+/* Temas de color - Claro (mantener compatibilidad pero usar verde por defecto) */
 [data-color-theme='violet'] { --primary: hsl(262.1 83.3% 57.8%); --ring: hsl(262.1 83.3% 57.8%); }
 [data-color-theme='blue'] { --primary: hsl(217.2 91.2% 59.8%); --ring: hsl(217.2 91.2% 59.8%); }
-[data-color-theme='green'] { --primary: hsl(142.1 76.2% 36.3%); --ring: hsl(142.1 76.2% 36.3%); }
+[data-color-theme='green'] { --primary: #16a34a; --ring: #16a34a; } /* Verde de la app móvil */
 [data-color-theme='orange'] { --primary: hsl(24.6 95% 53.1%); --ring: hsl(24.6 95% 53.1%); }
 [data-color-theme='rose'] { --primary: hsl(346.8 77.2% 49.8%); --ring: hsl(346.8 77.2% 49.8%); }
 
 
 [data-theme='dark'] {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --muted: hsl(240 4% 15%);
-  --muted-foreground: hsl(240 5% 65%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --card: hsl(240 4% 10% / 0.75);
-  --card-foreground: hsl(0 0% 98%);
-  --border: hsl(240 4% 15%);
-  --input: hsl(240 4% 15%);
-  --primary: hsl(262.1 83.3% 57.8%);
-  --primary-foreground: hsl(210 20% 98%);
-  --secondary: hsl(240 4% 15%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --accent: hsl(240 4% 15%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 50.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --success: hsl(142.1 70.6% 45.3%);
-  --success-foreground: hsl(210 20% 98%);
-  --ring: hsl(262.1 83.3% 57.8%);
+  /* Paleta de colores de la app móvil - Modo oscuro (Dark mode) */
+  --primary: #16a34a; /* Verde principal (mismo en dark) */
+  --background: #101922; /* background-dark */
+  --foreground: #f0f4f8; /* text-primary-dark */
+  --muted: #1b2734; /* surface-dark */
+  --muted-foreground: #94a3b8; /* text-secondary-dark */
+  --popover: #1b2734; /* surface-dark */
+  --popover-foreground: #f0f4f8;
+  --card: #1b2734; /* surface-dark */
+  --card-foreground: #f0f4f8;
+  --border: #334155; /* border-dark */
+  --input: #334155;
+  --primary-foreground: #ffffff;
+  --secondary: #1b2734;
+  --secondary-foreground: #f0f4f8;
+  --accent: #1b2734;
+  --accent-foreground: #f0f4f8;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --ring: #16a34a;
+
+  /* Colores adicionales de la app móvil - Dark */
+  --surface-light: #ffffff;
+  --surface-dark: #1b2734;
+  --text-primary-light: #0d141b;
+  --text-primary-dark: #f0f4f8;
+  --text-secondary-light: #4c739a;
+  --text-secondary-dark: #94a3b8;
+  --border-light: #e7edf3;
+  --border-dark: #334155;
 }
 
-/* Temas de color - Oscuro */
+/* Temas de color - Oscuro (mantener compatibilidad pero usar verde por defecto) */
 [data-theme='dark'][data-color-theme='violet'] { --primary: hsl(262.1, 75%, 68%); --ring: hsl(262.1, 75%, 68%); }
 [data-theme='dark'][data-color-theme='blue'] { --primary: hsl(217.2, 85%, 65%); --ring: hsl(217.2, 85%, 65%); }
-[data-theme='dark'][data-color-theme='green'] { --primary: hsl(142.1, 70.6%, 45.3%); --ring: hsl(142.1, 70.6%, 45.3%); }
+[data-theme='dark'][data-color-theme='green'] { --primary: #16a34a; --ring: #16a34a; } /* Verde de la app móvil */
 [data-theme='dark'][data-color-theme='orange'] { --primary: hsl(24.6, 90%, 55%); --ring: hsl(24.6, 90%, 55%); }
 [data-theme='dark'][data-color-theme='rose'] { --primary: hsl(346.8, 85%, 55%); --ring: hsl(346.8, 85%, 55%); }
 

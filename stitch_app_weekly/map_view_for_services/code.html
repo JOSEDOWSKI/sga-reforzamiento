@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Weekly - Find Services Nearby</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#4CAF50",
+              "primary-content": "#ffffff",
+              "background-light": "#F7F7F7",
+              "background-dark": "#102216",
+              "text-light": "#333333",
+              "text-dark": "#E0E0E0",
+              "border-light": "#E0E0E0",
+              "border-dark": "#2E7D32",
+              "surface-light": "#ffffff",
+              "surface-dark": "#1A2E22",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-screen w-full flex-col group/design-root overflow-hidden">
+<!-- Main Map Background -->
+<div class="absolute inset-0 h-full w-full bg-cover bg-center" data-alt="A desaturated map view of a city, used as the background." data-location="New York City" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBViRVxqIs3h4YB-w3YJKW_rh0YamiRRQ8UDCQLJk7GExnB9qXJgAgzd9DAfwu_5_EPcLXdlmE6T4bhWeMLC5-neyBEjG8h498TLCm3Xs8dz0PTD5PopJVCtcIrI34-lixS1NZgk3fUs_xdD0PZg9-FEwUsabVAqmyp70wN5QG8tXeNl4iP3qid_qiRcLrnuYIGbQviM_dWAZv5P9K6rBLU4rN-suT0lnwUn8lesbvalJrJ8sdIBGHjNtg89rOVudCHOu-OryEJE48");'></div>
+<!-- Top UI Overlay -->
+<div class="relative z-10 p-4">
+<div class="flex items-center gap-2">
+<!-- Search Bar -->
+<div class="flex-grow">
+<label class="flex flex-col h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg shadow-md">
+<div class="text-text-light dark:text-text-dark flex items-center justify-center rounded-l-lg border border-r-0 border-border-light bg-surface-light pl-4 dark:border-border-dark dark:bg-surface-dark">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg border border-l-0 border-border-light bg-surface-light px-4 text-sm font-normal leading-normal text-text-light placeholder:text-text-light/60 focus:outline-0 focus:ring-0 dark:border-border-dark dark:bg-surface-dark dark:text-text-dark dark:placeholder:text-text-dark/60" placeholder="Search services, classes, rentals..." value=""/>
+</div>
+</label>
+</div>
+<!-- Filter Button -->
+<button class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-surface-light shadow-md dark:bg-surface-dark">
+<span class="material-symbols-outlined text-text-light dark:text-text-dark">tune</span>
+</button>
+</div>
+</div>
+<!-- Middle UI elements -->
+<div class="relative z-10 flex flex-grow flex-col items-center justify-between p-4 pt-0">
+<!-- Map Controls -->
+<div class="ml-auto flex flex-col items-end gap-3">
+<div class="flex flex-col gap-px overflow-hidden rounded-lg shadow-md">
+<button class="flex size-10 items-center justify-center bg-surface-light dark:bg-surface-dark">
+<span class="material-symbols-outlined text-text-light dark:text-text-dark">add</span>
+</button>
+<button class="flex size-10 items-center justify-center bg-surface-light dark:bg-surface-dark">
+<span class="material-symbols-outlined text-text-light dark:text-text-dark">remove</span>
+</button>
+</div>
+</div>
+<!-- Bottom Floating Buttons -->
+<div class="flex w-full items-center justify-between">
+<!-- List View Toggle -->
+<button class="flex h-12 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-surface-light px-6 text-sm font-bold leading-normal tracking-[0.015em] text-text-light shadow-lg dark:bg-surface-dark dark:text-text-dark">
+<span class="material-symbols-outlined">list</span>
+<span class="truncate">List view</span>
+</button>
+<!-- Recenter FAB -->
+<button class="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-primary-content shadow-lg">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+</div>
+<!-- Bottom Sheet with Quick-View Card -->
+<div class="absolute bottom-0 left-0 z-20 flex h-full w-full flex-col justify-end items-stretch pointer-events-none">
+<div class="flex flex-col items-stretch bg-surface-light dark:bg-surface-dark rounded-t-xl shadow-2xl pointer-events-auto">
+<button class="flex h-5 w-full items-center justify-center pt-2">
+<div class="h-1 w-9 rounded-full bg-border-light dark:bg-border-dark"></div>
+</button>
+<!-- Quick-View Card Content -->
+<div class="flex flex-col gap-4 p-4">
+<div class="flex items-start gap-4">
+<img class="h-24 w-24 rounded-lg object-cover" data-alt="A modern, well-lit soccer field with green turf and white lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz3NmoL8PZIM4bBjdmAjjKlwnMuMgyBMTt152oc7RAbCyhExjpesdZpRD2ZWTZT3Xaj-avWccbJZxBlaFROpTyxT8VfaNJNFVXpDS-6BehAgkb4ZeRO2ufq_qyqSOrE4nCFcgfxjx8ICqnmFzVRVkN1iu1RTkpwomrTjVxA73UoIDP22iI9pwYSnhV-vLcuOCt6HYW6ITJt1cWwBSbgAJ8jLyUypbhZT6MEpUvVHFs-7_RxtE8WsBD8NBMIfekUkf29KTSW-Dbw-E"/>
+<div class="flex flex-1 flex-col gap-1">
+<p class="text-xs font-medium uppercase tracking-wider text-primary">Sports Field Rental</p>
+<h3 class="text-lg font-bold text-text-light dark:text-text-dark">City Center Soccer Field</h3>
+<div class="flex items-center gap-1 text-text-light/80 dark:text-text-dark/80">
+<span class="material-symbols-outlined !text-base text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<p class="text-sm font-medium">4.8 (120 reviews)</p>
+</div>
+<p class="text-base font-semibold text-text-light dark:text-text-dark">From $50/hr</p>
+</div>
+</div>
+<button class="flex h-12 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary px-4 text-base font-bold text-primary-content">Book Now</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

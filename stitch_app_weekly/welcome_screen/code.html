@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#16a34a",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col font-display group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
+<header class="flex h-14 shrink-0 items-center justify-end px-4 py-3">
+<a class="text-primary text-sm font-bold leading-normal" href="#">Skip</a>
+</header>
+<main class="flex-1">
+<div class="@container">
+<div class="@[480px]:px-4 @[480px]:py-3">
+<div class="bg-cover bg-center flex flex-col justify-end overflow-hidden bg-slate-50 @[480px]:rounded-xl min-h-80" data-alt="Illustration of a person browsing a diverse range of local services and properties on a giant smartphone screen." style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCBQhFXuqCiT4gkD44dvSBau-rwYJZYFYIyc3AkEY9W1KBNp0_tctKo7Idw455r57aitYBDn4p2zIEb9HEqsY0vXcfryIxeZbji0AjRtXqeZMZJh6XQq0kRt9cL-i2Rl4k_ZMEgKbO-nDyk1ee4VG2eIwh5IMy8WgAo66uU7nKJ-EJBTW2Csuv-m0L_1U6LEfDqMUybZLt9krY6E5uiZxNYa6VMBM58OsvHhQvCrn2LVUfkx49fJ77grmmxc-5xn6BppjnkQWk72wk");'>
+</div>
+</div>
+</div>
+<div class="px-4 pt-6 pb-3 text-center">
+<h1 class="text-slate-900 dark:text-slate-50 tracking-tight text-3xl font-extrabold leading-tight">Book Your Week with Weekly</h1>
+<p class="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pt-2">
+        Explore a curated selection of amazing local services and properties with powerful search filters.
+      </p>
+</div>
+</main>
+<footer class="mt-auto px-4 py-6">
+<div class="flex w-full flex-row items-center justify-center gap-3 pb-5">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+<div class="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+<div class="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+</div>
+<div class="flex flex-col gap-3">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Get Started</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-transparent text-primary text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Log In</span>
+</button>
+</div>
+</footer>
+</div>
+
+</body></html>

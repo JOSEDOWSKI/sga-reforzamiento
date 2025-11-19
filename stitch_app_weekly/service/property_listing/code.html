@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Weekly - Explore</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+            line-height: 1;}
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#16a34a",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "surface-light": "#ffffff",
+              "surface-dark": "#1b2734",
+              "text-primary-light": "#0d141b",
+              "text-primary-dark": "#f0f4f8",
+              "text-secondary-light": "#4c739a",
+              "text-secondary-dark": "#94a3b8",
+              "border-light": "#e7edf3",
+              "border-dark": "#334155",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="sticky top-0 z-10 bg-background-light dark:bg-background-dark pt-4 shadow-sm">
+<div class="flex items-center px-4 pb-2">
+<span class="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark shrink-0 !text-2xl">arrow_back</span>
+<h1 class="flex-1 text-center text-lg font-bold text-text-primary-light dark:text-text-primary-dark">Weekly</h1>
+<span class="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark shrink-0 !text-2xl">location_on</span>
+</div>
+<div class="px-4 py-3">
+<label class="flex min-w-40 h-12 w-full flex-col">
+<div class="flex h-full w-full flex-1 items-stretch rounded-xl">
+<div class="flex items-center justify-center rounded-l-xl border border-r-0 border-border-light bg-surface-light pl-4 text-text-secondary-light dark:border-border-dark dark:bg-surface-dark dark:text-text-secondary-dark">
+<span class="material-symbols-outlined !text-2xl">search</span>
+</div>
+<input class="form-input flex h-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl border border-l-0 border-border-light bg-surface-light px-4 text-base font-normal text-text-primary-light placeholder:text-text-secondary-light focus:outline-0 focus:ring-0 dark:border-border-dark dark:bg-surface-dark dark:text-text-primary-dark dark:placeholder:text-text-secondary-dark" placeholder="Search for services, destinations..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex gap-3 px-4 pb-3 overflow-x-auto">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark pl-4 pr-2 border border-border-light dark:border-border-dark">
+<p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">Price</p>
+<span class="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark !text-xl">arrow_drop_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark pl-4 pr-2 border border-border-light dark:border-border-dark">
+<p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">Dates</p>
+<span class="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark !text-xl">arrow_drop_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark pl-4 pr-2 border border-border-light dark:border-border-dark">
+<p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">Rating</p>
+<span class="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark !text-xl">arrow_drop_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark pl-4 pr-2 border border-border-light dark:border-border-dark">
+<p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">Category</p>
+<span class="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark !text-xl">arrow_drop_down</span>
+</button>
+</div>
+<div class="flex px-4 py-3">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-border-light dark:bg-surface-dark p-1">
+<label class="flex h-full grow cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg px-2 text-text-secondary-light has-[:checked]:bg-surface-light has-[:checked]:text-text-primary-light has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:text-text-secondary-dark dark:has-[:checked]:bg-background-dark dark:has-[:checked]:text-text-primary-dark">
+<span class="material-symbols-outlined !text-xl">grid_view</span>
+<span class="truncate text-sm font-medium">Grid</span>
+<input checked="" class="invisible w-0" name="view-toggle" type="radio" value="Grid View"/>
+</label>
+<label class="flex h-full grow cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg px-2 text-text-secondary-light has-[:checked]:bg-surface-light has-[:checked]:text-text-primary-light has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:text-text-secondary-dark dark:has-[:checked]:bg-background-dark dark:has-[:checked]:text-text-primary-dark">
+<span class="material-symbols-outlined !text-xl">view_list</span>
+<span class="truncate text-sm font-medium">List</span>
+<input class="invisible w-0" name="view-toggle" type="radio" value="List View"/>
+</label>
+</div>
+</div>
+</div>
+<main class="flex-1">
+<div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-4 p-4">
+<div class="flex flex-col gap-3 rounded-xl bg-surface-light p-3 dark:bg-surface-dark">
+<div class="relative w-full">
+<div class="aspect-video w-full rounded-lg bg-cover bg-center bg-no-repeat" data-alt="Modern loft with large windows overlooking a city skyline" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuArQi7McI3_RXCqoVrQtM-7PMOQ7iRHRfpj86GkNORQ2rv9A8lKDBRyNGQMyGE27IWIknkjL2xuJpSbXqVMCICcpXE3HKVgn-OXLcgjA3LR3-Yg_2-mU_TQES-eOEIusxxkT62nj3NB-zAC0FswoUB6TsrqXsoV-WQeOutB2IkFcCMLodE7oUcFIX-Tr3XXjFTcla4C5z0AH6IICMJEwUpYBRivgEYlnlFABtsZoqVGoZ_Osqb-dyZOYobkfkUILXaLBUtCQGD7RJI");'></div>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm">
+<span class="material-symbols-outlined !text-xl">favorite</span>
+</button>
+</div>
+<div>
+<p class="text-base font-medium text-text-primary-light dark:text-text-primary-dark">Modern Loft with City View</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">New York</p>
+<div class="mt-1 flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-symbols-outlined !text-base text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-medium">4.9</span>
+<span>(120)</span>
+</div>
+<p class="mt-1 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">$250<span class="font-normal text-text-secondary-light dark:text-text-secondary-dark">/night</span></p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl bg-surface-light p-3 dark:bg-surface-dark">
+<div class="relative w-full">
+<div class="aspect-video w-full rounded-lg bg-cover bg-center bg-no-repeat" data-alt="Cozy beachfront cottage with a porch overlooking the ocean" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBMX3h8oeT6CQb_Lmf3eZvBbi8ICmvPej-EbQrJZBy_jfoo0jwipHXlnIR-EOJGPfdEqVXjmq3OwUYI5HaKzkPp0FffduP0PkffRCyAvCdW6Kj3ghg5PsUGSodFowBCMKOwo7Z8zXCXo_Cyf8bKQWlLlX4VEslQWs4gR2k6Wsnj8i2CkMehJye29osTpbCAjwoIBPWrAl1eVob4px1xjgdvG6RKO5ZKPmixenV8pgkXtjhuxCBElHlYImdMxO_O__llQHuj2fiBgg0");'></div>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm">
+<span class="material-symbols-outlined !text-xl">favorite</span>
+</button>
+</div>
+<div>
+<p class="text-base font-medium text-text-primary-light dark:text-text-primary-dark">Cozy Beachfront Cottage</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Malibu</p>
+<div class="mt-1 flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-symbols-outlined !text-base text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-medium">4.8</span>
+<span>(88)</span>
+</div>
+<p class="mt-1 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">$300<span class="font-normal text-text-secondary-light dark:text-text-secondary-dark">/night</span></p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl bg-surface-light p-3 dark:bg-surface-dark">
+<div class="relative w-full">
+<div class="aspect-video w-full rounded-lg bg-cover bg-center bg-no-repeat" data-alt="Rustic cabin in a snowy mountain landscape" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJZvH-GAUzLcrUUZEAdrM_wCXPLK24J3WKY0GMhhXmPNSN_Xw2QA1yrk-VgHuIKc7X-vVuh2B2bzhONBex44CEMI3_0WCnfKo9dqA6dfqtfIMbtz2kP8z7TExLq68FHBmn1PukKDttdd_QhttY_zBUsX-39mWYIOQMgggikJdmPEuVFNwXJIMrl-5ZfIsYsLRpMjwFu68ILzRJqYfY63B69B2UgiywIpN-mTJr4_40J_J47CIFU1IoJt8K1lip3i7mrLCD_5-w35Q");'></div>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm">
+<span class="material-symbols-outlined !text-xl">favorite</span>
+</button>
+</div>
+<div>
+<p class="text-base font-medium text-text-primary-light dark:text-text-primary-dark">Rustic Mountain Cabin</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Aspen</p>
+<div class="mt-1 flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-symbols-outlined !text-base text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-medium">5.0</span>
+<span>(210)</span>
+</div>
+<p class="mt-1 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">$450<span class="font-normal text-text-secondary-light dark:text-text-secondary-dark">/night</span></p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl bg-surface-light p-3 dark:bg-surface-dark">
+<div class="relative w-full">
+<div class="aspect-video w-full rounded-lg bg-cover bg-center bg-no-repeat" data-alt="Interior of a luxury downtown apartment with modern furniture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAm-aPXoR7YhOETRmarwUHY0V1kzcwlv-urOHwfSC9wZIasccSpuEi7inJP4tdROkQLQUHC-vT_RSjMYmaWBeSi0xbzW4tejq3WVoB1z2f-hD5T2Fjq7d5ciOSdd54nDS1yjy2x8sImVq8yopw5E6q_zA3oLFdYGLpe1gssZf3BAQ5_xNlwGI6UeJ0ABmNmM1yC9yOKSMaaRJIZGTBZbxXRfUk-ifbK9FxTNZ_bOPIXFhJr_G-fuzC0efDYBbuHAcyyWmU02q_CGE8");'></div>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm">
+<span class="material-symbols-outlined !text-xl">favorite</span>
+</button>
+</div>
+<div>
+<p class="text-base font-medium text-text-primary-light dark:text-text-primary-dark">Luxury Downtown Apartment</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Chicago</p>
+<div class="mt-1 flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-symbols-outlined !text-base text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-medium">4.7</span>
+<span>(95)</span>
+</div>
+<p class="mt-1 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">$220<span class="font-normal text-text-secondary-light dark:text-text-secondary-dark">/night</span></p>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-6 right-6 z-20">
+<button class="flex h-14 w-32 items-center justify-center gap-2 rounded-full bg-primary text-white shadow-lg">
+<span class="material-symbols-outlined">map</span>
+<span class="text-base font-medium">Map</span>
+</button>
+</div>
+</div>
+</body></html>

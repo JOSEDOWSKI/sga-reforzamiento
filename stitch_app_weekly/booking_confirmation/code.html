@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Weekly - Review Your Booking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#16a34a",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "text-light": "#0d141b",
+              "text-dark": "#f0f2f4",
+              "muted-light": "#4c739a",
+              "muted-dark": "#a0b0c0",
+              "card-light": "#ffffff",
+              "card-dark": "#1a2633",
+              "border-light": "#e5e7eb",
+              "border-dark": "#34404c",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<header class="sticky top-0 z-10 flex items-center bg-background-light/80 dark:bg-background-dark/80 p-4 pb-3 backdrop-blur-sm border-b border-border-light dark:border-border-dark">
+<button class="text-text-light dark:text-text-dark flex size-10 shrink-0 items-center justify-center rounded-full">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">Review Your Booking</h1>
+</header>
+<main class="flex-grow pb-32">
+<div class="p-4 space-y-6">
+<div class="flex items-stretch justify-between gap-4 rounded-xl bg-card-light dark:bg-card-dark p-4 shadow-sm">
+<div class="flex flex-col gap-2 flex-[2_2_0px]">
+<p class="text-muted-light dark:text-muted-dark text-sm font-medium">Lakeside Cabin</p>
+<p class="text-text-light dark:text-text-dark text-base font-bold leading-tight">Modern Downtown Loft</p>
+<p class="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal">Mon, Oct 23 - Fri, Oct 27</p>
+<p class="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal">2 Guests</p>
+</div>
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg flex-1" data-alt="Exterior view of a modern loft building at dusk" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCsONKiTaM_hSF7VggpyI7eokpHATCKmqYwnglgSwP39_zTcp8KMter7rOMWpGh-K_XKT9uuuG3R4K3Kvm3QUyh0lYZrYEgg9sq2-UR6tTgDEEk70ZQE9N-jinD7pypGpUb5D3Xyn4sY2_hjIzv7iY66809wK4ZQr0_ihRlfEqPY53hVn6FQv81p4t5ircp8QaXgGovlOo_xPsnrKkhcL0OkvjE9sapgo-xefomc5Wr-W4eievPAbbIMWZSktLhnWmK8qaNvTPXbIA");'></div>
+</div>
+<div>
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-tight px-4 pb-2">Price Details</h3>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-4 space-y-2 shadow-sm">
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal">$125.00 x 4 nights</p>
+<p class="text-text-light dark:text-text-dark text-sm font-normal leading-normal text-right">$500.00</p>
+</div>
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal">Service fee</p>
+<p class="text-text-light dark:text-text-dark text-sm font-normal leading-normal text-right">$50.00</p>
+</div>
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal">Taxes</p>
+<p class="text-text-light dark:text-text-dark text-sm font-normal leading-normal text-right">$25.00</p>
+</div>
+<div class="border-t border-border-light dark:border-border-dark my-2"></div>
+<div class="flex justify-between gap-x-6 pt-2">
+<p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">Total</p>
+<p class="text-text-light dark:text-text-dark text-base font-bold leading-normal text-right">$575.00</p>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-tight px-4 pb-2">Your Information</h3>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-4 shadow-sm space-y-4">
+<div>
+<label class="block text-sm font-medium text-muted-light dark:text-muted-dark mb-1" for="full-name">Full Name</label>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark placeholder:text-muted-light/70 dark:placeholder:text-muted-dark/70 focus:border-primary focus:ring-primary" id="full-name" placeholder="Enter your full name" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-muted-light dark:text-muted-dark mb-1" for="email">Email</label>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark placeholder:text-muted-light/70 dark:placeholder:text-muted-dark/70 focus:border-primary focus:ring-primary" id="email" placeholder="Enter your email address" type="email"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-muted-light dark:text-muted-dark mb-1" for="phone">Phone Number</label>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark placeholder:text-muted-light/70 dark:placeholder:text-muted-dark/70 focus:border-primary focus:ring-primary" id="phone" placeholder="Enter your phone number" type="tel"/>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-tight px-4 pb-2">Payment Method</h3>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-4 shadow-sm flex justify-between items-center">
+<div class="flex items-center gap-4">
+<img class="w-10 h-auto" data-alt="Visa logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWpc7tt370WeaomNw5ETWPWg_inxzo7w97fmmtzhlWAMxwVsq0Y-StUeTKXbaTQlXwZ0DpIwUVj324Q2qbp48s93JWm2N0syZ5uMvrX3_U_YkPbVSgKphbiO8VjhO6Nn3cqliroMGyDEmZKqFNWlksFW-icuszA_Y-zMaKLT3N41f3YDHs33xYIZj0-J7OyYqjt_IxW8fHiHpvvk3unNupqo-rz-WrQ_0QovgKe2fQHMgvzXVOaqo-q84AxSegg7nZVateMiJC6wQ"/>
+<p class="text-text-light dark:text-text-dark font-medium">Visa ending in 1234</p>
+</div>
+<button class="text-primary font-bold text-sm">Change</button>
+</div>
+</div>
+<div class="flex items-start space-x-3 px-2">
+<input class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary" id="terms" name="terms" type="checkbox"/>
+<div class="text-sm">
+<label class="font-normal text-muted-light dark:text-muted-dark" for="terms">I agree to the <a class="font-semibold text-primary" href="#">Cancellation Policy</a> and <a class="font-semibold text-primary" href="#">Terms of Service</a>.</label>
+</div>
+</div>
+</div>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 bg-card-light/80 dark:bg-card-dark/80 p-4 backdrop-blur-sm border-t border-border-light dark:border-border-dark">
+<button class="w-full bg-primary text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-xl">lock</span>
+<span>Confirm and Pay $575.00</span>
+</button>
+</footer>
+</div>
+</body></html>

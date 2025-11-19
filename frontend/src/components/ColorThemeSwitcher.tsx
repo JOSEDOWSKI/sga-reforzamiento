@@ -18,7 +18,7 @@ const SettingsIcon = () => (
 
 const ColorThemeSwitcher: React.FC = () => {
     const [colorTheme, setColorTheme] = useState(() => {
-        return localStorage.getItem('color-theme') || 'violet';
+        return localStorage.getItem('color-theme') || 'green'; /* Verde por defecto para coincidir con app móvil */
     });
     const [isOpen, setIsOpen] = useState(false);
     const switcherRef = useRef<HTMLDivElement>(null);
