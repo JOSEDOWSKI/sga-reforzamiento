@@ -59,6 +59,9 @@ const PublicCalendarPage: React.FC = () => {
     // Estado para colaborador seleccionado
     const [selectedColaborador, setSelectedColaborador] = useState<Colaborador | null>(null);
     
+    // Estado para servicio seleccionado (filtro)
+    const [selectedServicio, setSelectedServicio] = useState<Servicio | null>(null);
+    
     // Estados para el calendario
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -95,12 +98,19 @@ const PublicCalendarPage: React.FC = () => {
         fetchServicios();
     }, [client]);
 
-    // Obtener colaboradores
+    // Obtener colaboradores (filtrados por servicio si hay uno seleccionado)
     useEffect(() => {
         const fetchColaboradores = async () => {
             try {
                 const response = await client.get('/public/staff');
-                const staffData = response.data.data || [];
+                let staffData = response.data.data || [];
+                
+                // Filtrar por servicio si hay uno seleccionado
+                if (selectedServicio) {
+                    // TODO: Filtrar colaboradores que ofrecen este servicio
+                    // Por ahora, mostrar todos los colaboradores
+                }
+                
                 setColaboradores(staffData);
                 // Seleccionar el primer colaborador por defecto solo si no hay uno seleccionado
                 if (staffData.length > 0 && !selectedColaborador) {
@@ -112,9 +122,9 @@ const PublicCalendarPage: React.FC = () => {
         };
         fetchColaboradores();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [client]);
+    }, [client, selectedServicio]);
 
-    // Obtener disponibilidad cuando cambia el colaborador o fecha
+    // Obtener disponibilidad cuando cambia el colaborador, fecha o servicio
     useEffect(() => {
         if (!selectedColaborador) return;
 
@@ -136,7 +146,7 @@ const PublicCalendarPage: React.FC = () => {
         };
 
         fetchAvailability();
-    }, [selectedColaborador]);
+    }, [selectedColaborador, selectedServicio, client]);
 
     // Calcular horarios disponibles para la fecha seleccionada
     useEffect(() => {
@@ -383,6 +393,24 @@ const PublicCalendarPage: React.FC = () => {
                             </div>
                         )}
                     </div>
+
+                    {/* Filtro de servicios */}
+                    {servicios.length > 0 && (
+                        <div className="servicios-filter">
+                            <h2>Servicios</h2>
+                            <div className="servicios-buttons">
+                                {servicios.map(servicio => (
+                                    <button
+                                        key={servicio.id}
+                                        className={`servicio-btn ${selectedServicio?.id === servicio.id ? 'selected' : ''}`}
+                                        onClick={() => setSelectedServicio(servicio)}
+                                    >
+                                        {servicio.nombre}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="profesores-list">
                         <h2>Nuestros {tenantConfig?.config?.uiLabels?.colaboradores || 'Profesionales'}</h2>

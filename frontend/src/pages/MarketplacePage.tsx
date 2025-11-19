@@ -12,6 +12,7 @@ interface Service {
   reviews?: number;
   imagen?: string;
   categoria?: string;
+  tenant_name?: string; // Nombre del tenant para navegar al calendario
 }
 
 const MarketplacePage: React.FC = () => {
@@ -24,7 +25,7 @@ const MarketplacePage: React.FC = () => {
 
   useEffect(() => {
     // TODO: Cargar servicios desde API
-    // Por ahora datos de ejemplo
+    // Por ahora datos de ejemplo con tenant_name
     setServices([
       {
         id: 1,
@@ -34,7 +35,8 @@ const MarketplacePage: React.FC = () => {
         ubicacion: 'Lima, Perú',
         rating: 4.9,
         reviews: 120,
-        categoria: 'Belleza'
+        categoria: 'Belleza',
+        tenant_name: 'peluqueria' // Ejemplo: navegar a peluqueria.weekly.pe/booking
       },
       {
         id: 2,
@@ -44,7 +46,8 @@ const MarketplacePage: React.FC = () => {
         ubicacion: 'San Isidro, Lima',
         rating: 4.8,
         reviews: 88,
-        categoria: 'Deportes'
+        categoria: 'Deportes',
+        tenant_name: 'cancha'
       },
       {
         id: 3,
@@ -54,7 +57,8 @@ const MarketplacePage: React.FC = () => {
         ubicacion: 'Miraflores, Lima',
         rating: 5.0,
         reviews: 210,
-        categoria: 'Educación'
+        categoria: 'Educación',
+        tenant_name: 'academia'
       }
     ]);
     setLoading(false);
@@ -165,7 +169,15 @@ const MarketplacePage: React.FC = () => {
               <div
                 key={service.id}
                 className="service-card"
-                onClick={() => navigate(`/service/${service.id}`)}
+                onClick={() => {
+                  // Si tiene tenant_name, navegar al calendario público del negocio
+                  if (service.tenant_name) {
+                    window.location.href = `https://${service.tenant_name}.weekly.pe/booking`;
+                  } else {
+                    // Si no, mostrar detalle del servicio
+                    navigate(`/service/${service.id}`);
+                  }
+                }}
               >
                 <div className="service-image-container">
                   <div 
@@ -210,11 +222,28 @@ const MarketplacePage: React.FC = () => {
         )}
       </main>
 
-      {/* Botón flotante de mapa */}
+      {/* Botón flotante de mapa - Redirige a app móvil */}
       <button 
         className="map-fab"
-        onClick={() => setShowMap(!showMap)}
-        aria-label="Ver mapa"
+        onClick={() => {
+          // Redirigir a la app móvil para ver el mapa interactivo
+          // TODO: Reemplazar con la URL real de la app móvil cuando esté disponible
+          const appStoreUrl = 'https://apps.apple.com/app/weekly'; // iOS
+          const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.weekly.app'; // Android
+          
+          // Detectar dispositivo y redirigir
+          const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+          if (/android/i.test(userAgent)) {
+            window.open(playStoreUrl, '_blank');
+          } else if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+            window.open(appStoreUrl, '_blank');
+          } else {
+            // Desktop: mostrar mensaje o abrir en nueva pestaña
+            alert('El mapa interactivo está disponible en la app móvil de Weekly. Descárgala desde la App Store o Google Play.');
+          }
+        }}
+        aria-label="Ver mapa en app móvil"
+        title="Ver mapa interactivo en la app móvil"
       >
         <span className="material-symbols-outlined">map</span>
         <span>Mapa</span>
