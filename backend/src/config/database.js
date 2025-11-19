@@ -80,7 +80,16 @@ const initializeDatabase = async () => {
     }
 };
 
-initializeDatabase();
+// Inicializar base de datos con manejo de errores
+initializeDatabase().catch((error) => {
+    console.error('❌ Error inicializando base de datos:', error);
+    console.error('Stack:', error.stack);
+    // En producción, no detener el proceso, solo loguear el error
+    // El servidor puede iniciar y los endpoints manejarán errores de BD
+    if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+    }
+});
 
 // Exportamos el pool directamente. Es la forma más robusta.
 // Los controladores lo usarán para hacer consultas.

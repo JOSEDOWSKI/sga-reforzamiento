@@ -255,9 +255,34 @@ io.on('connection', (socket) => {
 // Hacer io disponible globalmente para emitir eventos
 app.set('io', io);
 
+// Manejo de errores no capturados
+process.on('uncaughtException', (error) => {
+  console.error('❌ UNCAUGHT EXCEPTION:', error);
+  console.error('Stack:', error.stack);
+  // En producción, no cerrar el proceso inmediatamente, solo loguear
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ UNHANDLED REJECTION at:', promise, 'reason:', reason);
+  // En producción, no cerrar el proceso inmediatamente, solo loguear
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
+  }
+});
+
+// Iniciar servidor con manejo de errores
 server.listen(port, () => {
   console.log(`🚀 AgendaTe SaaS API running on port ${port}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Health check: http://localhost:${port}/health`);
   console.log(`🔌 WebSocket server running on ws://localhost:${port}`);
+}).on('error', (error) => {
+  console.error('❌ ERROR starting server:', error);
+  if (error.code === 'EADDRINUSE') {
+    console.error(`⚠️  Port ${port} is already in use`);
+  }
+  process.exit(1);
 });
