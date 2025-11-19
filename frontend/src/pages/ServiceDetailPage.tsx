@@ -25,7 +25,7 @@ const ServiceDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex] = useState(0); // TODO: Implementar navegación de imágenes en el futuro
 
   useEffect(() => {
     // TODO: Cargar servicio desde API

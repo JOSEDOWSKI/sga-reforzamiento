@@ -527,6 +527,7 @@ const PublicCalendarPage: React.FC = () => {
                         </div>
                     )}
                 </div>
+                </div>
             </div>
 
             {/* Modal de Reserva */}

@@ -21,7 +21,7 @@ const MarketplacePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
-  const [showMap, setShowMap] = useState(false);
+  // const [showMap, setShowMap] = useState(false); // TODO: Implementar vista de mapa en el futuro
 
   useEffect(() => {
     // TODO: Cargar servicios desde API

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../config/api';
 import { useRealtimeData } from '../hooks/useRealtimeData';
-import { useTenantLabels } from '../utils/tenantLabels';
+// import { useTenantLabels } from '../utils/tenantLabels'; // TODO: Usar en el futuro
 import '../styles/GestionPage.css';
 import '../styles/Modal.css';
 
@@ -20,7 +20,7 @@ interface ModalState {
 }
 
 const GestionInmuebles: React.FC = () => {
-    const labels = useTenantLabels();
+    // const labels = useTenantLabels(); // TODO: Usar labels dinámicos en el futuro
     const [inmuebles, setInmuebles] = useState<Inmueble[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
