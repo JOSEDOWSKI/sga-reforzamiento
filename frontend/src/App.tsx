@@ -297,16 +297,60 @@ function GlobalAppContent() {
   );
 }
 
+function normalizeHost(hostname: string) {
+  return hostname
+    .trim()
+    .toLowerCase()
+    .replace(/\.$/, '')
+    .replace(/^www\./, '');
+}
+
+function getConfiguredDomains(values: Array<string | undefined>) {
+  return [
+    ...new Set(
+      values
+        .filter((value): value is string => Boolean(value && value.trim()))
+        .map(value => normalizeHost(value))
+    ),
+  ];
+}
+
 function AppContent() {
   const { user, isLoading } = useAuth();
   
   // Detectar el dominio actual
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
+  const normalizedHost = normalizeHost(hostname);
   
   // Extraer subdominio si existe
   const parts = hostname.split('.');
   const subdomain = parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
+
+  // Dominios configurables (permite variaciones sin tocar el código)
+  const marketplaceDomains = [
+    'weekly.pe',
+    ...getConfiguredDomains([
+      import.meta.env.VITE_MARKETPLACE_DOMAIN,
+      import.meta.env.VITE_MAIN_DOMAIN,
+      import.meta.env.VITE_WEEKLY_MARKETPLACE_DOMAIN,
+    ]),
+  ];
+  const merchantsDomains = [
+    'merchants.weekly.pe',
+    ...getConfiguredDomains([
+      import.meta.env.VITE_MERCHANTS_DOMAIN,
+      import.meta.env.VITE_WEEKLY_MERCHANTS_DOMAIN,
+    ]),
+  ];
+  const panelDomains = [
+    'panel.weekly.pe',
+    'panel.weekly',
+    ...getConfiguredDomains([import.meta.env.VITE_PANEL_DOMAIN]),
+  ];
+  const isMarketplaceDomain = marketplaceDomains.includes(normalizedHost);
+  const isMerchantsDomain = merchantsDomains.includes(normalizedHost);
+  const isPanelDomain = panelDomains.includes(normalizedHost) || subdomain === 'panel';
   
   // Logs de depuración en producción también
   console.log('🔍 AppContent Routing:', { 
@@ -314,8 +358,11 @@ function AppContent() {
     subdomain, 
     pathname, 
     parts: parts.length,
-    isWeeklyPe: hostname === 'weekly.pe',
-    isWwwWeeklyPe: hostname === 'www.weekly.pe'
+    normalizedHost,
+    marketplaceDomains,
+    merchantsDomains,
+    isMarketplaceDomain,
+    isMerchantsDomain,
   });
   
   // Si es demo.weekly.pe, mostrar landing page o booking
@@ -358,9 +405,8 @@ function AppContent() {
     return <DemoLandingPage />;
   }
   
-  // PRIORIDAD 1: Si es weekly.pe o www.weekly.pe, mostrar marketplace/ecommerce
-  // ESTO DEBE ESTAR PRIMERO para evitar cualquier conflicto
-  if (hostname === 'weekly.pe' || hostname === 'www.weekly.pe') {
+  // PRIORIDAD 1: Dominios del marketplace/ecommerce (weekly.pe por defecto)
+  if (isMarketplaceDomain) {
     console.log('✅ PRIORIDAD 1: Detectado weekly.pe - Mostrando MarketplacePage');
     // Si es /booking en el dominio principal, mostrar calendario público global
     if (pathname === '/booking' || pathname === '/booking/') {
@@ -374,14 +420,10 @@ function AppContent() {
     return <MarketplacePage />;
   }
   
-  // PRIORIDAD 2: Si es merchants.weekly.pe, mostrar landing page
-  if (hostname === 'merchants.weekly.pe' || subdomain === 'merchants') {
+  // PRIORIDAD 2: Dominios informativos de merchants (sin booking)
+  if (isMerchantsDomain || subdomain === 'merchants') {
     console.log('✅ PRIORIDAD 2: Detectado merchants.weekly.pe - Mostrando LandingPage');
-    // Si es /booking, mostrar calendario público global
-    if (pathname === '/booking' || pathname === '/booking/') {
-      return <PublicCalendarPage />;
-    }
-    // Si no, mostrar landing page
+    // Merchants es puramente informativo. No mostramos booking aquí.
     return <LandingPage />;
   }
   
@@ -401,7 +443,7 @@ function AppContent() {
   }
   
   // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
-  if (hostname === 'panel.weekly' || hostname === 'panel.weekly.pe' || subdomain === 'panel') {
+  if (isPanelDomain) {
     return <GlobalAppContent />;
   }
   
@@ -413,7 +455,13 @@ function AppContent() {
   }
   
   // Si hay un subdominio y no es demo ni panel, es un tenant
-  if (subdomain && subdomain !== 'demo' && subdomain !== 'panel' && subdomain !== 'api') {
+  if (
+    subdomain &&
+    subdomain !== 'demo' &&
+    subdomain !== 'panel' &&
+    subdomain !== 'api' &&
+    subdomain !== 'merchants'
+  ) {
     // Si la ruta es /booking, mostrar calendario público del tenant (sin autenticación)
     // Este calendario usa la base de datos del tenant específico vía X-Tenant header
     if (pathname === '/booking' || pathname === '/booking/') {
@@ -435,9 +483,9 @@ function AppContent() {
     return <TenantAppContent />;
   }
   
-  // Fallback: Si es weekly.pe sin subdominio, mostrar marketplace
+  // Fallback: Si es un dominio del marketplace, mostrar marketplace
   // Esto es un safety net por si acaso la verificación anterior falla
-  if (hostname === 'weekly.pe' || hostname === 'www.weekly.pe') {
+  if (isMarketplaceDomain) {
     console.log('🔄 Fallback: Detectado weekly.pe, mostrando MarketplacePage');
     return <MarketplacePage />;
   }
