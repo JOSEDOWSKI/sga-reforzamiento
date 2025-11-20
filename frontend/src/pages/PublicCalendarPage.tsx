@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './PublicCalendarPage.css';
 import apiClient from '../config/api';
 import { demoApiClient } from '../utils/demoApiClient';
 import { useTenantConfig } from '../hooks/useTenantConfig';
+import { analytics } from '../utils/analytics';
 import confetti from 'canvas-confetti';
 
 // Interfaces
@@ -43,11 +45,48 @@ interface ReservaFormData {
 
 const PublicCalendarPage: React.FC = () => {
     const { config: tenantConfig, isLoading: loadingConfig } = useTenantConfig();
+    const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
     
     // Detectar si estamos en modo demo
     const hostname = window.location.hostname;
     const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
     const client = isDemoMode ? demoApiClient : apiClient;
+    
+    // Extraer tenant_name de la URL si viene en formato /:ciudad/:categoria/:id-negocio/booking
+    // O detectar desde subdominio si es tenant.weekly.pe/booking
+    const [tenantName, setTenantName] = useState<string | null>(null);
+    
+    useEffect(() => {
+            // Si viene desde nueva ruta, extraer tenant desde el ID
+            if (params.id) {
+                const serviceId = params.id.split('-')[0];
+                // Cargar tenant desde API usando el ID
+                apiClient.get(`/public/tenants/${serviceId}`)
+                    .then(response => {
+                        const tenant = response.data.data || response.data;
+                        if (tenant?.tenant_name) {
+                            setTenantName(tenant.tenant_name);
+                            // Configurar header X-Tenant para las siguientes requests
+                            if (apiClient.defaults) {
+                                apiClient.defaults.headers.common['X-Tenant'] = tenant.tenant_name;
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        // Si falla, intentar detectar desde subdominio
+                        const subdomain = hostname.split('.')[0];
+                        if (subdomain && subdomain !== 'weekly' && subdomain !== 'www' && subdomain !== 'merchants' && subdomain !== 'panel') {
+                            setTenantName(subdomain);
+                        }
+                    });
+            } else {
+                // Detectar desde subdominio
+                const subdomain = hostname.split('.')[0];
+                if (subdomain && subdomain !== 'weekly' && subdomain !== 'www' && subdomain !== 'merchants' && subdomain !== 'panel') {
+                    setTenantName(subdomain);
+                }
+            }
+    }, [params.id, hostname]);
     
     // Estados para datos de la API
     const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
@@ -334,6 +373,64 @@ const PublicCalendarPage: React.FC = () => {
 
             setShowReservaModal(false);
             setShowConfirmacion(true);
+            
+            // Track complete booking
+            // Intentar obtener tenant ID desde params o usar tenantName
+            const tenantId = params.id ? params.id.split('-')[0] : null;
+            
+            if (tenantId) {
+                // Obtener información del tenant para analytics usando ID
+                apiClient.get(`/public/tenants/${tenantId}`)
+                    .then(response => {
+                        const tenant = response.data.data || response.data;
+                        analytics.completeBooking(
+                            tenant.id,
+                            tenant.name || tenant.display_name || tenant.cliente_nombre,
+                            tenant.category || params.categoria
+                        );
+                    })
+                    .catch(() => {
+                        // Fallback si no se puede obtener tenant
+                        analytics.completeBooking(
+                            0,
+                            selectedColaborador?.nombre || 'Servicio',
+                            params.categoria || 'Otros'
+                        );
+                    });
+            } else if (tenantName) {
+                // Si no hay ID pero hay tenantName, buscar por nombre
+                apiClient.get(`/public/tenants`)
+                    .then(response => {
+                        const tenants = response.data.data || [];
+                        const tenant = tenants.find((t: any) => t.tenant_name === tenantName);
+                        if (tenant) {
+                            analytics.completeBooking(
+                                tenant.id,
+                                tenant.name || tenant.display_name || tenant.cliente_nombre,
+                                tenant.category || params.categoria
+                            );
+                        } else {
+                            analytics.completeBooking(
+                                0,
+                                selectedColaborador?.nombre || 'Servicio',
+                                params.categoria || 'Otros'
+                            );
+                        }
+                    })
+                    .catch(() => {
+                        analytics.completeBooking(
+                            0,
+                            selectedColaborador?.nombre || 'Servicio',
+                            params.categoria || 'Otros'
+                        );
+                    });
+            } else {
+                analytics.completeBooking(
+                    0,
+                    selectedColaborador?.nombre || 'Servicio',
+                    params.categoria || 'Otros'
+                );
+            }
             
             // Confetti
             confetti({

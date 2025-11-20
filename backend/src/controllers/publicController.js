@@ -480,7 +480,7 @@ class PublicController {
 
     /**
      * Obtener lista pública de tenants activos con ubicaciones
-     * GET /api/public/tenants
+     * GET /api/public/tenants?city=lima&category=peluqueria
      */
     async getPublicTenants(req, res) {
         try {
@@ -498,8 +498,11 @@ class PublicController {
 
             const globalPool = new Pool(globalDbConfig);
             
-            const result = await globalPool.query(
-                `SELECT 
+            // Obtener filtros de query params
+            const { city, category } = req.query;
+            
+            // Construir query con filtros
+            let query = `SELECT 
                     id,
                     tenant_name,
                     display_name,
@@ -508,18 +511,33 @@ class PublicController {
                     cliente_telefono,
                     cliente_email,
                     estado,
-                    plan
+                    plan,
+                    city,
+                    latitud,
+                    longitud,
+                    show_in_marketplace
                  FROM tenants
-                 WHERE estado = 'activo'
-                 ORDER BY display_name ASC`
-            );
+                 WHERE estado = 'activo' AND show_in_marketplace = true`;
+            
+            const queryParams = [];
+            let paramIndex = 1;
+            
+            if (city) {
+                query += ` AND LOWER(city) = LOWER($${paramIndex})`;
+                queryParams.push(city);
+                paramIndex++;
+            }
+            
+            query += ` ORDER BY display_name ASC`;
+            
+            const result = await globalPool.query(query, queryParams);
 
             await globalPool.end();
 
             // Mapear a formato del frontend con coordenadas reales o geocodificadas
             const GoogleMapsService = require('../services/googleMapsService');
             
-            const tenantsWithLocation = await Promise.all(
+            const tenantsWithLocation = (await Promise.all(
                 result.rows.map(async (tenant) => {
                     // Intentar obtener coordenadas
                     let coordinates = null;
@@ -548,33 +566,41 @@ class PublicController {
                     }
 
                     // Categoría basada en tipo de negocio o nombre
-                    let category = 'Otros';
+                    let tenantCategory = 'Otros';
                     if (tenant.tenant_name.includes('peluqueria') || tenant.tenant_name.includes('salon')) {
-                        category = 'Peluquería';
+                        tenantCategory = 'Peluquería';
                     } else if (tenant.tenant_name.includes('academia') || tenant.tenant_name.includes('clases')) {
-                        category = 'Academia';
+                        tenantCategory = 'Academia';
                     } else if (tenant.tenant_name.includes('clinica') || tenant.tenant_name.includes('dental')) {
-                        category = 'Clínica';
+                        tenantCategory = 'Clínica';
                     } else if (tenant.tenant_name.includes('gimnasio') || tenant.tenant_name.includes('fitness')) {
-                        category = 'Gimnasio';
+                        tenantCategory = 'Gimnasio';
                     } else if (tenant.tenant_name.includes('spa')) {
-                        category = 'Spa';
+                        tenantCategory = 'Spa';
+                    }
+
+                    // Filtrar por categoría si se proporciona
+                    if (category && tenantCategory.toLowerCase() !== category.toLowerCase()) {
+                        return null;
                     }
 
                     return {
                         id: tenant.id,
                         tenant_name: tenant.tenant_name,
                         name: tenant.display_name || tenant.cliente_nombre,
-                        category: category,
-                        address: tenant.cliente_direccion || 'Arequipa, Perú',
+                        category: tenantCategory,
+                        city: tenant.city || 'Sin ciudad',
+                        address: tenant.cliente_direccion || '',
                         phone: tenant.cliente_telefono || '',
                         email: tenant.cliente_email || '',
                         coordinates: coordinates,
+                        latitud: tenant.latitud ? parseFloat(tenant.latitud) : null,
+                        longitud: tenant.longitud ? parseFloat(tenant.longitud) : null,
                         plan: tenant.plan,
                         estado: tenant.estado
                     };
                 })
-            );
+            )).filter(tenant => tenant !== null); // Filtrar nulls si hay filtro de categoría
 
             res.json({
                 success: true,
@@ -602,6 +628,105 @@ class PublicController {
                 success: true,
                 data: fallbackTenants,
                 warning: 'Usando datos de prueba'
+            });
+        }
+    }
+
+    /**
+     * Obtener un tenant por ID (público)
+     * GET /api/public/tenants/:id
+     */
+    async getPublicTenantById(req, res) {
+        try {
+            const { id } = req.params;
+            
+            const { Pool } = require('pg');
+            
+            const globalDbConfig = {
+                user: process.env.DB_USER || 'postgres',
+                host: process.env.DB_HOST || 'localhost',
+                database: 'weekly_global',
+                password: process.env.DB_PASSWORD || 'postgres',
+                port: parseInt(process.env.DB_PORT) || 5432,
+            };
+
+            const globalPool = new Pool(globalDbConfig);
+            
+            const result = await globalPool.query(
+                `SELECT 
+                    id,
+                    tenant_name,
+                    display_name,
+                    cliente_nombre,
+                    cliente_direccion,
+                    cliente_telefono,
+                    cliente_email,
+                    estado,
+                    plan,
+                    city,
+                    latitud,
+                    longitud,
+                    show_in_marketplace
+                 FROM tenants
+                 WHERE id = $1 AND estado = 'activo' AND show_in_marketplace = true`,
+                [id]
+            );
+
+            await globalPool.end();
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Tenant no encontrado'
+                });
+            }
+
+            const tenant = result.rows[0];
+            
+            // Categoría basada en tipo de negocio o nombre
+            let tenantCategory = 'Otros';
+            if (tenant.tenant_name.includes('peluqueria') || tenant.tenant_name.includes('salon')) {
+                tenantCategory = 'Peluquería';
+            } else if (tenant.tenant_name.includes('academia') || tenant.tenant_name.includes('clases')) {
+                tenantCategory = 'Academia';
+            } else if (tenant.tenant_name.includes('clinica') || tenant.tenant_name.includes('dental')) {
+                tenantCategory = 'Clínica';
+            } else if (tenant.tenant_name.includes('gimnasio') || tenant.tenant_name.includes('fitness')) {
+                tenantCategory = 'Gimnasio';
+            } else if (tenant.tenant_name.includes('spa')) {
+                tenantCategory = 'Spa';
+            }
+
+            // Obtener coordenadas
+            let coordinates = null;
+            if (tenant.latitud && tenant.longitud) {
+                coordinates = [parseFloat(tenant.latitud), parseFloat(tenant.longitud)];
+            }
+
+            res.json({
+                success: true,
+                data: {
+                    id: tenant.id,
+                    tenant_name: tenant.tenant_name,
+                    name: tenant.display_name || tenant.cliente_nombre,
+                    category: tenantCategory,
+                    city: tenant.city || 'Sin ciudad',
+                    address: tenant.cliente_direccion || '',
+                    phone: tenant.cliente_telefono || '',
+                    email: tenant.cliente_email || '',
+                    coordinates: coordinates,
+                    latitud: tenant.latitud ? parseFloat(tenant.latitud) : null,
+                    longitud: tenant.longitud ? parseFloat(tenant.longitud) : null,
+                    plan: tenant.plan,
+                    estado: tenant.estado
+                }
+            });
+        } catch (error) {
+            console.error('Error obteniendo tenant público:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Error interno del servidor',
+                message: error.message
             });
         }
     }

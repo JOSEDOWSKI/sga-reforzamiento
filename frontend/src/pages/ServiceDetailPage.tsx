@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { analytics } from '../utils/analytics';
+import apiClient from '../config/api';
 import './ServiceDetailPage.css';
 
 interface Service {
@@ -8,10 +10,12 @@ interface Service {
   descripcion?: string;
   precio?: number;
   ubicacion?: string;
+  city?: string;
   rating?: number;
   reviews?: number;
   imagenes?: string[];
   categoria?: string;
+  tenant_name?: string;
   features?: string[];
   host?: {
     nombre: string;
@@ -21,36 +25,85 @@ interface Service {
 }
 
 const ServiceDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
   const navigate = useNavigate();
+  
+  // Extraer ID del parámetro (puede venir como "123-salon-bella-vista")
+  const idParam = params.id || '';
+  const serviceId = idParam.split('-')[0];
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex] = useState(0); // TODO: Implementar navegación de imágenes en el futuro
 
   useEffect(() => {
-    // TODO: Cargar servicio desde API
-    // Por ahora datos de ejemplo
-    if (id) {
-      setService({
-        id: parseInt(id),
-        nombre: 'Salón de Belleza Bella Vista',
-        descripcion: 'Experimenta la mejor atención en nuestro salón de belleza. Con un espacio abierto, ventanales amplios y una cocina completamente equipada, es el retiro urbano perfecto. Ubicado en el corazón de la ciudad, estás a solo pasos de los mejores restaurantes y atracciones.',
-        precio: 50,
-        ubicacion: 'Lima, Perú',
-        rating: 4.92,
-        reviews: 215,
-        imagenes: [],
-        categoria: 'Belleza',
-        features: ['Wi-Fi Rápido', 'Estacionamiento', 'Mascotas Permitidas', 'Cocina Completa', 'Acceso a Piscina'],
-        host: {
-          nombre: 'María González',
-          experiencia: 'Superhost · 5 años de experiencia',
-          avatar: undefined
+    const fetchService = async () => {
+      try {
+        setLoading(true);
+        // Cargar desde API usando el ID
+        const response = await apiClient.get(`/public/tenants/${serviceId}`);
+        const tenant = response.data.data || response.data;
+        
+        setService({
+          id: tenant.id,
+          nombre: tenant.name || tenant.display_name || tenant.cliente_nombre,
+          descripcion: tenant.cliente_direccion || 'Servicio disponible',
+          precio: 0,
+          ubicacion: tenant.cliente_direccion || '',
+          city: tenant.city || params.ciudad || '',
+          rating: 4.5,
+          reviews: 0,
+          imagenes: [],
+          categoria: tenant.category || params.categoria || 'Servicio',
+          tenant_name: tenant.tenant_name,
+          features: [],
+          host: {
+            nombre: tenant.cliente_nombre || 'Anfitrión',
+            experiencia: undefined,
+            avatar: undefined
+          }
+        });
+        
+        // Track view
+        analytics.viewService(
+          tenant.id,
+          tenant.name || tenant.display_name,
+          tenant.category || params.categoria,
+          tenant.city || params.ciudad
+        );
+      } catch (error) {
+        console.error('Error cargando servicio:', error);
+        // Fallback a datos de ejemplo si falla
+        if (serviceId) {
+          setService({
+            id: parseInt(serviceId),
+            nombre: 'Salón de Belleza Bella Vista',
+            descripcion: 'Experimenta la mejor atención en nuestro salón de belleza.',
+            precio: 50,
+            ubicacion: params.ciudad ? `${params.ciudad}, Perú` : 'Lima, Perú',
+            city: params.ciudad || 'Lima',
+            rating: 4.92,
+            reviews: 215,
+            imagenes: [],
+            categoria: params.categoria || 'Belleza',
+            features: ['Wi-Fi Rápido', 'Estacionamiento'],
+            host: {
+              nombre: 'María González',
+              experiencia: 'Superhost · 5 años de experiencia',
+              avatar: undefined
+            }
+          });
         }
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (serviceId) {
+      fetchService();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [id]);
+  }, [serviceId, params.ciudad, params.categoria]);
 
   if (loading) {
     return <div className="service-detail-loading">Cargando...</div>;
@@ -191,8 +244,20 @@ const ServiceDetailPage: React.FC = () => {
         <button 
           className="book-button"
           onClick={() => {
-            // TODO: Navegar a página de reserva
-            navigate(`/service/${service.id}/book`);
+            analytics.clickBooking(service.id, service.nombre, service.categoria);
+            
+            // Navegar a booking con nueva estructura de URL
+            if (service.tenant_name && params.ciudad && params.categoria) {
+              const citySlug = params.ciudad.toLowerCase();
+              const categorySlug = params.categoria.toLowerCase();
+              const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+              navigate(`/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}/booking`);
+            } else if (service.tenant_name) {
+              // Fallback a ruta antigua si no hay ciudad/categoría
+              window.location.href = `https://${service.tenant_name}.weekly.pe/booking`;
+            } else {
+              navigate(`/service/${service.id}/book`);
+            }
           }}
         >
           Reservar Ahora
