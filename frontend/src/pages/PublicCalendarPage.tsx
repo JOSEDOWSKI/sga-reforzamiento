@@ -5,6 +5,7 @@ import apiClient from '../config/api';
 import { demoApiClient } from '../utils/demoApiClient';
 import { useTenantConfig } from '../hooks/useTenantConfig';
 import { analytics } from '../utils/analytics';
+import { useMarketplaceProfile } from '../hooks/useMarketplaceProfile';
 import confetti from 'canvas-confetti';
 
 // Interfaces
@@ -46,6 +47,7 @@ interface ReservaFormData {
 const PublicCalendarPage: React.FC = () => {
     const { config: tenantConfig, isLoading: loadingConfig } = useTenantConfig();
     const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
+    const { profile, saveProfile } = useMarketplaceProfile();
     
     // Detectar si estamos en modo demo
     const hostname = window.location.hostname;
@@ -120,6 +122,19 @@ const PublicCalendarPage: React.FC = () => {
         precio: '',
         notas: ''
     });
+
+    // Prellenar formulario con perfil del usuario cuando se abre el modal
+    useEffect(() => {
+        if (showReservaModal && profile) {
+            setReservaForm(prev => ({
+                ...prev,
+                cliente_nombre: profile.nombre || prev.cliente_nombre,
+                cliente_telefono: profile.telefono || prev.cliente_telefono,
+                cliente_email: profile.email || prev.cliente_email,
+                cliente_dni: profile.dni || prev.cliente_dni
+            }));
+        }
+    }, [showReservaModal, profile]);
     
     // Estado para el modal de confirmación
     const [showConfirmacion, setShowConfirmacion] = useState(false);
@@ -439,6 +454,17 @@ const PublicCalendarPage: React.FC = () => {
                 origin: { y: 0.6 }
             });
 
+            // Guardar perfil del usuario para futuras reservas
+            if (reservaForm.cliente_nombre && reservaForm.cliente_telefono) {
+                await saveProfile({
+                    nombre: reservaForm.cliente_nombre,
+                    telefono: reservaForm.cliente_telefono,
+                    email: reservaForm.cliente_email || undefined,
+                    dni: reservaForm.cliente_dni || undefined,
+                    ciudad: params.ciudad || undefined
+                });
+            }
+
             // Limpiar formulario
             setReservaForm({
                 cliente_nombre: '',
@@ -658,6 +684,22 @@ const PublicCalendarPage: React.FC = () => {
                             <p style={{ color: '#a0aec0', marginBottom: '1rem' }}>
                                 <strong>Profesional:</strong> {selectedColaborador.nombre}
                             </p>
+                        )}
+                        {profile && (
+                            <div style={{
+                                background: 'var(--primary)',
+                                color: 'white',
+                                padding: '0.75rem',
+                                borderRadius: '8px',
+                                marginBottom: '1rem',
+                                fontSize: '0.875rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                            }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>account_circle</span>
+                                <span>Usando tu perfil guardado: <strong>{profile.nombre}</strong></span>
+                            </div>
                         )}
                         <form onSubmit={handleFormSubmit}>
                             <div className="form-group">

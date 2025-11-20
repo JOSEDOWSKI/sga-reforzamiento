@@ -31,5 +31,10 @@ router.get('/tenants/:id', publicController.getPublicTenantById);
 // Geocodificar dirección (para selector de ubicación)
 router.post('/geocode', publicController.geocodeAddress);
 
+// Rutas de perfil de usuario del marketplace
+const marketplaceUserController = require('../controllers/marketplaceUserController');
+router.post('/marketplace-user/profile', marketplaceUserController.saveProfile);
+router.get('/marketplace-user/profile', marketplaceUserController.getProfile);
+
 module.exports = router;
 
