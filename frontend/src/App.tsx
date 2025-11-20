@@ -405,9 +405,17 @@ function AppContent() {
     return <DemoLandingPage />;
   }
   
-  // PRIORIDAD 1: Dominios del marketplace/ecommerce (weekly.pe por defecto)
+  // PRIORIDAD 1: Dominios informativos de merchants (MÁXIMA PRIORIDAD - antes que todo)
+  // Esto debe estar ANTES de marketplace y tenants para evitar redirecciones
+  if (isMerchantsDomain || subdomain === 'merchants') {
+    console.log('✅ PRIORIDAD 1: Detectado merchants.weekly.pe - Mostrando LandingPage');
+    // Merchants es puramente informativo. SIEMPRE mostrar landing, nunca booking ni tenant app
+    return <LandingPage />;
+  }
+  
+  // PRIORIDAD 2: Dominios del marketplace/ecommerce (weekly.pe por defecto)
   if (isMarketplaceDomain) {
-    console.log('✅ PRIORIDAD 1: Detectado weekly.pe - Mostrando MarketplacePage');
+    console.log('✅ PRIORIDAD 2: Detectado weekly.pe - Mostrando MarketplacePage');
     // Si es /booking en el dominio principal, mostrar calendario público global
     if (pathname === '/booking' || pathname === '/booking/') {
       return <PublicCalendarPage />;
@@ -418,13 +426,6 @@ function AppContent() {
     }
     // Si no, mostrar marketplace
     return <MarketplacePage />;
-  }
-  
-  // PRIORIDAD 2: Dominios informativos de merchants (sin booking)
-  if (isMerchantsDomain || subdomain === 'merchants') {
-    console.log('✅ PRIORIDAD 2: Detectado merchants.weekly.pe - Mostrando LandingPage');
-    // Merchants es puramente informativo. No mostramos booking aquí.
-    return <LandingPage />;
   }
   
   // Si es localhost sin subdominio, también mostrar marketplace (desarrollo)
