@@ -25,6 +25,7 @@ import LandingPage from './pages/LandingPage';
 import DemoLandingPage from './pages/DemoLandingPage';
 import MarketplacePage from './pages/MarketplacePage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
+import MarketplaceBookingPage from './pages/MarketplaceBookingPage';
 
 // Calendario público (sin autenticación)
 import PublicCalendarPage from './pages/PublicCalendarPage';
@@ -430,8 +431,8 @@ function AppContent() {
     // Ejemplo: /lima/peluqueria/123-salon-bella-vista/booking
     const routeParts = pathname.split('/').filter(Boolean);
     if (routeParts.length >= 4 && routeParts[routeParts.length - 1] === 'booking') {
-      // Los parámetros se extraen automáticamente por useParams en PublicCalendarPage
-      return <PublicCalendarPage />;
+      // Usar la nueva página de booking del marketplace
+      return <MarketplaceBookingPage />;
     }
     // Rutas dinámicas: /:ciudad/:categoria/:id-negocio
     if (routeParts.length >= 3) {

@@ -470,13 +470,13 @@ const ServiceDetailPage: React.FC = () => {
             analytics.clickBooking(service.id, service.nombre, service.categoria);
             
             // SIEMPRE usar rutas dinámicas del marketplace, NUNCA subdominios de tenant
-            // BLOQUEAR explícitamente cualquier intento de usar tenant_name para redirección
+            // Navegar a la nueva página de booking del marketplace
             const citySlug = params.ciudad?.toLowerCase() || 'lima';
             const categorySlug = params.categoria?.toLowerCase() || service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
             const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
             const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}/booking`;
             
-            console.log('✅ Navegando a booking en marketplace:', targetPath);
+            console.log('✅ Navegando a booking del marketplace:', targetPath);
             console.log('🚫 BLOQUEADO: No se usará tenant_name para redirección');
             
             // Usar navigate, NUNCA window.location.href
