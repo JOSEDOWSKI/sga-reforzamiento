@@ -40,25 +40,38 @@ export function connectSocket(tenant: string): Socket {
   const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
   const isLandingPage = hostname === 'merchants.weekly.pe' || hostname === 'weekly.pe';
   
-  // En modo demo o landing page, no crear socket
+  // En modo demo o landing page, retornar un socket mock que NO intenta conectarse
   if (isDemoMode || isLandingPage) {
-    // Retornar un socket mock que no se conecta
+    // Crear un socket mock completamente deshabilitado
     if (!socket) {
-      socket = io(getBaseUrl(), {
-        path: '/socket.io',
-        transports: ['websocket', 'polling'],
-        withCredentials: true,
-        timeout: 1000, // Timeout muy corto
-        autoConnect: false, // No conectar automáticamente
-        forceNew: false,
-        reconnection: false // Desactivar reconexión
-      });
-      
-      // Prevenir cualquier intento de conexión
-      socket.connect = () => {
-        // No hacer nada en landing/demo
-        return socket as any;
-      };
+      // Crear un objeto mock que imita la interfaz de Socket pero no hace nada
+      socket = {
+        id: undefined,
+        connected: false,
+        disconnected: true,
+        connect: () => socket as any,
+        disconnect: () => socket as any,
+        on: () => socket as any,
+        once: () => socket as any,
+        off: () => socket as any,
+        emit: () => socket as any,
+        removeAllListeners: () => socket as any,
+        close: () => socket as any,
+        compress: () => socket as any,
+        io: {
+          uri: '',
+          opts: {},
+          engine: {} as any,
+          _reconnection: false,
+          _reconnectionAttempts: 0,
+          _reconnectionDelay: 0,
+          _reconnectionDelayMax: 0,
+          _randomizationFactor: 0,
+          _timeout: 0,
+          _readyState: 'closed',
+          _skipReconnect: true,
+        } as any,
+      } as any;
     }
     return socket;
   }

@@ -63,8 +63,9 @@ const corsOptions = {
             callback(null, true);
         } else {
             // Log detallado para debugging
+            const originHostForLog = origin ? origin.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'N/A';
             console.log(`❌ CORS blocked origin: ${origin}`);
-            console.log(`   Origin host: ${originHost || 'N/A'}`);
+            console.log(`   Origin host: ${originHostForLog}`);
             console.log(`   Allowed origins: ${allowedOrigins.length > 0 ? allowedOrigins.join(', ') : '(empty)'}`);
             console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
             callback(new Error('Not allowed by CORS policy'));

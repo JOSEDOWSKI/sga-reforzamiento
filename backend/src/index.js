@@ -44,11 +44,28 @@ app.options('*', (req, res) => {
     const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
     let isAllowed = false;
     
-    if (process.env.NODE_ENV === 'production') {
-        if (origin && (origin.includes('.weekly.pe') || origin === 'https://weekly.pe' || origin === 'http://weekly.pe')) {
+    // En desarrollo, permitir localhost
+    if (process.env.NODE_ENV === 'development') {
+        if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
             isAllowed = true;
         }
-        if (origin && (origin.includes('.getdevtools.com') || origin.includes('getdevtools.com'))) {
+    }
+    
+    // En producción, permitir automáticamente dominios weekly.pe y getdevtools.com
+    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === undefined || !process.env.NODE_ENV) {
+        // Normalizar origin para comparación (sin protocolo)
+        const originHost = origin ? origin.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+        
+        // Permitir todos los subdominios de weekly.pe
+        if (originHost && (
+            originHost === 'weekly.pe' ||
+            originHost.endsWith('.weekly.pe') ||
+            originHost.includes('weekly.pe')
+        )) {
+            isAllowed = true;
+        }
+        // Permitir dominios getdevtools.com
+        if (originHost && (originHost.includes('.getdevtools.com') || originHost.includes('getdevtools.com'))) {
             isAllowed = true;
         }
     }
