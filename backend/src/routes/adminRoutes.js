@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    getActiveTenants, 
-    createTenantDatabase, 
-    removeTenantConnection 
+const {
+    getActiveTenants,
+    createTenantDatabase,
+    removeTenantConnection
 } = require('../config/tenantDatabase');
 const logsController = require('../controllers/logsController');
 const tenantConfigController = require('../controllers/tenantConfigController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { authMiddleware } = require('../middleware/authMiddleware');
 
 // Obtener información de todos los tenants activos
 router.get('/tenants', async (req, res) => {
@@ -32,14 +32,14 @@ router.get('/tenants', async (req, res) => {
 router.post('/tenants', async (req, res) => {
     try {
         const { tenantId, displayName } = req.body;
-        
+
         if (!tenantId || !displayName) {
             return res.status(400).json({
                 error: 'Missing required fields',
                 message: 'tenantId and displayName are required'
             });
         }
-        
+
         // Validar formato del tenant ID
         const tenantRegex = /^[a-zA-Z0-9-]{2,50}$/;
         if (!tenantRegex.test(tenantId)) {
@@ -48,10 +48,10 @@ router.post('/tenants', async (req, res) => {
                 message: 'Tenant ID must contain only letters, numbers, and hyphens (2-50 characters)'
             });
         }
-        
+
         // Crear la base de datos del tenant
         await createTenantDatabase(tenantId);
-        
+
         res.status(201).json({
             message: 'Tenant created successfully',
             data: {
@@ -74,7 +74,7 @@ router.delete('/tenants/:tenantId/connection', async (req, res) => {
     try {
         const { tenantId } = req.params;
         await removeTenantConnection(tenantId);
-        
+
         res.json({
             message: 'Tenant connection removed successfully',
             data: { tenantId }
@@ -99,7 +99,7 @@ router.get('/logs/stats', logsController.getLogStats.bind(logsController));
 router.get('/stats', async (req, res) => {
     try {
         const activeTenants = getActiveTenants();
-        
+
         res.json({
             message: 'System statistics retrieved successfully',
             data: {
