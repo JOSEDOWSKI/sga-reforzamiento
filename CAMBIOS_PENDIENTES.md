@@ -22,8 +22,8 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 - [x] **1.1** Agregar routing dinámico en `App.tsx` para rutas `/:ciudad` y `/:ciudad/:categoria` ✅
 - [x] **1.2** Integrado en `MarketplacePage.tsx` con props y `useParams` ✅
 - [x] **1.3** Filtrado por ciudad + categoría implementado en `MarketplacePage.tsx` ✅
-- [ ] **1.4** Modificar `ServiceDetailPage.tsx` para usar nueva estructura de URL
-- [ ] **1.5** Modificar `PublicCalendarPage.tsx` para usar nueva estructura de URL
+- [x] **1.4** Modificar `ServiceDetailPage.tsx` para usar nueva estructura de URL ✅
+- [x] **1.5** Modificar `PublicCalendarPage.tsx` para usar nueva estructura de URL ✅
 - [x] **1.6** Actualizar navegación desde `MarketplacePage` a nuevas rutas ✅
 
 ---
@@ -155,16 +155,24 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 ### MarketplacePage
 - [x] **9.1** Agregar selector de ciudad en header (dropdown) ✅
 - [x] **9.2** Agregar filtros de categoría (dropdown) ✅
-- [ ] **9.3** Mostrar "cerca de ti" si hay geolocalización - Pendiente
-- [ ] **9.4** Agregar botón "Cambiar ubicación" si la detección falla - Pendiente
+- [ ] **9.3** Mostrar "cerca de ti" si hay geolocalización - Pendiente (mejora UX)
+- [ ] **9.4** Agregar botón "Cambiar ubicación" si la detección falla - Pendiente (mejora UX)
 - [ ] **9.5** Mostrar distancia en cada tarjeta de negocio - Pendiente (requiere cálculo de distancia)
 - [x] **9.6** Agregar ordenamiento (dropdown: "Más cercano", "Mejor rating", etc.) ✅
+- [x] **9.7** Migrar MarketplacePage.css a estilos estrictos ✅
+- [x] **9.8** Implementar funcionalidad de favoritos (localStorage + UI) ✅
+- [x] **9.9** Implementar funcionalidad de compartir (Web Share API) ✅
+- [x] **9.10** Hacer funcional el botón de mapa (Google Maps) ✅
 
 ### ServiceDetailPage
-- [ ] **9.7** Mostrar mapa con ubicación del negocio
-- [ ] **9.8** Agregar botón "Cómo llegar" (Google Maps)
-- [ ] **9.9** Mostrar distancia desde ubicación del usuario
-- [ ] **9.10** Agregar breadcrumbs: `Lima > Peluquería > Salón Bella Vista`
+- [x] **9.11** Migrar ServiceDetailPage.css a estilos estrictos ✅
+- [x] **9.12** Implementar botón "Mostrar más" en descripción ✅
+- [x] **9.13** Implementar favoritos en detalle de servicio ✅
+- [x] **9.14** Implementar compartir en detalle de servicio ✅
+- [ ] **9.15** Mostrar mapa con ubicación del negocio - Pendiente
+- [ ] **9.16** Agregar botón "Cómo llegar" (Google Maps) - Pendiente
+- [ ] **9.17** Mostrar distancia desde ubicación del usuario - Pendiente
+- [ ] **9.18** Agregar breadcrumbs: `Lima > Peluquería > Salón Bella Vista` - Pendiente
 
 ---
 
@@ -228,6 +236,11 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 - [x] Filtros por categoría funcionando ✅
 - [x] Rutas dinámicas implementadas ✅
 - [x] Google Analytics configurado ✅
+- [x] MarketplacePage con estilos estrictos ✅
+- [x] ServiceDetailPage con estilos estrictos ✅
+- [x] Funcionalidad de favoritos implementada ✅
+- [x] Funcionalidad de compartir implementada ✅
+- [x] Botones funcionales (mapa, mostrar más) ✅
 - [ ] Next.js migrado (opcional pero recomendado) - Sprint 2
 - [ ] CDN configurado - Sprint 2
 - [ ] PWA funcionando - Sprint 3
@@ -237,7 +250,7 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 
 ## 📈 PROGRESO ACTUAL
 
-### ✅ Sprint 1 - Fundación (95% Completado)
+### ✅ Sprint 1 - Fundación (98% Completado)
 
 **Completado:**
 - ✅ Geolocalización y detección automática de ciudad (`useGeolocation.ts`)
@@ -257,6 +270,11 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 - [ ] **9.3** Mostrar "cerca de ti" si hay geolocalización - Mejora UX
 - [ ] **9.4** Agregar botón "Cambiar ubicación" si la detección falla - Mejora UX
 - [ ] **9.5** Mostrar distancia en cada tarjeta de negocio - Requiere cálculo de distancia
+- [ ] **9.15-9.18** Mejoras en ServiceDetailPage (mapa, breadcrumbs, distancia) - Mejoras UX
+
+**Completado Recientemente:**
+- ✅ **9.7-9.10** MarketplacePage: Estilos estrictos, favoritos, compartir, mapa funcional
+- ✅ **9.11-9.14** ServiceDetailPage: Estilos estrictos, favoritos, compartir, mostrar más
 
 **Próximos pasos (Sprint 2):**
 1. Migrar marketplace a Next.js para mejor SEO
