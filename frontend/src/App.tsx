@@ -324,8 +324,10 @@ function AppContent() {
   const normalizedHost = normalizeHost(hostname);
   
   // Extraer subdominio si existe
+  // IMPORTANTE: NO detectar subdominio si estamos en weekly.pe o merchants.weekly.pe
   const parts = hostname.split('.');
-  const subdomain = parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
+  const isMarketplaceMainDomain = hostname === 'weekly.pe' || hostname === 'merchants.weekly.pe';
+  const subdomain = !isMarketplaceMainDomain && parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
 
   // Dominios configurables (permite variaciones sin tocar el código)
   const marketplaceDomains = [

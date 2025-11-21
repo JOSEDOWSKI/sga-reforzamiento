@@ -52,20 +52,37 @@ apiClient.interceptors.request.use((config) => {
     const hostname = window.location.hostname;
     const parts = hostname.split('.');
     
+    // IMPORTANTE: NO agregar X-Tenant si estamos en el marketplace (weekly.pe o merchants.weekly.pe)
+    const isMarketplaceDomain = hostname === 'weekly.pe' || hostname === 'merchants.weekly.pe';
+    if (isMarketplaceDomain) {
+        // En el marketplace, NO agregar X-Tenant header
+        return config;
+    }
+    
     // Para getdevtools.com: admin.getdevtools.com -> "admin", cliente.getdevtools.com -> "cliente"
     if (hostname.includes('getdevtools.com') && parts.length >= 3) {
         const tenant = parts[0];
-        config.headers['X-Tenant'] = tenant;
+        // Excluir subdominios del sistema
+        if (tenant !== 'www' && tenant !== 'api' && tenant !== 'admin' && tenant !== 'app') {
+            config.headers['X-Tenant'] = tenant;
+        }
     }
-    // Para weekly (desarrollo): admin.weekly -> "admin", cliente.weekly -> "cliente"
-    else if (hostname.includes('weekly') && parts.length >= 2) {
+    // Para weekly.pe con subdominio (ej: peluqueria.weekly.pe)
+    // IMPORTANTE: Solo si hay 3+ partes (subdominio.weekly.pe)
+    else if (hostname.includes('weekly.pe') && parts.length >= 3) {
         const tenant = parts[0];
-        config.headers['X-Tenant'] = tenant;
+        // Excluir subdominios del sistema
+        if (tenant !== 'www' && tenant !== 'api' && tenant !== 'admin' && tenant !== 'app' && tenant !== 'merchants' && tenant !== 'panel' && tenant !== 'demo') {
+            config.headers['X-Tenant'] = tenant;
+        }
     }
     // Para otros dominios con subdominios
     else if (parts.length >= 3 && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
         const tenant = parts[0];
-        config.headers['X-Tenant'] = tenant;
+        // Excluir subdominios del sistema
+        if (tenant !== 'www' && tenant !== 'api' && tenant !== 'admin' && tenant !== 'app') {
+            config.headers['X-Tenant'] = tenant;
+        }
     }
     
     return config;
