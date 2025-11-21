@@ -60,13 +60,17 @@ jobs:
           # Convertir tar.gz a base64
           TAR_BASE64=$(base64 -w 0 weekly-unified.tar.gz)
           
-          # Enviar tarball al webhook de CapRover
+          # Crear archivo temporal con el JSON para evitar "Argument list too long"
+          echo "{\"tarFileBase64\":\"$TAR_BASE64\"}" > /tmp/caprover-payload.json
+          
+          # Enviar tarball al webhook de CapRover usando archivo
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Content-Type: application/json" \
-            -d "{
-              \"tarFileBase64\": \"$TAR_BASE64\"
-            }" \
+            --data-binary @/tmp/caprover-payload.json \
             "$CAPROVER_WEBHOOK_URL")
+          
+          # Limpiar archivo temporal
+          rm -f /tmp/caprover-payload.json
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
