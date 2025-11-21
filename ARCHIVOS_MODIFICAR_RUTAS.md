@@ -149,10 +149,4 @@ Después de modificar, verifica en la consola del navegador:
    - ✅ `https://weekly.pe/lima/peluqueria/123-salon-bella-vista`
    - ❌ NO `https://peluqueria.weekly.pe/booking`
 
-## ⚠️ SI AÚN TE REDIRIGE
-
-1. **Limpia la caché del navegador completamente**
-2. **Abre en modo incógnito**
-3. **Verifica que el deploy se haya completado**
-4. **Revisa los logs de la consola para ver qué está pasando**
 
