@@ -182,11 +182,19 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
   };
 
   const handleServiceClick = (service: Service) => {
+    // PREVENIR cualquier redirección a subdominios de tenant
+    const currentHost = window.location.hostname;
+    if (currentHost !== 'weekly.pe' && !currentHost.includes('localhost')) {
+      console.error('❌ ERROR: Intento de navegación desde dominio incorrecto:', currentHost);
+      return;
+    }
+    
     console.log('🔍 handleServiceClick:', { 
       service: service.nombre, 
       tenant_name: service.tenant_name,
       selectedCity,
-      categoria: service.categoria 
+      categoria: service.categoria,
+      currentHost
     });
     
     analytics.viewService(
@@ -197,17 +205,17 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
     );
     
     // SIEMPRE usar rutas dinámicas del marketplace, NUNCA subdominios de tenant
-    if (service.tenant_name) {
-      const citySlug = selectedCity?.toLowerCase() || 'lima';
-      const categorySlug = service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
-      const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}`;
-      console.log('✅ Navegando a ruta dinámica:', targetPath);
-      navigate(targetPath);
-    } else {
-      console.log('✅ Navegando a ruta genérica:', `/service/${service.id}`);
-      navigate(`/service/${service.id}`);
-    }
+    // BLOQUEAR explícitamente cualquier intento de usar tenant_name para redirección
+    const citySlug = selectedCity?.toLowerCase() || 'lima';
+    const categorySlug = service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
+    const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}`;
+    
+    console.log('✅ Navegando a ruta dinámica del marketplace:', targetPath);
+    console.log('🚫 BLOQUEADO: No se usará tenant_name para redirección');
+    
+    // Usar navigate, NUNCA window.location.href
+    navigate(targetPath, { replace: false });
   };
 
   // Detectar si es desktop para mostrar sidebar por defecto

@@ -460,20 +460,27 @@ const ServiceDetailPage: React.FC = () => {
         <button 
           className="book-button"
           onClick={() => {
+            // PREVENIR cualquier redirección a subdominios de tenant
+            const currentHost = window.location.hostname;
+            if (currentHost !== 'weekly.pe' && !currentHost.includes('localhost')) {
+              console.error('❌ ERROR: Intento de navegación desde dominio incorrecto:', currentHost);
+              return;
+            }
+            
             analytics.clickBooking(service.id, service.nombre, service.categoria);
             
-            // Navegar a booking con nueva estructura de URL
-            // SIEMPRE usar rutas dinámicas del marketplace, nunca subdominios de tenant
-            if (service.tenant_name) {
-              // Usar ciudad y categoría de params, o valores por defecto
-              const citySlug = params.ciudad?.toLowerCase() || 'lima';
-              const categorySlug = params.categoria?.toLowerCase() || service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
-              const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-              navigate(`/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}/booking`);
-            } else {
-              // Si no hay tenant_name, usar ruta genérica
-              navigate(`/service/${service.id}/book`);
-            }
+            // SIEMPRE usar rutas dinámicas del marketplace, NUNCA subdominios de tenant
+            // BLOQUEAR explícitamente cualquier intento de usar tenant_name para redirección
+            const citySlug = params.ciudad?.toLowerCase() || 'lima';
+            const categorySlug = params.categoria?.toLowerCase() || service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
+            const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}/booking`;
+            
+            console.log('✅ Navegando a booking en marketplace:', targetPath);
+            console.log('🚫 BLOQUEADO: No se usará tenant_name para redirección');
+            
+            // Usar navigate, NUNCA window.location.href
+            navigate(targetPath, { replace: false });
           }}
         >
           Reservar Ahora
