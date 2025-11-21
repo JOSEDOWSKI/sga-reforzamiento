@@ -151,11 +151,11 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
           return (b.rating || 0) - (a.rating || 0);
         case 'distance':
           // Ordenar por distancia si está disponible
-          if (a.distancia !== null && b.distancia !== null) {
+          if (a.distancia !== null && a.distancia !== undefined && b.distancia !== null && b.distancia !== undefined) {
             return a.distancia - b.distancia;
           }
-          if (a.distancia !== null) return -1;
-          if (b.distancia !== null) return 1;
+          if (a.distancia !== null && a.distancia !== undefined) return -1;
+          if (b.distancia !== null && b.distancia !== undefined) return 1;
           return (a.city || '').localeCompare(b.city || '');
         default:
           return 0;
@@ -736,7 +736,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
                     {service.distancia !== null && service.distancia !== undefined && (
                       <span className="service-distance"> • {formatDistance(service.distancia)}</span>
                     )}
-                    {coordinates && service.distancia !== null && service.distancia < 5 && (
+                    {coordinates && service.distancia !== null && service.distancia !== undefined && service.distancia < 5 && (
                       <span className="service-nearby"> • Cerca de ti</span>
                     )}
                   </p>

@@ -78,14 +78,20 @@ const ServiceDetailPage: React.FC = () => {
         setService(serviceData);
         
         // Calcular distancia si tenemos coordenadas
-        if (coordinates && tenant.latitud && tenant.longitud) {
-          const calculatedDistance = calculateDistance(
-            coordinates.lat,
-            coordinates.lng,
-            parseFloat(tenant.latitud),
-            parseFloat(tenant.longitud)
-          );
-          setDistance(calculatedDistance);
+        if (coordinates && tenant.latitud !== undefined && tenant.longitud !== undefined) {
+          // Asegurar que latitud y longitud sean números
+          const lat = typeof tenant.latitud === 'string' ? parseFloat(tenant.latitud) : Number(tenant.latitud);
+          const lng = typeof tenant.longitud === 'string' ? parseFloat(tenant.longitud) : Number(tenant.longitud);
+          
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const calculatedDistance = calculateDistance(
+              coordinates.lat,
+              coordinates.lng,
+              lat,
+              lng
+            );
+            setDistance(calculatedDistance);
+          }
         }
         
         // Track view
@@ -132,14 +138,22 @@ const ServiceDetailPage: React.FC = () => {
 
   // Recalcular distancia cuando cambien las coordenadas
   useEffect(() => {
-    if (service && coordinates && service.latitud && service.longitud) {
-      const calculatedDistance = calculateDistance(
-        coordinates.lat,
-        coordinates.lng,
-        parseFloat(service.latitud),
-        parseFloat(service.longitud)
-      );
-      setDistance(calculatedDistance);
+    if (service && coordinates && service.latitud !== undefined && service.longitud !== undefined) {
+      // Asegurar que latitud y longitud sean números
+      const lat = typeof service.latitud === 'string' ? parseFloat(service.latitud) : service.latitud;
+      const lng = typeof service.longitud === 'string' ? parseFloat(service.longitud) : service.longitud;
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const calculatedDistance = calculateDistance(
+          coordinates.lat,
+          coordinates.lng,
+          lat,
+          lng
+        );
+        setDistance(calculatedDistance);
+      } else {
+        setDistance(null);
+      }
     } else {
       setDistance(null);
     }

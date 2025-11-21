@@ -428,19 +428,12 @@ function AppContent() {
     // Ejemplo: /lima/peluqueria/123-salon-bella-vista/booking
     const routeParts = pathname.split('/').filter(Boolean);
     if (routeParts.length >= 4 && routeParts[routeParts.length - 1] === 'booking') {
-      // Extraer ciudad, categoría e id del negocio
-      const ciudad = routeParts[0];
-      const categoria = routeParts[1];
-      const negocioId = routeParts.slice(2, -1).join('-');
-      // TODO: Pasar estos parámetros al PublicCalendarPage
+      // Los parámetros se extraen automáticamente por useParams en PublicCalendarPage
       return <PublicCalendarPage />;
     }
     // Rutas dinámicas: /:ciudad/:categoria/:id-negocio
     if (routeParts.length >= 3) {
-      const ciudad = routeParts[0];
-      const categoria = routeParts[1];
-      const negocioId = routeParts.slice(2).join('-');
-      // TODO: Pasar estos parámetros al ServiceDetailPage
+      // Los parámetros se extraen automáticamente por useParams en ServiceDetailPage
       return <ServiceDetailPage />;
     }
     // Rutas dinámicas: /:ciudad/:categoria
