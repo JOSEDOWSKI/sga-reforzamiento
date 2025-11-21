@@ -50,6 +50,14 @@ jobs:
             docker-compose.yml \
             .dockerignore \
             package.json
+          
+          # Verificar que los archivos del frontend están incluidos
+          echo "📦 Verificando contenido del tarball..."
+          echo "Archivos de frontend incluidos:"
+          tar -tzf weekly-unified.tar.gz | grep "frontend/src/pages" | head -10
+          echo ""
+          echo "Tamaño del tarball:"
+          ls -lh weekly-unified.tar.gz
 
       - name: Deploy to CapRover via Webhook
         env:
