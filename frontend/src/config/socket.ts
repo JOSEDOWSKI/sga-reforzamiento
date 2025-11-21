@@ -40,34 +40,66 @@ export function connectSocket(tenant: string): Socket {
   const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
   const isLandingPage = hostname === 'merchants.weekly.pe' || hostname === 'weekly.pe';
   
-  // En modo demo o landing page, retornar un socket mock que NO intenta conectarse
+  // En modo demo o landing page, NO crear socket en absoluto
   if (isDemoMode || isLandingPage) {
-    // Crear un socket mock completamente deshabilitado usando io() pero sin conectar
+    // Retornar null o un objeto mock que no intente conectarse
+    // Esto previene completamente cualquier intento de conexión WebSocket
     if (!socket) {
-      // Crear un socket con autoConnect: false para que no intente conectarse
-      socket = io('http://localhost', {
-        path: '/socket.io',
-        transports: ['websocket', 'polling'],
-        withCredentials: true,
-        timeout: 1, // Timeout muy corto
-        autoConnect: false, // CRÍTICO: No conectar automáticamente
-        forceNew: false,
-        reconnection: false, // Desactivar reconexión
-        reconnectionAttempts: 0,
-        reconnectionDelay: 0,
-        reconnectionDelayMax: 0,
-      });
-      
-      // Prevenir cualquier intento de conexión
-      socket.connect = () => {
-        // No hacer nada en landing/demo - retornar el socket sin conectar
-        return socket as any;
-      };
-      
-      // Desconectar si por alguna razón se conectó
-      if (socket.connected) {
-        socket.disconnect();
-      }
+      // Crear un objeto mock que implementa la interfaz Socket pero no hace nada
+      socket = {
+        connected: false,
+        disconnected: true,
+        id: undefined,
+        connect: () => socket as any,
+        disconnect: () => socket as any,
+        on: () => socket as any,
+        off: () => socket as any,
+        emit: () => false,
+        close: () => socket as any,
+        open: () => socket as any,
+        send: () => socket as any,
+        receive: () => socket as any,
+        compress: () => socket as any,
+        binary: () => socket as any,
+        volatile: () => socket as any,
+        timeout: () => socket as any,
+        any: () => socket as any,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        removeAllListeners: () => socket as any,
+        once: () => socket as any,
+        listeners: () => [],
+        hasListeners: () => false,
+        eventNames: () => [],
+        active: () => false,
+        disconnected: true,
+        auth: {},
+        _callbacks: {},
+        _opts: {},
+        nsp: '/',
+        client: {} as any,
+        server: {} as any,
+        adapter: {} as any,
+        acks: {},
+        flags: {},
+        rooms: new Set(),
+        data: {},
+        handshake: {} as any,
+        request: {} as any,
+        query: {},
+        volatile: () => socket as any,
+        binary: () => socket as any,
+        local: () => socket as any,
+        broadcast: () => socket as any,
+        to: () => socket as any,
+        in: () => socket as any,
+        except: () => socket as any,
+        use: () => socket as any,
+        join: () => socket as any,
+        leave: () => socket as any,
+        leaveAll: () => socket as any,
+        toJSON: () => ({}),
+      } as any as Socket;
     }
     return socket;
   }

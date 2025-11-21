@@ -23,6 +23,7 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     // En modo demo o landing page, no intentar conectar WebSocket
     if (isDemoMode || isLandingPage) {
+      console.log('🚫 WebSocket deshabilitado para:', hostname);
       socketRef.current = null;
       setIsConnected(false);
       return;
