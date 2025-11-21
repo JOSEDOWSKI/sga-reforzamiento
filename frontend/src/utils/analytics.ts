@@ -108,5 +108,10 @@ export const analytics = {
       page_location: window.location.href,
     });
   },
+
+  // Método genérico para eventos personalizados
+  trackEvent: (eventName: string, eventParams?: Record<string, any>) => {
+    trackEvent(eventName, eventParams);
+  },
 };
 

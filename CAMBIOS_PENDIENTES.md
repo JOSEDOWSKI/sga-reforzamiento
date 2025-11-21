@@ -45,7 +45,7 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 - [x] **2.2** Integrar reverse geocoding (coordenadas → ciudad) con Google Maps API ✅
 - [x] **2.3** Fallback a IP geolocation si el usuario no permite ubicación ✅
 - [x] **2.4** Agregar selector manual de ciudad en el header (dropdown) ✅
-- [ ] **2.5** Implementar búsqueda por radio (ej: "a 5km de mí") - Pendiente
+- [x] **2.5** Implementar búsqueda por radio (ej: "a 5km de mí") ✅ (Backend completo, frontend pendiente)
 - [x] **2.6** Guardar ciudad preferida en localStorage ✅
 
 ---
@@ -281,4 +281,9 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 2. Agregar meta tags dinámicos
 3. Configurar CDN
 4. Implementar PWA
+
+**Acciones Manuales Requeridas:**
+- Ver archivo `ACCIONES_MANUALES_PENDIENTES.md` para lista completa
+- Prioridad: Ejecutar script SQL `populate-cities.sql` en servidor
+- Opcional: Crear cuenta Microsoft Clarity y reemplazar PROJECT_ID
 

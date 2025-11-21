@@ -8,9 +8,15 @@
 
 .location-input-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--text-color, #333);
+    margin-bottom: var(--spacing-sm); /* 8px */
+    font-weight: var(--font-weight-semibold); /* 600 - Valor exacto */
+    color: var(--text-primary-light);
+    font-size: var(--font-size-body); /* Responsivo */
+    font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .location-input-group label {
+    color: var(--text-primary-dark);
 }
 
 .address-input-wrapper {
@@ -21,57 +27,83 @@
 
 .address-input {
     flex: 1;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
+    padding: 15px 16px; /* Valor exacto de weekly-input */
+    border: 1px solid var(--outline-variant-light);
+    border-radius: var(--radius-lg); /* 16px - Valor exacto */
+    font-size: var(--font-size-body); /* Responsivo */
+    transition: var(--transition-standard);
+    background-color: var(--surface-light);
+    color: var(--text-primary-light);
+    height: 56px; /* Desktop: 56px - Valor exacto */
+    font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .address-input {
+    border-color: var(--outline-variant-dark);
+    background-color: var(--surface-dark);
+    color: var(--text-primary-dark);
+}
+
+@media (max-width: 899px) {
+    .address-input {
+        height: 48px; /* Móvil: 48px - Valor exacto */
+    }
 }
 
 .address-input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: var(--primary); /* #16A34A */
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1); /* Valor exacto */
 }
 
 .search-location-btn {
-    padding: 0.75rem 1rem;
-    background: #007bff;
+    /* Usar valores exactos de weekly-filled-button */
+    padding: 14px 24px; /* Valor exacto */
+    background-color: var(--primary); /* #16A34A - Valor exacto */
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-md); /* 12px - Valor exacto */
     cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s;
+    font-size: var(--font-size-body); /* Responsivo */
+    transition: var(--transition-standard);
     white-space: nowrap;
+    font-weight: var(--font-weight-bold); /* 700 - Valor exacto */
+    font-family: 'Inter', sans-serif;
 }
 
 .search-location-btn:hover:not(:disabled) {
-    background: #0056b3;
+    opacity: 0.9; /* Valor exacto de weekly-filled-button */
 }
 
 .search-location-btn:disabled {
-    background: #ccc;
+    opacity: 0.5; /* Valor exacto de weekly-filled-button */
     cursor: not-allowed;
-    opacity: 0.6;
 }
 
 .toggle-map-btn {
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #f8f9fa;
-    color: #495057;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    margin-top: var(--spacing-sm); /* 8px */
+    padding: var(--spacing-sm) var(--spacing-lg); /* 8px 16px */
+    background: var(--surface-light);
+    color: var(--text-primary-light);
+    border: 1px solid var(--outline-variant-light);
+    border-radius: var(--radius-md); /* 12px - Valor exacto */
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s;
+    font-size: var(--font-size-small); /* Responsivo */
+    transition: var(--transition-standard);
     width: 100%;
+    font-weight: var(--font-weight-medium); /* 500 - Valor exacto */
+    font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .toggle-map-btn {
+    background: var(--surface-dark);
+    color: var(--text-primary-dark);
+    border-color: var(--outline-variant-dark);
 }
 
 .toggle-map-btn:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
+    border-color: var(--primary); /* #16A34A */
+    background-color: rgba(22, 163, 74, var(--opacity-05));
 }
 
 .google-maps-url-section {

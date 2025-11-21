@@ -1,17 +1,23 @@
 .demo-contact-card {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 32px;
-    color: #2D3748;
-    box-shadow: 
-        0 10px 30px rgba(0, 0, 0, 0.1),
-        0 1px 8px rgba(0, 0, 0, 0.05);
+    background: var(--surface-light);
+    border-radius: var(--radius-xl); /* 20px - Valor exacto */
+    padding: var(--spacing-3xl); /* 32px - Valor exacto */
+    color: var(--text-primary-light);
+    box-shadow: var(--shadow-xl); /* 0 12px 24px rgba(0, 0, 0, 0.15) */
     max-width: 380px;
     animation: slideInRight 0.6s ease-out;
     position: relative;
     z-index: 10;
     pointer-events: auto;
-    border: 1px solid #E2E8F0;
+    border: 1px solid var(--outline-variant-light);
+    font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .demo-contact-card {
+    background: var(--surface-dark);
+    color: var(--text-primary-dark);
+    border-color: var(--outline-variant-dark);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes slideInRight {
@@ -44,19 +50,30 @@
 }
 
 .demo-contact-header h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #1A202C;
+    margin: 0 0 var(--spacing-sm) 0; /* 8px */
+    font-size: var(--font-size-title); /* Responsivo: 40px/32px/28px */
+    font-weight: var(--font-weight-extrabold); /* 800 - Valor exacto */
+    color: var(--text-primary-light);
     letter-spacing: -0.5px;
+    line-height: var(--line-height-tight); /* 1.2 */
+    font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .demo-contact-header h3 {
+    color: var(--text-primary-dark);
 }
 
 .demo-contact-header p {
     margin: 0;
-    color: #718096;
-    font-size: 1rem;
-    font-weight: 500;
-    line-height: 1.5;
+    color: var(--text-secondary-light);
+    font-size: var(--font-size-body); /* Responsivo */
+    font-weight: var(--font-weight-medium); /* 500 - Valor exacto */
+    line-height: var(--line-height-normal); /* 1.5 */
+    font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .demo-contact-header p {
+    color: var(--text-secondary-dark);
 }
 
 .demo-contact-content {
@@ -70,21 +87,23 @@
 }
 
 .whatsapp-button {
+    /* Mantener color específico de WhatsApp pero usar valores estrictos */
     background: #25D366;
     border: none;
-    border-radius: 12px;
-    padding: 16px 24px;
+    border-radius: var(--radius-md); /* 12px - Valor exacto */
+    padding: 14px 24px; /* Valor exacto de weekly-filled-button */
     color: white;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: var(--font-weight-semibold); /* 600 - Valor exacto */
+    font-size: var(--font-size-body); /* Responsivo */
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition-standard);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: var(--spacing-md); /* 12px */
     position: relative;
     overflow: hidden;
+    font-family: 'Inter', sans-serif;
 }
 
 .whatsapp-button::before {
@@ -108,21 +127,23 @@
 }
 
 .email-button {
-    background: #667eea;
+    /* Usar valores exactos de weekly-filled-button pero con color específico */
+    background-color: var(--primary); /* #16A34A - Cambiar a verde Weekly */
     border: none;
-    border-radius: 12px;
-    padding: 16px 24px;
+    border-radius: var(--radius-md); /* 12px - Valor exacto */
+    padding: 14px 24px; /* Valor exacto */
     color: white;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: var(--font-weight-semibold); /* 600 - Valor exacto */
+    font-size: var(--font-size-body); /* Responsivo */
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition-standard);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: var(--spacing-md); /* 12px */
     position: relative;
     overflow: hidden;
+    font-family: 'Inter', sans-serif;
 }
 
 .email-button::before {
@@ -136,9 +157,7 @@
 }
 
 .email-button:hover {
-    background: #5a67d8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    opacity: 0.9; /* Valor exacto de weekly-filled-button */
 }
 
 .email-button:active {
@@ -147,10 +166,15 @@
 
 .email-form {
     animation: slideDown 0.3s ease-out;
-    background: #F7FAFC;
-    border-radius: 12px;
-    padding: 24px;
-    border: 1px solid #E2E8F0;
+    background: var(--background-light); /* #F6F7F8 */
+    border-radius: var(--radius-md); /* 12px - Valor exacto */
+    padding: var(--spacing-2xl); /* 24px - Valor exacto */
+    border: 1px solid var(--outline-variant-light);
+}
+
+[data-theme='dark'] .email-form {
+    background: var(--background-dark);
+    border-color: var(--outline-variant-dark);
 }
 
 @keyframes slideDown {
@@ -171,28 +195,41 @@
 .email-form input,
 .email-form textarea {
     width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #E2E8F0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    background: white;
-    color: #2D3748;
+    padding: 15px 16px; /* Valor exacto de weekly-input */
+    border: 1px solid var(--outline-variant-light);
+    border-radius: var(--radius-sm); /* 8px - Valor exacto */
+    font-size: var(--font-size-body); /* Responsivo */
+    background: var(--surface-light);
+    color: var(--text-primary-light);
     box-sizing: border-box;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    font-weight: var(--font-weight-medium); /* 500 - Valor exacto */
+    transition: var(--transition-standard);
+    font-family: 'Inter', sans-serif;
+    min-height: 48px; /* Mínimo para inputs */
+}
+
+[data-theme='dark'] .email-form input,
+[data-theme='dark'] .email-form textarea {
+    border-color: var(--outline-variant-dark);
+    background: var(--surface-dark);
+    color: var(--text-primary-dark);
 }
 
 .email-form input::placeholder,
 .email-form textarea::placeholder {
-    color: #A0AEC0;
-    font-weight: 400;
+    color: rgba(0, 0, 0, 0.4); /* Valor exacto de weekly-input */
+}
+
+[data-theme='dark'] .email-form input::placeholder,
+[data-theme='dark'] .email-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .email-form input:focus,
 .email-form textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary); /* #16A34A */
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1); /* Valor exacto */
 }
 
 .email-form textarea {

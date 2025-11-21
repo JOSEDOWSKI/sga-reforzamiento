@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { analytics } from '../utils/analytics';
+import { useFavorites } from '../hooks/useFavorites';
+import { shareService, getShareUrl } from '../utils/shareUtils';
 import apiClient from '../config/api';
 import './ServiceDetailPage.css';
 
@@ -27,6 +29,7 @@ interface Service {
 const ServiceDetailPage: React.FC = () => {
   const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
   const navigate = useNavigate();
+  const { toggleFavorite, isFavorite } = useFavorites();
   
   // Extraer ID del parámetro (puede venir como "123-salon-bella-vista")
   const idParam = params.id || '';
@@ -34,6 +37,7 @@ const ServiceDetailPage: React.FC = () => {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex] = useState(0); // TODO: Implementar navegación de imágenes en el futuro
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -130,11 +134,43 @@ const ServiceDetailPage: React.FC = () => {
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div className="header-actions">
-          <button className="icon-button" aria-label="Compartir">
+          <button 
+            className="icon-button" 
+            aria-label="Compartir"
+            onClick={async () => {
+              if (service) {
+                const shareUrl = getShareUrl(window.location.pathname);
+                await shareService(
+                  service.nombre,
+                  service.descripcion || `Descubre ${service.nombre} en Weekly`,
+                  shareUrl
+                );
+                analytics.trackEvent('share_service', {
+                  service_id: service.id,
+                  service_name: service.nombre
+                });
+              }
+            }}
+          >
             <span className="material-symbols-outlined">share</span>
           </button>
-          <button className="icon-button" aria-label="Favorito">
-            <span className="material-symbols-outlined">favorite_border</span>
+          <button 
+            className={`icon-button ${isFavorite(service?.id || 0) ? 'favorite-active' : ''}`}
+            aria-label={isFavorite(service?.id || 0) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            onClick={() => {
+              if (service) {
+                toggleFavorite(service.id);
+                analytics.trackEvent('toggle_favorite', {
+                  service_id: service.id,
+                  service_name: service.nombre,
+                  is_favorite: !isFavorite(service.id)
+                });
+              }
+            }}
+          >
+            <span className={`material-symbols-outlined ${isFavorite(service?.id || 0) ? 'filled' : ''}`}>
+              {isFavorite(service?.id || 0) ? 'favorite' : 'favorite_border'}
+            </span>
           </button>
         </div>
       </div>
@@ -223,8 +259,23 @@ const ServiceDetailPage: React.FC = () => {
         {service.descripcion && (
           <div className="description-section">
             <h2 className="section-title">Acerca de este espacio</h2>
-            <p className="description-text">{service.descripcion}</p>
-            <button className="show-more-button">Mostrar más</button>
+            <p className={`description-text ${showFullDescription ? 'expanded' : ''}`}>
+              {service.descripcion}
+            </p>
+            {service.descripcion.length > 150 && (
+              <button 
+                className="show-more-button"
+                onClick={() => {
+                  setShowFullDescription(!showFullDescription);
+                  analytics.trackEvent('toggle_description', {
+                    service_id: service.id,
+                    expanded: !showFullDescription
+                  });
+                }}
+              >
+                {showFullDescription ? 'Mostrar menos' : 'Mostrar más'}
+              </button>
+            )}
           </div>
         )}
 

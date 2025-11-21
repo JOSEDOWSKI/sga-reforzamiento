@@ -1,47 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import './styles/weekly-strict.css';
+@import './styles/weekly-components.css';
 @import './styles/LiquidGlass.css';
 
 :root {
   --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  /* Paleta de colores de la app móvil - Modo claro (Light mode) */
-  --primary: #16a34a; /* Verde principal */
-  --background: #f6f7f8; /* background-light */
-  --foreground: #0d141b; /* text-primary-light */
-  --muted: #f6f7f8;
-  --muted-foreground: #4c739a; /* text-secondary-light */
-  --popover: #ffffff; /* surface-light */
-  --popover-foreground: #0d141b;
-  --card: #ffffff; /* surface-light */
-  --card-foreground: #0d141b;
-  --border: #e7edf3; /* border-light */
-  --input: #e7edf3;
-  --primary-foreground: #ffffff;
-  --secondary: #f6f7f8;
-  --secondary-foreground: #0d141b;
-  --accent: #f6f7f8;
-  --accent-foreground: #0d141b;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --success: #16a34a;
-  --success-foreground: #ffffff;
-  --ring: #16a34a;
+  /* Paleta de colores - Valores exactos de estilos_weekly.md */
+  /* NOTA: Los valores estrictos están definidos en weekly-strict.css */
+  /* Estos valores son para compatibilidad con el sistema existente */
+  --primary: #16A34A; /* Verde Weekly - VALOR EXACTO */
+  --background: var(--background-light); /* #F6F7F8 */
+  --foreground: var(--text-primary-light); /* #0D141B */
+  --muted: var(--background-light);
+  --muted-foreground: var(--text-secondary-light); /* #4C739A */
+  --popover: var(--surface-light); /* #FFFFFF */
+  --popover-foreground: var(--text-primary-light);
+  --card: var(--surface-light);
+  --card-foreground: var(--text-primary-light);
+  --border: var(--outline-variant-light); /* #E7EDF3 */
+  --input: var(--outline-variant-light);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--background-light);
+  --secondary-foreground: var(--text-primary-light);
+  --accent: var(--background-light);
+  --accent-foreground: var(--text-primary-light);
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --ring: #16A34A;
 
-  /* Colores adicionales de la app móvil */
-  --surface-light: #ffffff;
-  --surface-dark: #1b2734;
-  --text-primary-light: #0d141b;
-  --text-primary-dark: #f0f4f8;
-  --text-secondary-light: #4c739a;
-  --text-secondary-dark: #94a3b8;
-  --border-light: #e7edf3;
-  --border-dark: #334155;
-
-  /* Border radius de la app móvil */
-  --radius: 0.25rem; /* DEFAULT */
-  --radius-lg: 0.5rem; /* lg */
-  --radius-xl: 0.75rem; /* xl */
-  --radius-full: 9999px; /* full */
+  /* Border radius - Valores exactos en px (no rem) */
+  --radius: 8px; /* --radius-sm */
+  --radius-lg: 16px; /* --radius-lg */
+  --radius-xl: 20px; /* --radius-xl */
+  --radius-full: 9999px; /* Círculos perfectos */
 }
 
 /* Temas de color - Claro (mantener compatibilidad pero usar verde por defecto) */
@@ -53,38 +47,28 @@
 
 
 [data-theme='dark'] {
-  /* Paleta de colores de la app móvil - Modo oscuro (Dark mode) */
-  --primary: #16a34a; /* Verde principal (mismo en dark) */
-  --background: #101922; /* background-dark */
-  --foreground: #f0f4f8; /* text-primary-dark */
-  --muted: #1b2734; /* surface-dark */
-  --muted-foreground: #94a3b8; /* text-secondary-dark */
-  --popover: #1b2734; /* surface-dark */
-  --popover-foreground: #f0f4f8;
-  --card: #1b2734; /* surface-dark */
-  --card-foreground: #f0f4f8;
-  --border: #334155; /* border-dark */
-  --input: #334155;
-  --primary-foreground: #ffffff;
-  --secondary: #1b2734;
-  --secondary-foreground: #f0f4f8;
-  --accent: #1b2734;
-  --accent-foreground: #f0f4f8;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --success: #16a34a;
-  --success-foreground: #ffffff;
-  --ring: #16a34a;
-
-  /* Colores adicionales de la app móvil - Dark */
-  --surface-light: #ffffff;
-  --surface-dark: #1b2734;
-  --text-primary-light: #0d141b;
-  --text-primary-dark: #f0f4f8;
-  --text-secondary-light: #4c739a;
-  --text-secondary-dark: #94a3b8;
-  --border-light: #e7edf3;
-  --border-dark: #334155;
+  /* Paleta de colores - Modo oscuro - Valores exactos */
+  --primary: #16A34A; /* Verde principal (mismo en dark) */
+  --background: var(--background-dark); /* #101922 */
+  --foreground: var(--text-primary-dark); /* #F0F4F8 */
+  --muted: var(--surface-dark); /* #1B2734 */
+  --muted-foreground: var(--text-secondary-dark); /* #94A3B8 */
+  --popover: var(--surface-dark);
+  --popover-foreground: var(--text-primary-dark);
+  --card: var(--surface-dark);
+  --card-foreground: var(--text-primary-dark);
+  --border: var(--outline-variant-dark); /* #334155 */
+  --input: var(--outline-variant-dark);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--surface-dark);
+  --secondary-foreground: var(--text-primary-dark);
+  --accent: var(--surface-dark);
+  --accent-foreground: var(--text-primary-dark);
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --ring: #16A34A;
 }
 
 /* Temas de color - Oscuro (mantener compatibilidad pero usar verde por defecto) */
@@ -113,17 +97,18 @@ body {
   margin: 0;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Inter', sans-serif; /* Fuente estricta - NO MODIFICAR */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: var(--line-height-normal); /* 1.5 - Valor exacto */
   /* Optimize font rendering */
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
+  font-size: var(--font-size-body); /* Tamaño responsivo exacto */
 }
 
 /* Fondo Aurora controlado por JS */

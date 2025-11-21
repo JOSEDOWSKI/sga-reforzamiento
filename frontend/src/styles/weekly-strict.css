@@ -1,0 +1,378 @@
+/**
+ * 🎨 ESTILOS ESTRICTOS WEEKLY - IMPLEMENTACIÓN EXACTA
+ * 
+ * ⚠️ ADVERTENCIA: Estos valores son ESTRICTOS y NO deben modificarse
+ * sin autorización explícita del equipo de diseño.
+ * 
+ * Basado en: estilos_weekly.md v1.0.0
+ * Última actualización: Noviembre 2024
+ */
+
+/* ============================================
+   PALETA DE COLORES - VALORES EXACTOS
+   ============================================ */
+
+:root {
+  /* Color Primario - USO ESTRICTO */
+  --primary: #16A34A; /* Verde Weekly - NO MODIFICAR */
+  --primary-rgb: 22, 163, 74;
+  --primary-foreground: #FFFFFF;
+
+  /* Fondos - USO ESTRICTO */
+  --background-light: #F6F7F8; /* Fondo claro - NO MODIFICAR */
+  --background-dark: #101922;   /* Fondo oscuro - NO MODIFICAR */
+  --surface-light: #FFFFFF;     /* Superficie clara - NO MODIFICAR */
+  --surface-dark: #1B2734;      /* Superficie oscura - NO MODIFICAR */
+
+  /* Textos - Light Mode */
+  --text-primary-light: #0D141B;
+  --text-secondary-light: #4C739A;
+  
+  /* Textos - Dark Mode */
+  --text-primary-dark: #F0F4F8;
+  --text-secondary-dark: #94A3B8;
+
+  /* Bordes */
+  --outline-variant-light: #E7EDF3;
+  --outline-variant-dark: #334155;
+
+  /* Opacidades Estándar - USO ESTRICTO */
+  --opacity-05: 0.05;  /* Sombras sutiles */
+  --opacity-08: 0.08;  /* Fondos de características */
+  --opacity-15: 0.15;  /* Fondos de iconos */
+  --opacity-20: 0.20;  /* Overlays */
+  --opacity-30: 0.30;  /* Texto deshabilitado */
+  --opacity-40: 0.40;  /* Fondos de toggle */
+  --opacity-60: 0.60;  /* Gradientes */
+  --opacity-70: 0.70;  /* Texto secundario */
+
+  /* ============================================
+     TIPOGRAFÍA - VALORES EXACTOS
+     ============================================ */
+
+  /* Fuente - USO ESTRICTO */
+  font-family: 'Inter', sans-serif;
+
+  /* Tamaños de Fuente Responsivos - Desktop (≥1200px) */
+  --font-size-title-desktop: 40px;
+  --font-size-body-desktop: 18px;
+  --font-size-small-desktop: 14px;
+
+  /* Tamaños de Fuente Responsivos - Tablet (900px - 1199px) */
+  --font-size-title-tablet: 32px;
+  --font-size-body-tablet: 16px;
+  --font-size-small-tablet: 14px;
+
+  /* Tamaños de Fuente Responsivos - Móvil (<900px) */
+  --font-size-title-mobile: 28px;
+  --font-size-body-mobile: 14px;
+  --font-size-small-mobile: 12px;
+
+  /* Pesos de Fuente - USO ESTRICTO */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* Altura de Línea - USO ESTRICTO */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ============================================
+     ESPACIADOS Y MEDIDAS - VALORES EXACTOS
+     ============================================ */
+
+  /* Padding Responsivo - Desktop (≥1200px) */
+  --padding-horizontal-desktop: 48px;
+  --padding-vertical-desktop: 24px;
+
+  /* Padding Responsivo - Tablet (900px - 1199px) */
+  --padding-horizontal-tablet: 32px;
+  --padding-vertical-tablet: 20px;
+
+  /* Padding Responsivo - Móvil (<900px) */
+  --padding-horizontal-mobile: 16px;
+  --padding-vertical-mobile: 16px;
+
+  /* Espaciados Estándar - USO ESTRICTO */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 40px;
+
+  /* Border Radius - USO ESTRICTO */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px; /* Círculos perfectos */
+
+  /* ============================================
+     SOMBRAS Y EFECTOS - VALORES EXACTOS
+     ============================================ */
+
+  /* Sombras Estándar */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
+  --shadow-sticky: 0 -4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Transiciones - USO ESTRICTO */
+  --transition-standard: all 0.2s ease;
+  --transition-fast: all 0.15s ease;
+  --transition-slow: all 0.3s ease;
+
+  /* ============================================
+     VARIABLES RESPONSIVAS DINÁMICAS
+     ============================================ */
+  
+  /* Valores por defecto (Desktop) */
+  --font-size-title: var(--font-size-title-desktop);
+  --font-size-body: var(--font-size-body-desktop);
+  --font-size-small: var(--font-size-small-desktop);
+  --padding-horizontal: var(--padding-horizontal-desktop);
+  --padding-vertical: var(--padding-vertical-desktop);
+  --columns: 4; /* Desktop default */
+}
+
+/* ============================================
+   BREAKPOINTS RESPONSIVOS - VALORES EXACTOS
+   ============================================ */
+
+/* Móvil (<600px) */
+@media (max-width: 599px) {
+  :root {
+    --columns: 1;
+    --padding-horizontal: var(--padding-horizontal-mobile);
+    --font-size-title: var(--font-size-title-mobile);
+    --font-size-body: var(--font-size-body-mobile);
+    --font-size-small: var(--font-size-small-mobile);
+  }
+}
+
+/* Tablet Pequeña (600px - 899px) */
+@media (min-width: 600px) and (max-width: 899px) {
+  :root {
+    --columns: 2;
+    --padding-horizontal: var(--padding-horizontal-mobile);
+    --font-size-title: var(--font-size-title-mobile);
+    --font-size-body: var(--font-size-body-mobile);
+    --font-size-small: var(--font-size-small-mobile);
+  }
+}
+
+/* Tablet (900px - 1199px) */
+@media (min-width: 900px) and (max-width: 1199px) {
+  :root {
+    --columns: 3;
+    --padding-horizontal: var(--padding-horizontal-tablet);
+    --padding-vertical: var(--padding-vertical-tablet);
+    --font-size-title: var(--font-size-title-tablet);
+    --font-size-body: var(--font-size-body-tablet);
+    --font-size-small: var(--font-size-small-tablet);
+  }
+}
+
+/* Desktop (1200px - 1399px) */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  :root {
+    --columns: 4;
+    --padding-horizontal: var(--padding-horizontal-desktop);
+    --padding-vertical: var(--padding-vertical-desktop);
+    --font-size-title: var(--font-size-title-desktop);
+    --font-size-body: var(--font-size-body-desktop);
+    --font-size-small: var(--font-size-small-desktop);
+  }
+}
+
+/* Desktop Grande (1400px - 1799px) */
+@media (min-width: 1400px) and (max-width: 1799px) {
+  :root {
+    --columns: 5;
+    --padding-horizontal: var(--padding-horizontal-desktop);
+    --padding-vertical: var(--padding-vertical-desktop);
+    --font-size-title: var(--font-size-title-desktop);
+    --font-size-body: var(--font-size-body-desktop);
+    --font-size-small: var(--font-size-small-desktop);
+  }
+}
+
+/* Desktop Extra Grande (≥1800px) */
+@media (min-width: 1800px) {
+  :root {
+    --columns: 6;
+    --padding-horizontal: var(--padding-horizontal-desktop);
+    --padding-vertical: var(--padding-vertical-desktop);
+    --font-size-title: var(--font-size-title-desktop);
+    --font-size-body: var(--font-size-body-desktop);
+    --font-size-small: var(--font-size-small-desktop);
+  }
+}
+
+/* ============================================
+   COMPONENTES BASE - IMPLEMENTACIÓN EXACTA
+   ============================================ */
+
+/* Botones Primarios (FilledButton) */
+.weekly-filled-button {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-standard);
+  font-family: 'Inter', sans-serif;
+}
+
+.weekly-filled-button:hover {
+  opacity: 0.9;
+}
+
+.weekly-filled-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Botones Secundarios (OutlinedButton) */
+.weekly-outlined-button {
+  background-color: transparent;
+  color: var(--primary);
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body);
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  transition: var(--transition-standard);
+  font-family: 'Inter', sans-serif;
+}
+
+.weekly-outlined-button:hover {
+  background-color: var(--primary);
+  color: #FFFFFF;
+}
+
+/* Campos de Texto */
+.weekly-text-field {
+  width: 100%;
+  height: 56px; /* Desktop: 56px, Móvil: 48px */
+  padding: 15px 16px;
+  border: 1px solid var(--outline-variant-light);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-body);
+  background-color: var(--surface-light);
+  transition: border-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .weekly-text-field {
+  border-color: var(--outline-variant-dark);
+  background-color: var(--surface-dark);
+  color: var(--text-primary-dark);
+}
+
+.weekly-text-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
+}
+
+.weekly-text-field::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .weekly-text-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Móvil: altura reducida */
+@media (max-width: 899px) {
+  .weekly-text-field {
+    height: 48px;
+  }
+}
+
+/* Tarjetas (Cards) */
+.weekly-card {
+  background-color: var(--surface-light);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme='dark'] .weekly-card {
+  background-color: var(--surface-dark);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   UTILIDADES DE TEXTO
+   ============================================ */
+
+.weekly-text-primary {
+  color: var(--text-primary-light);
+}
+
+[data-theme='dark'] .weekly-text-primary {
+  color: var(--text-primary-dark);
+}
+
+.weekly-text-secondary {
+  color: var(--text-secondary-light);
+}
+
+[data-theme='dark'] .weekly-text-secondary {
+  color: var(--text-secondary-dark);
+}
+
+.weekly-text-title {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-extrabold);
+  line-height: var(--line-height-tight);
+}
+
+.weekly-text-body {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+}
+
+.weekly-text-small {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================
+   UTILIDADES DE ESPACIADO
+   ============================================ */
+
+.weekly-p-horizontal {
+  padding-left: var(--padding-horizontal);
+  padding-right: var(--padding-horizontal);
+}
+
+.weekly-p-vertical {
+  padding-top: var(--padding-vertical);
+  padding-bottom: var(--padding-vertical);
+}
+
+/* ============================================
+   BACKDROP BLUR
+   ============================================ */
+
+.weekly-backdrop-blur {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+

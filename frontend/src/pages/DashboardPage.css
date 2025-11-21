@@ -19,17 +19,25 @@
 
 .booking-form,
 .calendar-view {
-  background-color: var(--card);
+  background-color: var(--surface-light);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  padding: 2rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  transition: all 0.3s ease;
+  padding: var(--spacing-2xl); /* 24px - Valor exacto */
+  border-radius: var(--radius-xl); /* 20px - Valor exacto */
+  border: 1px solid var(--outline-variant-light);
+  transition: var(--transition-standard);
   width: 100%;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme='dark'] .booking-form,
+[data-theme='dark'] .calendar-view {
+  background-color: var(--surface-dark);
+  border-color: var(--outline-variant-dark);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Liquid glass shine effect for booking form and calendar view */
@@ -115,24 +123,45 @@
 }
 
 .form-group label {
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: var(--card-foreground);
+  font-weight: var(--font-weight-semibold); /* 600 - Valor exacto */
+  font-size: var(--font-size-body); /* Responsivo */
+  color: var(--text-primary-light);
+  margin-bottom: var(--spacing-sm); /* 8px */
+}
+
+[data-theme='dark'] .form-group label {
+  color: var(--text-primary-dark);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--border);
-  background-color: var(--muted);
-  color: var(--foreground);
-  border-radius: var(--radius);
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  padding: 15px 16px; /* Valor exacto de weekly-input */
+  border: 1px solid var(--outline-variant-light);
+  background-color: var(--surface-light);
+  color: var(--text-primary-light);
+  border-radius: var(--radius-lg); /* 16px - Valor exacto */
+  font-size: var(--font-size-body); /* Responsivo */
+  transition: var(--transition-standard);
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  height: 56px; /* Desktop: 56px - Valor exacto */
+}
+
+[data-theme='dark'] .form-group input,
+[data-theme='dark'] .form-group select {
+  border-color: var(--outline-variant-dark);
+  background-color: var(--surface-dark);
+  color: var(--text-primary-dark);
+}
+
+@media (max-width: 899px) {
+  .form-group input,
+  .form-group select {
+    height: 48px; /* Móvil: 48px - Valor exacto */
+  }
 }
 
 .form-group select {
@@ -146,9 +175,8 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent);
-  background-color: var(--background);
+  border-color: var(--primary); /* #16A34A */
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1); /* Valor exacto */
 }
 
 .form-group select:disabled {
@@ -157,21 +185,23 @@
 }
 
 .form-button {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  padding: 0.95rem;
+  /* Usar valores exactos de weekly-filled-button */
+  background-color: var(--primary); /* #16A34A - Valor exacto */
+  color: #FFFFFF;
+  padding: 14px 24px; /* Valor exacto */
   border: none;
-  border-radius: var(--radius);
-  font-weight: 600;
+  border-radius: var(--radius-lg); /* 16px - Valor exacto */
+  font-weight: var(--font-weight-bold); /* 700 - Valor exacto */
+  font-size: var(--font-size-body); /* Responsivo */
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px -5px var(--primary);
-  font-size: 1rem;
+  transition: var(--transition-standard);
+  box-shadow: var(--shadow-md);
+  font-family: 'Inter', sans-serif;
+  width: 100%;
 }
 
 .form-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px -5px var(--primary);
+  opacity: 0.9; /* Valor exacto de weekly-filled-button */
 }
 
 .form-button:active {
@@ -179,10 +209,9 @@
 }
 
 .form-button:disabled {
-  opacity: 0.5;
+  opacity: 0.5; /* Valor exacto de weekly-filled-button */
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 
 .form-message {

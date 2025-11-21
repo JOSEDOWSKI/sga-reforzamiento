@@ -10,32 +10,43 @@
 }
 
 .user-calendar-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
+  font-size: var(--font-size-title); /* Responsivo: 40px/32px/28px */
+  font-weight: var(--font-weight-extrabold); /* 800 - Valor exacto */
+  margin-bottom: var(--spacing-sm); /* 8px */
+  color: var(--text-primary-light);
+  line-height: var(--line-height-tight); /* 1.2 */
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .user-calendar-header h1 {
+  color: var(--text-primary-dark);
 }
 
 .user-calendar-header p {
-  color: var(--text-secondary);
-  font-size: 1rem;
+  color: var(--text-secondary-light);
+  font-size: var(--font-size-body); /* Responsivo */
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .user-calendar-header p {
+  color: var(--text-secondary-dark);
 }
 
 .user-calendar-filters {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: var(--spacing-lg); /* 16px */
+  margin-bottom: var(--spacing-2xl); /* 24px */
   flex-wrap: wrap;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.12);
+  padding: var(--spacing-2xl); /* 24px */
+  background: var(--surface-light);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--outline-variant-light);
+  border-radius: var(--radius-md); /* 12px - Valor exacto */
+  box-shadow: var(--shadow-md); /* 0 6px 12px rgba(0, 0, 0, 0.05) */
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition-standard);
 }
 
 [data-theme='dark'] .user-calendar-filters {
@@ -98,55 +109,67 @@
 
 .filter-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm); /* 8px */
+  font-weight: var(--font-weight-semibold); /* 600 - Valor exacto */
+  color: var(--text-primary-light);
+  font-size: var(--font-size-body); /* Responsivo */
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .filter-group label {
+  color: var(--text-primary-dark);
 }
 
 .filter-group select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 15px 16px; /* Valor exacto de weekly-input */
+  border: 1px solid var(--outline-variant-light);
+  border-radius: var(--radius-sm); /* 8px - Valor exacto */
+  background: var(--surface-light);
   backdrop-filter: blur(8px) saturate(180%);
   -webkit-backdrop-filter: blur(8px) saturate(180%);
-  color: var(--text-primary);
-  font-size: 1rem;
+  color: var(--text-primary-light);
+  font-size: var(--font-size-body); /* Responsivo */
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition-standard);
   position: relative;
+  height: 56px; /* Desktop: 56px - Valor exacto */
+  font-family: 'Inter', sans-serif;
+}
+
+@media (max-width: 899px) {
+  .filter-group select {
+    height: 48px; /* Móvil: 48px - Valor exacto */
+  }
 }
 
 [data-theme='dark'] .filter-group select {
-  background: rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--surface-dark);
+  border-color: var(--outline-variant-dark);
+  color: var(--text-primary-dark);
 }
 
 .filter-group select:focus {
   outline: none;
-  border-color: rgba(102, 126, 234, 0.8);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-  transform: translateY(-1px);
+  border-color: var(--primary); /* #16A34A */
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1); /* Valor exacto */
 }
 
 .filter-group select:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--primary);
 }
 
 .user-calendar-container {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--surface-light);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--outline-variant-light);
+  border-radius: var(--radius-md); /* 12px - Valor exacto */
+  padding: var(--spacing-2xl); /* 24px */
+  box-shadow: var(--shadow-lg); /* 0 8px 16px rgba(0, 0, 0, 0.1) */
   position: relative;
   overflow: visible;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition-standard);
 }
 
 /* Asegurar que las celdas del calendario sean clickeables */
@@ -241,13 +264,15 @@
 
 .user-calendar-container .fc-button {
   cursor: pointer !important;
-  background-color: var(--primary) !important;
+  background-color: var(--primary) !important; /* #16A34A */
   border-color: var(--primary) !important;
-  color: var(--primary-foreground) !important;
-  padding: 0.5em 1em !important;
-  font-weight: 500 !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease !important;
+  color: #FFFFFF !important;
+  padding: 14px 24px !important; /* Valor exacto de weekly-filled-button */
+  font-weight: var(--font-weight-bold) !important; /* 700 - Valor exacto */
+  border-radius: var(--radius-md) !important; /* 12px - Valor exacto */
+  font-size: var(--font-size-body) !important; /* Responsivo */
+  font-family: 'Inter', sans-serif !important;
+  transition: var(--transition-standard) !important;
 }
 
 .user-calendar-container .fc-button:hover {

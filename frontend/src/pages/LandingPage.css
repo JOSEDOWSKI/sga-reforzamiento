@@ -188,16 +188,18 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
+  /* Usar valores exactos de weekly-filled-button */
+  background-color: var(--primary); /* #16A34A - Valor exacto */
+  color: #FFFFFF;
   border: none;
-  padding: 16px 32px;
-  border-radius: var(--radius);
-  font-weight: 600;
-  font-size: 1rem;
+  padding: 14px 24px; /* Valor exacto */
+  border-radius: var(--radius-lg); /* 16px - Valor exacto */
+  font-weight: var(--font-weight-bold); /* 700 - Valor exacto */
+  font-size: var(--font-size-body); /* Responsivo */
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-standard);
   display: flex;
+  font-family: 'Inter', sans-serif;
   align-items: center;
   gap: 8px;
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -221,23 +223,24 @@
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  opacity: 0.9; /* Valor exacto de weekly-filled-button */
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  padding: 14px 32px;
-  border-radius: var(--radius);
-  font-weight: 600;
-  font-size: 1rem;
+  /* Usar valores exactos de weekly-outlined-button */
+  background-color: transparent;
+  color: var(--primary); /* #16A34A */
+  border: 2px solid var(--primary);
+  padding: 14px 24px; /* Valor exacto */
+  border-radius: var(--radius-lg); /* 16px - Valor exacto */
+  font-weight: var(--font-weight-bold); /* 700 - Valor exacto */
+  font-size: var(--font-size-body); /* Responsivo */
   cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  transition: var(--transition-standard);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* 8px */
   position: relative;
   overflow: hidden;
 }
@@ -261,6 +264,8 @@
 }
 
 .btn-secondary:hover {
+  background-color: var(--primary); /* Valor exacto de weekly-outlined-button */
+  color: #FFFFFF;
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);

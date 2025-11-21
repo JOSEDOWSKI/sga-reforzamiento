@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../config/api';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { useFavorites } from '../hooks/useFavorites';
 import { analytics } from '../utils/analytics';
 import './MarketplacePage.css';
 
@@ -30,6 +31,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
   const navigate = useNavigate();
   const params = useParams<{ ciudad?: string; categoria?: string }>();
   const { city: detectedCity, loading: geoLoading, setCity } = useGeolocation();
+  const { toggleFavorite, isFavorite } = useFavorites();
   
   // Usar ciudad de props, params, o geolocalización
   const activeCity = propCity || params.ciudad || detectedCity;
@@ -399,14 +401,21 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
                     }}
                   />
                   <button 
-                    className="favorite-button"
+                    className={`favorite-button ${isFavorite(service.id) ? 'active' : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      // TODO: Toggle favorite
+                      toggleFavorite(service.id);
+                      analytics.trackEvent('toggle_favorite', {
+                        service_id: service.id,
+                        service_name: service.nombre,
+                        is_favorite: !isFavorite(service.id)
+                      });
                     }}
-                    aria-label="Agregar a favoritos"
+                    aria-label={isFavorite(service.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                   >
-                    <span className="material-symbols-outlined">favorite</span>
+                    <span className={`material-symbols-outlined ${isFavorite(service.id) ? 'filled' : ''}`}>
+                      {isFavorite(service.id) ? 'favorite' : 'favorite_border'}
+                    </span>
                   </button>
                 </div>
                 <div className="service-info">
@@ -432,28 +441,29 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         )}
       </main>
 
-      {/* Botón flotante de mapa - Redirige a app móvil */}
+      {/* Botón flotante de mapa - Funcional */}
       <button 
         className="map-fab"
         onClick={() => {
-          // Redirigir a la app móvil para ver el mapa interactivo
-          // TODO: Reemplazar con la URL real de la app móvil cuando esté disponible
-          const appStoreUrl = 'https://apps.apple.com/app/weekly'; // iOS
-          const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.weekly.app'; // Android
+          analytics.trackEvent('view_map', {
+            city: selectedCity || undefined,
+            category: selectedCategory || undefined,
+            services_count: filteredServices.length
+          });
           
-          // Detectar dispositivo y redirigir
-          const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-          if (/android/i.test(userAgent)) {
-            window.open(playStoreUrl, '_blank');
-          } else if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-            window.open(appStoreUrl, '_blank');
+          // En desktop, mostrar un modal con mapa o redirigir a Google Maps
+          // Por ahora, abrir Google Maps con la ubicación de la ciudad seleccionada
+          if (selectedCity) {
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCity + ', Perú')}`;
+            window.open(mapsUrl, '_blank');
           } else {
-            // Desktop: mostrar mensaje o abrir en nueva pestaña
-            alert('El mapa interactivo está disponible en la app móvil de Weekly. Descárgala desde la App Store o Google Play.');
+            // Si no hay ciudad, mostrar todas las ubicaciones de servicios
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Servicios Weekly Perú')}`;
+            window.open(mapsUrl, '_blank');
           }
         }}
-        aria-label="Ver mapa en app móvil"
-        title="Ver mapa interactivo en la app móvil"
+        aria-label="Ver mapa"
+        title="Ver servicios en el mapa"
       >
         <span className="material-symbols-outlined">map</span>
         <span>Mapa</span>
