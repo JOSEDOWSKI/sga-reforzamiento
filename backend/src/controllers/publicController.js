@@ -501,6 +501,36 @@ class PublicController {
             // Obtener filtros de query params
             const { city, category, lat, lng, radius } = req.query;
             
+            // Validar parámetros numéricos si se proporcionan
+            if (lat && (isNaN(parseFloat(lat)) || parseFloat(lat) < -90 || parseFloat(lat) > 90)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Parámetro lat debe ser un número entre -90 y 90'
+                });
+            }
+            
+            if (lng && (isNaN(parseFloat(lng)) || parseFloat(lng) < -180 || parseFloat(lng) > 180)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Parámetro lng debe ser un número entre -180 y 180'
+                });
+            }
+            
+            if (radius && (isNaN(parseFloat(radius)) || parseFloat(radius) <= 0)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Parámetro radius debe ser un número positivo'
+                });
+            }
+            
+            // Si se proporciona lat o lng, ambos deben estar presentes
+            if ((lat && !lng) || (!lat && lng)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Los parámetros lat y lng deben proporcionarse juntos'
+                });
+            }
+            
             // Función para calcular distancia Haversine
             const calculateDistance = (lat1, lon1, lat2, lon2) => {
                 const R = 6371; // Radio de la Tierra en km
