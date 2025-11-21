@@ -57,27 +57,30 @@ jobs:
         run: |
           echo "🚀 Triggering CapRover build via webhook..."
           
-          # Convertir tar.gz a base64
-          TAR_BASE64=$(base64 -w 0 weekly-unified.tar.gz)
+          # Verificar que el tarball existe
+          if [ ! -f weekly-unified.tar.gz ]; then
+            echo "❌ Error: weekly-unified.tar.gz no encontrado"
+            exit 1
+          fi
           
-          # Crear archivo temporal con el JSON para evitar "Argument list too long"
-          echo "{\"tarFileBase64\":\"$TAR_BASE64\"}" > /tmp/caprover-payload.json
+          # Obtener tamaño del archivo
+          FILE_SIZE=$(stat -f%z weekly-unified.tar.gz 2>/dev/null || stat -c%s weekly-unified.tar.gz 2>/dev/null || echo "unknown")
+          echo "📦 Tarball size: $FILE_SIZE bytes"
           
-          # Enviar tarball al webhook de CapRover usando archivo
+          # Enviar tarball directamente como multipart/form-data
+          # CapRover espera el archivo en el campo 'tarFile'
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            -H "Content-Type: application/json" \
-            --data-binary @/tmp/caprover-payload.json \
+            -F "tarFile=@weekly-unified.tar.gz" \
             "$CAPROVER_WEBHOOK_URL")
-          
-          # Limpiar archivo temporal
-          rm -f /tmp/caprover-payload.json
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
           
+          echo "📡 HTTP Status: $HTTP_CODE"
+          echo "📄 Response: $BODY"
+          
           if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
             echo "✅ Build triggered successfully!"
-            echo "Response: $BODY"
           else
             echo "❌ Build trigger failed with HTTP $HTTP_CODE"
             echo "Response: $BODY"
