@@ -717,7 +717,7 @@
 /* Contenido */
 .marketplace-content {
   flex: 1;
-  padding: var(--spacing-lg);
+  padding: 0;
   width: 100%;
 }
 
