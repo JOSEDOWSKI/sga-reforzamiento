@@ -26,13 +26,18 @@ const corsOptions = {
         }
         
         // En producción, permitir automáticamente dominios weekly.pe y getdevtools.com
-        if (process.env.NODE_ENV === 'production') {
-            // Permitir todos los subdominios de weekly.pe (incluyendo demo.weekly.pe)
-            if (origin && (origin.includes('.weekly.pe') || origin === 'https://weekly.pe' || origin === 'http://weekly.pe')) {
+        if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === undefined) {
+            // Permitir todos los subdominios de weekly.pe (incluyendo weekly.pe, merchants.weekly.pe, demo.weekly.pe, etc.)
+            if (origin && (
+                origin.includes('weekly.pe') || 
+                origin === 'https://weekly.pe' || 
+                origin === 'http://weekly.pe' ||
+                origin.endsWith('.weekly.pe')
+            )) {
                 return callback(null, true);
             }
             // Permitir dominios getdevtools.com (para desarrollo en CapRover)
-            if (origin.includes('.getdevtools.com') || origin.includes('getdevtools.com')) {
+            if (origin && (origin.includes('.getdevtools.com') || origin.includes('getdevtools.com'))) {
                 return callback(null, true);
             }
         }
