@@ -33,8 +33,8 @@ interface AvailabilitySlot {
 const MarketplaceBookingPage: React.FC = () => {
   const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
   const navigate = useNavigate();
-  const { profile, saveProfile } = useMarketplaceProfile();
-  const { user, isLoading: authLoading } = useAuth();
+  const { profile } = useMarketplaceProfile();
+  const { user } = useAuth();
   
   // Extraer ID del servicio
   const idParam = params.id || '';
@@ -206,7 +206,7 @@ const MarketplaceBookingPage: React.FC = () => {
         establecimiento_id: establecimientoId,
         colaborador_id: selectedColaborador!.id,
         cliente_nombre: profile?.nombre || user?.nombre || '',
-        cliente_telefono: profile?.telefono || user?.telefono || '',
+        cliente_telefono: profile?.telefono || '',
         cliente_email: profile?.email || user?.email || '',
         cliente_dni: profile?.dni || '',
         servicio_descripcion: selectedServicio?.nombre || '',
