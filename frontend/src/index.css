@@ -99,7 +99,7 @@ body {
   color: var(--foreground);
   font-family: 'Inter', sans-serif; /* Fuente estricta - NO MODIFICAR */
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Removido -moz-osx-font-smoothing: obsoleto y no estándar */
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
@@ -107,7 +107,8 @@ body {
   line-height: var(--line-height-normal); /* 1.5 - Valor exacto */
   /* Optimize font rendering */
   text-rendering: optimizeLegibility;
-  -webkit-text-size-adjust: 100%;
+  /* Corregido: usar número en lugar de porcentaje */
+  -webkit-text-size-adjust: none;
   font-size: var(--font-size-body); /* Tamaño responsivo exacto */
 }
 
@@ -241,7 +242,7 @@ textarea {
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   body {
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /* Removido -moz-osx-font-smoothing: obsoleto y no estándar */
   }
 }
 

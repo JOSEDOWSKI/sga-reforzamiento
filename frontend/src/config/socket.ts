@@ -35,27 +35,28 @@ function getBaseUrl(): string {
 }
 
 export function connectSocket(tenant: string): Socket {
-  // Detectar si estamos en modo demo
+  // Detectar si estamos en modo demo o landing page
   const hostname = window.location.hostname;
   const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+  const isLandingPage = hostname === 'merchants.weekly.pe' || hostname === 'weekly.pe';
   
-  // En modo demo, crear un socket mock que no se conecta realmente
-  if (isDemoMode) {
+  // En modo demo o landing page, no crear socket
+  if (isDemoMode || isLandingPage) {
+    // Retornar un socket mock que no se conecta
     if (!socket) {
-      // Crear un socket que no se conecta automáticamente
       socket = io(getBaseUrl(), {
         path: '/socket.io',
         transports: ['websocket', 'polling'],
         withCredentials: true,
         timeout: 1000, // Timeout muy corto
-        autoConnect: false, // No conectar automáticamente en demo
+        autoConnect: false, // No conectar automáticamente
         forceNew: false,
-        reconnection: false // Desactivar reconexión en demo
+        reconnection: false // Desactivar reconexión
       });
       
       // Prevenir cualquier intento de conexión
       socket.connect = () => {
-        // No hacer nada en modo demo
+        // No hacer nada en landing/demo
         return socket as any;
       };
     }

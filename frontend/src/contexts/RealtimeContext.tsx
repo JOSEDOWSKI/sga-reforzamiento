@@ -16,12 +16,13 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    // Detectar si estamos en modo demo
+    // Detectar si estamos en modo demo o landing page
     const hostname = window.location.hostname;
     const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
+    const isLandingPage = hostname === 'merchants.weekly.pe' || hostname === 'weekly.pe';
     
-    // En modo demo, no intentar conectar WebSocket
-    if (isDemoMode) {
+    // En modo demo o landing page, no intentar conectar WebSocket
+    if (isDemoMode || isLandingPage) {
       socketRef.current = null;
       setIsConnected(false);
       return;
