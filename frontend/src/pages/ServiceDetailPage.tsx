@@ -8,26 +8,35 @@ import { shareService, getShareUrl } from '../utils/shareUtils';
 import apiClient from '../config/api';
 import './ServiceDetailPage.css';
 
+interface Collaborator {
+  id: number;
+  name: string;
+  role: string;
+  avatar_url?: string;
+  description?: string;
+}
+
 interface Service {
   id: number;
   nombre: string;
-  descripcion?: string;
-  precio?: number;
-  ubicacion?: string;
-  city?: string;
-  rating?: number;
-  reviews?: number;
-  imagenes?: string[];
-  categoria?: string;
+  descripcion: string;
+  precio: number;
+  ubicacion: string;
+  city: string;
+  rating: number;
+  reviews: number;
+  imagenes: string[];
+  categoria: string;
   tenant_name?: string;
-  features?: string[];
-  host?: {
+  features: string[];
+  host: {
     nombre: string;
     experiencia?: string;
     avatar?: string;
   };
   latitud?: number;
   longitud?: number;
+  collaborators?: Collaborator[];
 }
 
 const ServiceDetailPage: React.FC = () => {
@@ -35,7 +44,7 @@ const ServiceDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { coordinates } = useGeolocation();
-  
+
   // Extraer ID del parámetro (puede venir como "123-salon-bella-vista")
   const idParam = params.id || '';
   const serviceId = idParam.split('-')[0];
@@ -44,6 +53,8 @@ const ServiceDetailPage: React.FC = () => {
   const [currentImageIndex] = useState(0); // TODO: Implementar navegación de imágenes en el futuro
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [distance, setDistance] = useState<number | null>(null);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [collaboratorsLoading, setCollaboratorsLoading] = useState(false);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -52,8 +63,8 @@ const ServiceDetailPage: React.FC = () => {
         // Cargar desde API usando el ID
         const response = await apiClient.get(`/public/tenants/${serviceId}`);
         const tenant = response.data.data || response.data;
-        
-        const serviceData = {
+
+        const serviceData: Service = {
           id: tenant.id,
           nombre: tenant.name || tenant.display_name || tenant.cliente_nombre,
           descripcion: tenant.cliente_direccion || 'Servicio disponible',
@@ -74,15 +85,15 @@ const ServiceDetailPage: React.FC = () => {
           latitud: tenant.latitud,
           longitud: tenant.longitud,
         };
-        
+
         setService(serviceData);
-        
+
         // Calcular distancia si tenemos coordenadas
         if (coordinates && tenant.latitud !== undefined && tenant.longitud !== undefined) {
           // Asegurar que latitud y longitud sean números
           const lat = typeof tenant.latitud === 'string' ? parseFloat(tenant.latitud) : Number(tenant.latitud);
           const lng = typeof tenant.longitud === 'string' ? parseFloat(tenant.longitud) : Number(tenant.longitud);
-          
+
           if (!isNaN(lat) && !isNaN(lng)) {
             const calculatedDistance = calculateDistance(
               coordinates.lat,
@@ -93,7 +104,7 @@ const ServiceDetailPage: React.FC = () => {
             setDistance(calculatedDistance);
           }
         }
-        
+
         // Track view
         analytics.viewService(
           tenant.id,
@@ -128,7 +139,7 @@ const ServiceDetailPage: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     if (serviceId) {
       fetchService();
     } else {
@@ -136,13 +147,31 @@ const ServiceDetailPage: React.FC = () => {
     }
   }, [serviceId, params.ciudad, params.categoria]);
 
+  useEffect(() => {
+    const fetchCollaborators = async () => {
+      if (!serviceId) return;
+      setCollaboratorsLoading(true);
+      try {
+        const response = await apiClient.get(`/public/tenants/${serviceId}/collaborators`);
+        setCollaborators(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching collaborators:', error);
+        setCollaborators([]);
+      } finally {
+        setCollaboratorsLoading(false);
+      }
+    };
+
+    fetchCollaborators();
+  }, [serviceId]);
+
   // Recalcular distancia cuando cambien las coordenadas
   useEffect(() => {
     if (service && coordinates && service.latitud !== undefined && service.longitud !== undefined) {
       // Asegurar que latitud y longitud sean números
       const lat = typeof service.latitud === 'string' ? parseFloat(service.latitud) : service.latitud;
       const lng = typeof service.longitud === 'string' ? parseFloat(service.longitud) : service.longitud;
-      
+
       if (!isNaN(lat) && !isNaN(lng)) {
         const calculatedDistance = calculateDistance(
           coordinates.lat,
@@ -176,7 +205,7 @@ const ServiceDetailPage: React.FC = () => {
     <div className="service-detail-page">
       {/* Header sticky */}
       <div className="service-detail-header">
-        <button 
+        <button
           className="icon-button"
           onClick={() => navigate(-1)}
           aria-label="Volver"
@@ -184,8 +213,8 @@ const ServiceDetailPage: React.FC = () => {
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div className="header-actions">
-          <button 
-            className="icon-button" 
+          <button
+            className="icon-button"
             aria-label="Compartir"
             onClick={async () => {
               if (service) {
@@ -204,7 +233,7 @@ const ServiceDetailPage: React.FC = () => {
           >
             <span className="material-symbols-outlined">share</span>
           </button>
-          <button 
+          <button
             className={`icon-button ${isFavorite(service?.id || 0) ? 'favorite-active' : ''}`}
             aria-label={isFavorite(service?.id || 0) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
             onClick={() => {
@@ -227,7 +256,7 @@ const ServiceDetailPage: React.FC = () => {
 
       {/* Imagen principal */}
       <div className="service-image-gallery">
-        <div 
+        <div
           className="service-main-image"
           style={{
             backgroundImage: service.imagenes && service.imagenes.length > 0
@@ -246,7 +275,7 @@ const ServiceDetailPage: React.FC = () => {
       {/* Información principal */}
       <div className="service-detail-content">
         <h1 className="service-detail-title">{service.nombre}</h1>
-        
+
         <div className="service-detail-meta">
           {service.rating && (
             <div className="meta-item">
@@ -294,35 +323,27 @@ const ServiceDetailPage: React.FC = () => {
 
         <hr className="divider" />
 
-        {/* Mapa y Cómo llegar */}
-        {service.latitud && service.longitud && (
-          <div className="map-section">
-            <h2 className="section-title">Ubicación</h2>
-            <div className="map-container">
-              <iframe
-                width="100%"
-                height="300"
-                style={{ border: 0, borderRadius: '16px' }}
-                loading="lazy"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-                src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&q=${service.latitud},${service.longitud}&zoom=15`}
-              />
-            </div>
-            <button 
-              className="directions-button"
-              onClick={() => {
-                const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${service.latitud},${service.longitud}`;
-                window.open(mapsUrl, '_blank');
-                analytics.trackEvent('click_directions', {
-                  service_id: service.id,
-                  service_name: service.nombre
-                });
-              }}
-            >
-              <span className="material-symbols-outlined">directions</span>
-              Cómo llegar
-            </button>
+        {/* Descripción */}
+        {service.descripcion && (
+          <div className="description-section">
+            <h2 className="section-title">Acerca de este espacio</h2>
+            <p className={`description-text ${showFullDescription ? 'expanded' : ''}`}>
+              {service.descripcion}
+            </p>
+            {service.descripcion.length > 150 && (
+              <button
+                className="show-more-button"
+                onClick={() => {
+                  setShowFullDescription(!showFullDescription);
+                  analytics.trackEvent('toggle_description', {
+                    service_id: service.id,
+                    expanded: !showFullDescription
+                  });
+                }}
+              >
+                {showFullDescription ? 'Mostrar menos' : 'Mostrar más'}
+              </button>
+            )}
             <hr className="divider" />
           </div>
         )}
@@ -356,8 +377,8 @@ const ServiceDetailPage: React.FC = () => {
                 )}
               </div>
               {service.host.avatar && (
-                <img 
-                  src={service.host.avatar} 
+                <img
+                  src={service.host.avatar}
                   alt={service.host.nombre}
                   className="host-avatar"
                 />
@@ -367,25 +388,34 @@ const ServiceDetailPage: React.FC = () => {
           </>
         )}
 
-        {/* Breadcrumbs */}
-        {(params.ciudad || params.categoria) && (
-          <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <a href="/" className="breadcrumb-link">Inicio</a>
-            {params.ciudad && (
-              <>
-                <span className="breadcrumb-separator">/</span>
-                <a href={`/${params.ciudad}`} className="breadcrumb-link">{params.ciudad}</a>
-              </>
-            )}
-            {params.categoria && (
-              <>
-                <span className="breadcrumb-separator">/</span>
-                <a href={`/${params.ciudad}/${params.categoria}`} className="breadcrumb-link">{params.categoria}</a>
-              </>
-            )}
-            <span className="breadcrumb-separator">/</span>
-            <span className="breadcrumb-current">{service.nombre}</span>
-          </nav>
+        {/* Colaboradores */}
+        {collaboratorsLoading ? (
+          <div className="collaborators-loading">Cargando colaboradores...</div>
+        ) : (
+          collaborators.length > 0 && (
+            <>
+              <div className="collaborators-section">
+                <h2 className="section-title">Colaboradores</h2>
+                <div className="collaborators-grid">
+                  {collaborators.map((collaborator) => (
+                    <div key={collaborator.id} className="collaborator-card">
+                      <img
+                        src={collaborator.avatar_url || 'https://via.placeholder.com/150'}
+                        alt={collaborator.name}
+                        className="collaborator-avatar"
+                      />
+                      <h3 className="collaborator-name">{collaborator.name}</h3>
+                      <p className="collaborator-role">{collaborator.role}</p>
+                      {collaborator.description && (
+                        <p className="collaborator-description">{collaborator.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <hr className="divider" />
+            </>
+          )
         )}
 
         {/* Mapa y Cómo llegar */}
@@ -403,7 +433,7 @@ const ServiceDetailPage: React.FC = () => {
                 src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&q=${service.latitud},${service.longitud}&zoom=15`}
               />
             </div>
-            <button 
+            <button
               className="directions-button"
               onClick={() => {
                 const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${service.latitud},${service.longitud}`;
@@ -420,30 +450,6 @@ const ServiceDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Descripción */}
-        {service.descripcion && (
-          <div className="description-section">
-            <h2 className="section-title">Acerca de este espacio</h2>
-            <p className={`description-text ${showFullDescription ? 'expanded' : ''}`}>
-              {service.descripcion}
-            </p>
-            {service.descripcion.length > 150 && (
-              <button 
-                className="show-more-button"
-                onClick={() => {
-                  setShowFullDescription(!showFullDescription);
-                  analytics.trackEvent('toggle_description', {
-                    service_id: service.id,
-                    expanded: !showFullDescription
-                  });
-                }}
-              >
-                {showFullDescription ? 'Mostrar menos' : 'Mostrar más'}
-              </button>
-            )}
-          </div>
-        )}
-
         {/* Espacio para el botón flotante */}
         <div className="bottom-spacer" />
       </div>
@@ -457,7 +463,7 @@ const ServiceDetailPage: React.FC = () => {
           </p>
           <p className="booking-dates">Selecciona fecha</p>
         </div>
-        <button 
+        <button
           className="book-button"
           onClick={() => {
             // PREVENIR cualquier redirección a subdominios de tenant
@@ -466,19 +472,19 @@ const ServiceDetailPage: React.FC = () => {
               console.error('❌ ERROR: Intento de navegación desde dominio incorrecto:', currentHost);
               return;
             }
-            
+
             analytics.clickBooking(service.id, service.nombre, service.categoria);
-            
+
             // SIEMPRE usar rutas dinámicas del marketplace, NUNCA subdominios de tenant
             // Navegar a la nueva página de booking del marketplace
             const citySlug = params.ciudad?.toLowerCase() || 'lima';
             const categorySlug = params.categoria?.toLowerCase() || service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
             const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
             const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}/booking`;
-            
+
             console.log('✅ Navegando a booking del marketplace:', targetPath);
             console.log('🚫 BLOQUEADO: No se usará tenant_name para redirección');
-            
+
             // Usar navigate, NUNCA window.location.href
             navigate(targetPath, { replace: false });
           }}

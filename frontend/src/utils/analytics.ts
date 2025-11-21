@@ -92,6 +92,14 @@ export const analytics = {
     });
   },
 
+  // Filtrar por tipo de servicio
+  filterByServiceType: (serviceType: string) => {
+    trackEvent('filter_by_service_type', {
+      service_type: serviceType,
+      page_location: window.location.href,
+    });
+  },
+
   // Cambiar vista (grid/list)
   changeViewMode: (viewMode: 'grid' | 'list') => {
     trackEvent('change_view_mode', {

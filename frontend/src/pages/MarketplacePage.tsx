@@ -22,6 +22,7 @@ interface Service {
   latitud?: number;
   longitud?: number;
   distancia?: number | null; // Distancia en km desde el usuario
+  serviceType?: string;
 }
 
 interface MarketplacePageProps {
@@ -34,19 +35,21 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
   const params = useParams<{ ciudad?: string; categoria?: string }>();
   const { city: detectedCity, loading: geoLoading, setCity, coordinates } = useGeolocation();
   const { toggleFavorite, isFavorite } = useFavorites();
-  
+
   // Usar ciudad de props, params, o geolocalización
   const activeCity = propCity || params.ciudad || detectedCity;
   const activeCategory = propCategory || params.categoria;
-  
+
   const [services, setServices] = useState<Service[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<string | null>(activeCity || null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(activeCategory || null);
+  const [selectedServiceType, setSelectedServiceType] = useState<string | null>(null); // Nuevo estado para tipo de servicio
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [availableServiceTypes, setAvailableServiceTypes] = useState<string[]>([]); // Nuevo estado para tipos de servicio disponibles
   const [sortBy, setSortBy] = useState<'default' | 'distance' | 'rating' | 'name'>('default');
   const [sidebarOpen, setSidebarOpen] = useState(true); // Visible por defecto en desktop
 
@@ -67,19 +70,20 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
     const fetchTenants = async () => {
       try {
         setLoading(true);
-        
+
         // Construir query params
         const queryParams = new URLSearchParams();
         if (selectedCity) queryParams.append('city', selectedCity);
         if (selectedCategory) queryParams.append('category', selectedCategory);
-        
+        if (selectedServiceType) queryParams.append('service_type', selectedServiceType); // Añadir tipo de servicio a los query params
+
         const response = await apiClient.get(`/public/tenants?${queryParams.toString()}`);
         const data = response.data;
-        
+
         // Mapear tenants a servicios para el marketplace
         const servicesData = (data.data || data.tenants || []).map((tenant: any) => {
           let distancia: number | null = null;
-          
+
           // Calcular distancia si tenemos coordenadas del usuario y del servicio
           if (coordinates && tenant.latitud && tenant.longitud) {
             distancia = calculateDistance(
@@ -89,7 +93,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
               parseFloat(tenant.longitud)
             );
           }
-          
+
           return {
             id: tenant.id,
             nombre: tenant.name || tenant.display_name || tenant.cliente_nombre || tenant.tenant_name,
@@ -104,16 +108,20 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
             latitud: tenant.latitud,
             longitud: tenant.longitud,
             distancia: distancia, // Distancia en km
+            serviceType: tenant.service_type || 'General', // Asumiendo que el API devuelve un campo service_type
           };
         });
-        
+
         setServices(servicesData);
-        
-        // Extraer ciudades y categorías únicas
+
+        // Extraer ciudades, categorías y tipos de servicio únicos
         const cities = [...new Set(servicesData.map((s: Service) => s.city).filter(Boolean))] as string[];
         const categories = [...new Set(servicesData.map((s: Service) => s.categoria).filter(Boolean))] as string[];
+        const serviceTypes = [...new Set(servicesData.map((s: Service) => s.serviceType).filter(Boolean))] as string[];
+
         setAvailableCities(cities.sort());
         setAvailableCategories(categories.sort());
+        setAvailableServiceTypes(serviceTypes.sort()); // Establecer tipos de servicio disponibles
       } catch (error: any) {
         console.error('Error cargando tenants:', error);
         if (error.response) {
@@ -128,20 +136,21 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         setLoading(false);
       }
     };
-    
+
     fetchTenants();
-  }, [selectedCity, selectedCategory, coordinates]);
+  }, [selectedCity, selectedCategory, selectedServiceType, coordinates]); // Añadir selectedServiceType como dependencia
 
   const filteredServices = services
     .filter(service => {
       const matchesSearch = service.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.categoria?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.ubicacion?.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesCity = !selectedCity || service.city?.toLowerCase() === selectedCity.toLowerCase();
       const matchesCategory = !selectedCategory || service.categoria?.toLowerCase() === selectedCategory.toLowerCase();
-      
-      return matchesSearch && matchesCity && matchesCategory;
+      const matchesServiceType = !selectedServiceType || service.serviceType?.toLowerCase() === selectedServiceType.toLowerCase(); // Nuevo filtro
+
+      return matchesSearch && matchesCity && matchesCategory && matchesServiceType;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -181,6 +190,12 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
     }
   };
 
+  const handleServiceTypeChange = (type: string) => {
+    setSelectedServiceType(type);
+    analytics.filterByServiceType(type); // New analytics event
+    // No navigation change for service type for now, as per instruction
+  };
+
   const handleServiceClick = (service: Service) => {
     // PREVENIR cualquier redirección a subdominios de tenant
     const currentHost = window.location.hostname;
@@ -188,32 +203,32 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
       console.error('❌ ERROR: Intento de navegación desde dominio incorrecto:', currentHost);
       return;
     }
-    
-    console.log('🔍 handleServiceClick:', { 
-      service: service.nombre, 
+
+    console.log('🔍 handleServiceClick:', {
+      service: service.nombre,
       tenant_name: service.tenant_name,
       selectedCity,
       categoria: service.categoria,
       currentHost
     });
-    
+
     analytics.viewService(
       service.id,
       service.nombre,
       service.categoria,
       selectedCity || undefined
     );
-    
+
     // SIEMPRE usar rutas dinámicas del marketplace, NUNCA subdominios de tenant
     // BLOQUEAR explícitamente cualquier intento de usar tenant_name para redirección
     const citySlug = selectedCity?.toLowerCase() || 'lima';
     const categorySlug = service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
     const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}`;
-    
+
     console.log('✅ Navegando a ruta dinámica del marketplace:', targetPath);
     console.log('🚫 BLOQUEADO: No se usará tenant_name para redirección');
-    
+
     // Usar navigate, NUNCA window.location.href
     navigate(targetPath, { replace: false });
   };
@@ -227,7 +242,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         setSidebarOpen(false);
       }
     };
-    
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -238,7 +253,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
       {/* Sidebar de navegación */}
       <aside className={`marketplace-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <button 
+          <button
             className="sidebar-toggle"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
@@ -248,7 +263,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
             </span>
           </button>
         </div>
-        
+
         {sidebarOpen && (
           <div className="sidebar-content">
             {/* Botones de autenticación */}
@@ -349,7 +364,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
 
       {/* Overlay para móvil */}
       {sidebarOpen && window.innerWidth < 1024 && (
-        <div 
+        <div
           className="sidebar-overlay"
           onClick={() => setSidebarOpen(false)}
         />
@@ -359,208 +374,246 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
       <div className="marketplace-main">
         {/* Header con búsqueda */}
         <div className="marketplace-header">
-        <div className="marketplace-header-top">
-          <button 
-            className="icon-button"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-label={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
-          >
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-          <h1 className="marketplace-title">Weekly</h1>
-          <button 
-            className="icon-button"
-            aria-label="Ubicación"
-          >
-            <span className="material-symbols-outlined">location_on</span>
-          </button>
-        </div>
-        
-        {/* Barra de búsqueda */}
-        <div className="search-container">
-          <div className="search-input-wrapper">
-            <div className="search-icon-wrapper">
-              <span className="material-symbols-outlined">search</span>
-            </div>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Buscar servicios, destinos..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                if (e.target.value.trim()) {
-                  analytics.searchService(e.target.value, filteredServices.length);
-                }
-              }}
-            />
-          </div>
-        </div>
-
-          {/* Filtros */}
-        <div className="filters-container">
-          {/* Ordenamiento */}
-          <div className="filter-dropdown">
-            <button 
-              className={`filter-button ${sortBy !== 'default' ? 'active' : ''}`}
-              onClick={() => {
-                const dropdown = document.getElementById('sort-dropdown');
-                dropdown?.classList.toggle('show');
-              }}
+          <div className="marketplace-header-top">
+            <button
+              className="icon-button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
             >
-              <span className="material-symbols-outlined">sort</span>
-              <span>
-                {sortBy === 'default' ? 'Ordenar' : 
-                 sortBy === 'name' ? 'Nombre' :
-                 sortBy === 'rating' ? 'Rating' :
-                 sortBy === 'distance' ? 'Distancia' : 'Ordenar'}
-              </span>
-              <span className="material-symbols-outlined">arrow_drop_down</span>
+              <span className="material-symbols-outlined">menu</span>
             </button>
-            <div id="sort-dropdown" className="dropdown-menu">
-              <button
-                className={`dropdown-item ${sortBy === 'default' ? 'active' : ''}`}
-                onClick={() => {
-                  setSortBy('default');
-                  document.getElementById('sort-dropdown')?.classList.remove('show');
-                }}
-              >
-                Por defecto
-              </button>
-              <button
-                className={`dropdown-item ${sortBy === 'name' ? 'active' : ''}`}
-                onClick={() => {
-                  setSortBy('name');
-                  document.getElementById('sort-dropdown')?.classList.remove('show');
-                }}
-              >
-                Nombre (A-Z)
-              </button>
-              <button
-                className={`dropdown-item ${sortBy === 'rating' ? 'active' : ''}`}
-                onClick={() => {
-                  setSortBy('rating');
-                  document.getElementById('sort-dropdown')?.classList.remove('show');
-                }}
-              >
-                Mejor rating
-              </button>
-              <button
-                className={`dropdown-item ${sortBy === 'distance' ? 'active' : ''}`}
-                onClick={() => {
-                  setSortBy('distance');
-                  document.getElementById('sort-dropdown')?.classList.remove('show');
-                }}
-              >
-                Más cercano
-              </button>
-            </div>
-          </div>
-
-          {/* Filtro de Ciudad */}
-          <div className="filter-dropdown">
-            <button 
-              className={`filter-button ${selectedCity ? 'active' : ''}`}
-              onClick={() => {
-                const dropdown = document.getElementById('city-dropdown');
-                dropdown?.classList.toggle('show');
-              }}
+            <h1 className="marketplace-title">Weekly</h1>
+            <button
+              className="icon-button"
+              aria-label="Ubicación"
             >
               <span className="material-symbols-outlined">location_on</span>
-              <span>{selectedCity || 'Ciudad'}</span>
-              <span className="material-symbols-outlined">arrow_drop_down</span>
             </button>
-            <div id="city-dropdown" className="dropdown-menu">
-              {availableCities.map(city => (
-                <button
-                  key={city}
-                  className={`dropdown-item ${selectedCity === city ? 'active' : ''}`}
-                  onClick={() => {
-                    handleCityChange(city);
-                    document.getElementById('city-dropdown')?.classList.remove('show');
-                  }}
-                >
-                  {city}
-                </button>
-              ))}
+          </div>
+
+          {/* Barra de búsqueda */}
+          <div className="search-container">
+            <div className="search-input-wrapper">
+              <div className="search-icon-wrapper">
+                <span className="material-symbols-outlined">search</span>
+              </div>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Buscar servicios, destinos..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (e.target.value.trim()) {
+                    analytics.searchService(e.target.value, filteredServices.length);
+                  }
+                }}
+              />
             </div>
           </div>
 
-          {/* Filtro de Categoría */}
-          <div className="filter-dropdown">
-            <button 
-              className={`filter-button ${selectedCategory ? 'active' : ''}`}
-              onClick={() => {
-                const dropdown = document.getElementById('category-dropdown');
-                dropdown?.classList.toggle('show');
-              }}
-            >
-              <span className="material-symbols-outlined">category</span>
-              <span>{selectedCategory || 'Categoría'}</span>
-              <span className="material-symbols-outlined">arrow_drop_down</span>
-            </button>
-            <div id="category-dropdown" className="dropdown-menu">
+          {/* Filtros */}
+          <div className="filters-container">
+            {/* Ordenamiento */}
+            <div className="filter-dropdown">
               <button
-                className={`dropdown-item ${!selectedCategory ? 'active' : ''}`}
+                className={`filter-button ${sortBy !== 'default' ? 'active' : ''}`}
                 onClick={() => {
-                  setSelectedCategory(null);
-                  document.getElementById('category-dropdown')?.classList.remove('show');
+                  const dropdown = document.getElementById('sort-dropdown');
+                  dropdown?.classList.toggle('show');
                 }}
               >
-                Todas
+                <span className="material-symbols-outlined">sort</span>
+                <span>
+                  {sortBy === 'default' ? 'Ordenar' :
+                    sortBy === 'name' ? 'Nombre' :
+                      sortBy === 'rating' ? 'Rating' :
+                        sortBy === 'distance' ? 'Distancia' : 'Ordenar'}
+                </span>
+                <span className="material-symbols-outlined">arrow_drop_down</span>
               </button>
-              {availableCategories.map(category => (
+              <div id="sort-dropdown" className="dropdown-menu">
                 <button
-                  key={category}
-                  className={`dropdown-item ${selectedCategory === category ? 'active' : ''}`}
+                  className={`dropdown-item ${sortBy === 'default' ? 'active' : ''}`}
                   onClick={() => {
-                    handleCategoryChange(category);
+                    setSortBy('default');
+                    document.getElementById('sort-dropdown')?.classList.remove('show');
+                  }}
+                >
+                  Por defecto
+                </button>
+                <button
+                  className={`dropdown-item ${sortBy === 'name' ? 'active' : ''}`}
+                  onClick={() => {
+                    setSortBy('name');
+                    document.getElementById('sort-dropdown')?.classList.remove('show');
+                  }}
+                >
+                  Nombre (A-Z)
+                </button>
+                <button
+                  className={`dropdown-item ${sortBy === 'rating' ? 'active' : ''}`}
+                  onClick={() => {
+                    setSortBy('rating');
+                    document.getElementById('sort-dropdown')?.classList.remove('show');
+                  }}
+                >
+                  Mejor rating
+                </button>
+                <button
+                  className={`dropdown-item ${sortBy === 'distance' ? 'active' : ''}`}
+                  onClick={() => {
+                    setSortBy('distance');
+                    document.getElementById('sort-dropdown')?.classList.remove('show');
+                  }}
+                >
+                  Más cercano
+                </button>
+              </div>
+            </div>
+
+            {/* Filtro de Ciudad */}
+            <div className="filter-dropdown">
+              <button
+                className={`filter-button ${selectedCity ? 'active' : ''}`}
+                onClick={() => {
+                  const dropdown = document.getElementById('city-dropdown');
+                  dropdown?.classList.toggle('show');
+                }}
+              >
+                <span className="material-symbols-outlined">location_on</span>
+                <span>{selectedCity || 'Ciudad'}</span>
+                <span className="material-symbols-outlined">arrow_drop_down</span>
+              </button>
+              <div id="city-dropdown" className="dropdown-menu">
+                {availableCities.map(city => (
+                  <button
+                    key={city}
+                    className={`dropdown-item ${selectedCity === city ? 'active' : ''}`}
+                    onClick={() => {
+                      handleCityChange(city);
+                      document.getElementById('city-dropdown')?.classList.remove('show');
+                    }}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Filtro de Categoría */}
+            <div className="filter-dropdown">
+              <button
+                className={`filter-button ${selectedCategory ? 'active' : ''}`}
+                onClick={() => {
+                  const dropdown = document.getElementById('category-dropdown');
+                  dropdown?.classList.toggle('show');
+                }}
+              >
+                <span className="material-symbols-outlined">category</span>
+                <span>{selectedCategory || 'Categoría'}</span>
+                <span className="material-symbols-outlined">arrow_drop_down</span>
+              </button>
+              <div id="category-dropdown" className="dropdown-menu">
+                <button
+                  className={`dropdown-item ${!selectedCategory ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedCategory(null);
                     document.getElementById('category-dropdown')?.classList.remove('show');
                   }}
                 >
-                  {category}
+                  Todas
                 </button>
-              ))}
+                {availableCategories.map(category => (
+                  <button
+                    key={category}
+                    className={`dropdown-item ${selectedCategory === category ? 'active' : ''}`}
+                    onClick={() => {
+                      handleCategoryChange(category);
+                      document.getElementById('category-dropdown')?.classList.remove('show');
+                    }}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Filtro de Tipo de Servicio */}
+            <div className="filter-dropdown">
+              <button
+                className={`filter-button ${selectedServiceType ? 'active' : ''}`}
+                onClick={() => {
+                  const dropdown = document.getElementById('service-type-dropdown');
+                  dropdown?.classList.toggle('show');
+                }}
+              >
+                <span className="material-symbols-outlined">build</span>
+                <span>{selectedServiceType || 'Tipo de Servicio'}</span>
+                <span className="material-symbols-outlined">arrow_drop_down</span>
+              </button>
+              <div id="service-type-dropdown" className="dropdown-menu">
+                <button
+                  className={`dropdown-item ${!selectedServiceType ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedServiceType(null);
+                    document.getElementById('service-type-dropdown')?.classList.remove('show');
+                  }}
+                >
+                  Todos
+                </button>
+                {availableServiceTypes.map(type => (
+                  <button
+                    key={type}
+                    className={`dropdown-item ${selectedServiceType === type ? 'active' : ''}`}
+                    onClick={() => {
+                      handleServiceTypeChange(type);
+                      document.getElementById('service-type-dropdown')?.classList.remove('show');
+                    }}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Toggle Grid/List */}
+          <div className="view-toggle-container">
+            <div className="view-toggle">
+              <label className={`view-toggle-option ${viewMode === 'grid' ? 'active' : ''}`}>
+                <span className="material-symbols-outlined">grid_view</span>
+                <span>Grid</span>
+                <input
+                  type="radio"
+                  name="view-mode"
+                  value="grid"
+                  checked={viewMode === 'grid'}
+                  onChange={() => {
+                    setViewMode('grid');
+                    analytics.changeViewMode('grid');
+                  }}
+                  className="sr-only"
+                />
+              </label>
+              <label className={`view-toggle-option ${viewMode === 'list' ? 'active' : ''}`}>
+                <span className="material-symbols-outlined">view_list</span>
+                <span>Lista</span>
+                <input
+                  type="radio"
+                  name="view-mode"
+                  value="list"
+                  checked={viewMode === 'list'}
+                  onChange={() => {
+                    setViewMode('list');
+                    analytics.changeViewMode('list');
+                  }}
+                  className="sr-only"
+                />
+              </label>
             </div>
           </div>
         </div>
-
-        {/* Toggle Grid/List */}
-        <div className="view-toggle-container">
-          <div className="view-toggle">
-            <label className={`view-toggle-option ${viewMode === 'grid' ? 'active' : ''}`}>
-              <span className="material-symbols-outlined">grid_view</span>
-              <span>Grid</span>
-              <input
-                type="radio"
-                name="view-mode"
-                value="grid"
-                checked={viewMode === 'grid'}
-                onChange={() => {
-                  setViewMode('grid');
-                  analytics.changeViewMode('grid');
-                }}
-                className="sr-only"
-              />
-            </label>
-            <label className={`view-toggle-option ${viewMode === 'list' ? 'active' : ''}`}>
-              <span className="material-symbols-outlined">view_list</span>
-              <span>Lista</span>
-              <input
-                type="radio"
-                name="view-mode"
-                value="list"
-                checked={viewMode === 'list'}
-                onChange={() => {
-                  setViewMode('list');
-                  analytics.changeViewMode('list');
-                }}
-                className="sr-only"
-              />
-            </label>
-          </div>
-        </div>
-      </div>
 
         {/* Contenido principal */}
         <main className="marketplace-content">
@@ -568,9 +621,9 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
           <section className="hero-banner">
             <div className="hero-banner-content">
               <div className="hero-banner-text">
-                <h2 className="hero-banner-title">Disfruta de envíos gratis por semanas!</h2>
+                <h2 className="hero-banner-title">Encuentra los mejores profesionales cerca de ti</h2>
                 <p className="hero-banner-subtitle">
-                  Para tus primeros pedidos en Restaurantes pagando con tarjeta.
+                  Reserva citas en salones, spas, consultorios y más servicios.
                 </p>
                 <p className="hero-banner-terms">*Aplican TyC</p>
                 <button className="hero-banner-button">
@@ -596,13 +649,13 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
 
           {/* Categorías principales */}
           <section className="main-categories">
-            <button 
+            <button
               className="main-category-btn main-category-restaurants"
               onClick={() => handleCategoryChange('Restaurantes')}
             >
               Restaurantes
             </button>
-            <button 
+            <button
               className="main-category-btn main-category-supermarkets"
               onClick={() => handleCategoryChange('Supermercados')}
             >
@@ -651,7 +704,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
           {/* Los más elegidos */}
           {filteredServices.length > 0 && (
             <section className="top-services">
-              <h3 className="section-title">¡Los 10 más elegidos!</h3>
+              <h3 className="section-title">¡Los mejores profesionales!</h3>
               <div className="top-services-grid">
                 {filteredServices.slice(0, 10).map((service) => (
                   <div
@@ -683,12 +736,12 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
               <span className="material-symbols-outlined empty-icon">search_off</span>
               <h3 className="empty-title">No se encontraron servicios</h3>
               <p className="empty-description">
-                {selectedCity || selectedCategory 
+                {selectedCity || selectedCategory
                   ? `Intenta cambiar los filtros de ${selectedCity ? 'ciudad' : ''}${selectedCity && selectedCategory ? ' o ' : ''}${selectedCategory ? 'categoría' : ''}`
                   : 'No hay servicios disponibles en este momento'}
               </p>
               {(selectedCity || selectedCategory) && (
-                <button 
+                <button
                   className="empty-action-button"
                   onClick={() => {
                     setSelectedCity(null);
@@ -704,68 +757,68 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
             <section className="services-section">
               <h3 className="section-title">Todos los servicios</h3>
               <div className={`services-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
-            {filteredServices.map((service) => (
-              <div
-                key={service.id}
-                className="service-card"
-                onClick={() => handleServiceClick(service)}
-              >
-                <div className="service-image-container">
-                  <div 
-                    className="service-image"
-                    style={{
-                      backgroundImage: service.imagen 
-                        ? `url(${service.imagen})` 
-                        : 'linear-gradient(135deg, var(--primary) 0%, #22c55e 100%)'
-                    }}
-                  />
-                  <button 
-                    className={`favorite-button ${isFavorite(service.id) ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(service.id);
-                      analytics.trackEvent('toggle_favorite', {
-                        service_id: service.id,
-                        service_name: service.nombre,
-                        is_favorite: !isFavorite(service.id)
-                      });
-                    }}
-                    aria-label={isFavorite(service.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                {filteredServices.map((service) => (
+                  <div
+                    key={service.id}
+                    className="service-card"
+                    onClick={() => handleServiceClick(service)}
                   >
-                    <span className={`material-symbols-outlined ${isFavorite(service.id) ? 'filled' : ''}`}>
-                      {isFavorite(service.id) ? 'favorite' : 'favorite_border'}
-                    </span>
-                  </button>
-                </div>
-                <div className="service-info">
-                  <h3 className="service-name">{service.nombre}</h3>
-                  <p className="service-location">
-                    {service.ubicacion}
-                    {service.distancia !== null && service.distancia !== undefined && (
-                      <span className="service-distance"> • {formatDistance(service.distancia)}</span>
-                    )}
-                    {coordinates && service.distancia !== null && service.distancia !== undefined && service.distancia < 5 && (
-                      <span className="service-nearby"> • Cerca de ti</span>
-                    )}
-                  </p>
-                  {service.rating && (
-                    <div className="service-rating">
-                      <span className="material-symbols-outlined filled-star">star</span>
-                      <span className="rating-value">{service.rating}</span>
-                      <span className="reviews-count">({service.reviews})</span>
+                    <div className="service-image-container">
+                      <div
+                        className="service-image"
+                        style={{
+                          backgroundImage: service.imagen
+                            ? `url(${service.imagen})`
+                            : 'linear-gradient(135deg, var(--primary) 0%, #22c55e 100%)'
+                        }}
+                      />
+                      <button
+                        className={`favorite-button ${isFavorite(service.id) ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(service.id);
+                          analytics.trackEvent('toggle_favorite', {
+                            service_id: service.id,
+                            service_name: service.nombre,
+                            is_favorite: !isFavorite(service.id)
+                          });
+                        }}
+                        aria-label={isFavorite(service.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                      >
+                        <span className={`material-symbols-outlined ${isFavorite(service.id) ? 'filled' : ''}`}>
+                          {isFavorite(service.id) ? 'favorite' : 'favorite_border'}
+                        </span>
+                      </button>
                     </div>
-                  )}
-                  {service.precio && (
-                    <p className="service-price">
-                      S/ {service.precio}
-                      <span className="price-unit">/hora</span>
-                    </p>
-                  )}
-                </div>
+                    <div className="service-info">
+                      <h3 className="service-name">{service.nombre}</h3>
+                      <p className="service-location">
+                        {service.ubicacion}
+                        {service.distancia !== null && service.distancia !== undefined && (
+                          <span className="service-distance"> • {formatDistance(service.distancia)}</span>
+                        )}
+                        {coordinates && service.distancia !== null && service.distancia !== undefined && service.distancia < 5 && (
+                          <span className="service-nearby"> • Cerca de ti</span>
+                        )}
+                      </p>
+                      {service.rating && (
+                        <div className="service-rating">
+                          <span className="material-symbols-outlined filled-star">star</span>
+                          <span className="rating-value">{service.rating}</span>
+                          <span className="reviews-count">({service.reviews})</span>
+                        </div>
+                      )}
+                      {service.precio && (
+                        <p className="service-price">
+                          S/ {service.precio}
+                          <span className="price-unit">/hora</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-              ))}
-            </div>
-          </section>
+            </section>
           )}
 
           {/* Sección "Únete a Weekly" */}
@@ -773,9 +826,9 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
             <h3 className="section-title">Únete a Weekly</h3>
             <div className="join-cards">
               <div className="join-card">
-                <span className="material-symbols-outlined join-card-icon">restaurant</span>
-                <h4 className="join-card-title">Registra tu restaurante</h4>
-                <p className="join-card-description">Llega a más clientes y aumenta tus ventas</p>
+                <span className="material-symbols-outlined join-card-icon">content_cut</span>
+                <h4 className="join-card-title">Registra tu negocio</h4>
+                <p className="join-card-description">Gestiona tus reservas y aumenta tus clientes</p>
                 <button className="join-card-button" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
                   Conocer más
                 </button>
@@ -783,15 +836,15 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
               <div className="join-card">
                 <span className="material-symbols-outlined join-card-icon">store</span>
                 <h4 className="join-card-title">Registra tu comercio</h4>
-                <p className="join-card-description">Expande tu negocio con nuestra plataforma</p>
+                <p className="join-card-description">Expande tu alcance con nuestra plataforma</p>
                 <button className="join-card-button" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
                   Conocer más
                 </button>
               </div>
               <div className="join-card">
                 <span className="material-symbols-outlined join-card-icon">delivery_dining</span>
-                <h4 className="join-card-title">¡Únete como repartidor!</h4>
-                <p className="join-card-description">Gana dinero entregando pedidos</p>
+                <h4 className="join-card-title">¡Únete como profesional!</h4>
+                <p className="join-card-description">Ofrece tus servicios y gestiona tu agenda</p>
                 <button className="join-card-button join-card-button-primary" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
                   ¡Regístrate ahora!
                 </button>
@@ -800,33 +853,33 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
           </section>
         </main>
 
-      {/* Botón flotante de mapa - Funcional */}
-      <button 
-        className="map-fab"
-        onClick={() => {
-          analytics.trackEvent('view_map', {
-            city: selectedCity || undefined,
-            category: selectedCategory || undefined,
-            services_count: filteredServices.length
-          });
-          
-          // En desktop, mostrar un modal con mapa o redirigir a Google Maps
-          // Por ahora, abrir Google Maps con la ubicación de la ciudad seleccionada
-          if (selectedCity) {
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCity + ', Perú')}`;
-            window.open(mapsUrl, '_blank');
-          } else {
-            // Si no hay ciudad, mostrar todas las ubicaciones de servicios
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Servicios Weekly Perú')}`;
-            window.open(mapsUrl, '_blank');
-          }
-        }}
-        aria-label="Ver mapa"
-        title="Ver servicios en el mapa"
-      >
-        <span className="material-symbols-outlined">map</span>
-        <span>Mapa</span>
-      </button>
+        {/* Botón flotante de mapa - Funcional */}
+        <button
+          className="map-fab"
+          onClick={() => {
+            analytics.trackEvent('view_map', {
+              city: selectedCity || undefined,
+              category: selectedCategory || undefined,
+              services_count: filteredServices.length
+            });
+
+            // En desktop, mostrar un modal con mapa o redirigir a Google Maps
+            // Por ahora, abrir Google Maps con la ubicación de la ciudad seleccionada
+            if (selectedCity) {
+              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCity + ', Perú')}`;
+              window.open(mapsUrl, '_blank');
+            } else {
+              // Si no hay ciudad, mostrar todas las ubicaciones de servicios
+              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Servicios Weekly Perú')}`;
+              window.open(mapsUrl, '_blank');
+            }
+          }}
+          aria-label="Ver mapa"
+          title="Ver servicios en el mapa"
+        >
+          <span className="material-symbols-outlined">map</span>
+          <span>Mapa</span>
+        </button>
       </div>
     </div>
   );

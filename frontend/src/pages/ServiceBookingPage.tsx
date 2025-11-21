@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import apiClient from '../config/api';
 import { useMarketplaceProfile } from '../hooks/useMarketplaceProfile';
 import { useAuth } from '../hooks/useAuth';
 import { analytics } from '../utils/analytics';
-import './MarketplaceBookingPage.css';
+import './ServiceBookingPage.css';
 
 interface Colaborador {
   id: number;
@@ -30,16 +30,34 @@ interface AvailabilitySlot {
   colaborador_nombre: string;
 }
 
-const MarketplaceBookingPage: React.FC = () => {
+const ServiceBookingPage: React.FC = () => {
   const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
   const navigate = useNavigate();
   const { profile } = useMarketplaceProfile();
   const { user } = useAuth();
-  
-  // Extraer ID del servicio
-  const idParam = params.id || '';
-  const serviceId = idParam.split('-')[0];
-  
+
+  // Extraer parámetros de la URL manualmente (ya que App.tsx no usa rutas con parámetros nombrados)
+  const location = useLocation();
+  const pathParts = location.pathname.split('/').filter(Boolean);
+
+  // Estructura esperada: /:ciudad/:categoria/:serviceIdSlug/:collaboratorIdSlug/booking
+  // O fallback: /:ciudad/:categoria/:serviceIdSlug/booking
+
+  let serviceIdParam = '';
+  let collaboratorIdParam = '';
+
+  if (pathParts.length >= 5 && pathParts[pathParts.length - 1] === 'booking') {
+    // Caso con colaborador: .../servicio-123/colaborador-456/booking
+    serviceIdParam = pathParts[pathParts.length - 3];
+    collaboratorIdParam = pathParts[pathParts.length - 2];
+  } else if (pathParts.length >= 4 && pathParts[pathParts.length - 1] === 'booking') {
+    // Caso sin colaborador: .../servicio-123/booking
+    serviceIdParam = pathParts[pathParts.length - 2];
+  }
+
+  const serviceId = serviceIdParam.split('-')[0];
+  const collaboratorId = collaboratorIdParam.split('-')[0];
+
   // Estados
   const [service, setService] = useState<any>(null);
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
@@ -53,7 +71,7 @@ const MarketplaceBookingPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  
+
   // Cargar datos del servicio
   useEffect(() => {
     const fetchService = async () => {
@@ -61,7 +79,7 @@ const MarketplaceBookingPage: React.FC = () => {
         setLoading(true);
         const response = await apiClient.get(`/public/tenants/${serviceId}`);
         const tenant = response.data.data || response.data;
-        
+
         setService({
           id: tenant.id,
           nombre: tenant.name || tenant.display_name || tenant.cliente_nombre,
@@ -70,7 +88,7 @@ const MarketplaceBookingPage: React.FC = () => {
           imagenes: tenant.imagenes || [],
           tenant_name: tenant.tenant_name,
         });
-        
+
         // Configurar header X-Tenant para las siguientes requests
         if (apiClient.defaults && tenant.tenant_name) {
           apiClient.defaults.headers.common['X-Tenant'] = tenant.tenant_name;
@@ -82,12 +100,12 @@ const MarketplaceBookingPage: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     if (serviceId) {
       fetchService();
     }
   }, [serviceId]);
-  
+
   // Cargar servicios
   useEffect(() => {
     const fetchServicios = async () => {
@@ -101,12 +119,12 @@ const MarketplaceBookingPage: React.FC = () => {
         console.error('Error obteniendo servicios:', err);
       }
     };
-    
+
     if (service?.tenant_name) {
       fetchServicios();
     }
   }, [service]);
-  
+
   // Cargar colaboradores
   useEffect(() => {
     const fetchColaboradores = async () => {
@@ -117,30 +135,39 @@ const MarketplaceBookingPage: React.FC = () => {
         const response = await apiClient.get(url);
         const staffData = response.data.data || [];
         setColaboradores(staffData);
-        if (staffData.length > 0 && !selectedColaborador) {
+
+        // Pre-seleccionar colaborador si viene en la URL
+        if (collaboratorId) {
+          const preselected = staffData.find((c: Colaborador) => c.id.toString() === collaboratorId);
+          if (preselected) {
+            setSelectedColaborador(preselected);
+          } else if (staffData.length > 0 && !selectedColaborador) {
+            setSelectedColaborador(staffData[0]);
+          }
+        } else if (staffData.length > 0 && !selectedColaborador) {
           setSelectedColaborador(staffData[0]);
         }
       } catch (err: any) {
         console.error('Error obteniendo colaboradores:', err);
       }
     };
-    
+
     if (service?.tenant_name) {
       fetchColaboradores();
     }
-  }, [service, selectedServicio]);
-  
+  }, [service, selectedServicio, collaboratorId]);
+
   // Cargar disponibilidad
   useEffect(() => {
     const fetchAvailability = async () => {
       if (!selectedColaborador || !selectedDate) return;
-      
+
       try {
         const fecha_desde = new Date(selectedDate);
         fecha_desde.setHours(0, 0, 0, 0);
         const fecha_hasta = new Date(selectedDate);
         fecha_hasta.setHours(23, 59, 59, 999);
-        
+
         const url = `/public/availability?fecha_desde=${fecha_desde.toISOString()}&fecha_hasta=${fecha_hasta.toISOString()}&staff_id=${selectedColaborador.id}`;
         const response = await apiClient.get(url);
         setAvailability(response.data.data || []);
@@ -149,44 +176,44 @@ const MarketplaceBookingPage: React.FC = () => {
         setAvailability([]);
       }
     };
-    
+
     fetchAvailability();
   }, [selectedColaborador, selectedDate]);
-  
+
   // Obtener horarios disponibles para la fecha seleccionada
   const getAvailableTimes = () => {
     if (!selectedDate || !selectedColaborador) return [];
-    
+
     const dayAvailability = availability.filter(slot => {
       const slotDate = new Date(slot.fecha_hora_inicio);
       return slotDate.toDateString() === selectedDate.toDateString() &&
-             slot.disponible &&
-             slot.colaborador_id === selectedColaborador.id;
+        slot.disponible &&
+        slot.colaborador_id === selectedColaborador.id;
     });
-    
+
     return dayAvailability.map(slot => {
       const date = new Date(slot.fecha_hora_inicio);
       return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     });
   };
-  
+
   const handleConfirmBooking = () => {
     // Verificar que todo esté seleccionado
     if (!selectedColaborador || !selectedDate || !selectedTime) {
       setError('Por favor, completa todos los campos');
       return;
     }
-    
+
     // Si no está logueado, mostrar modal de login
     if (!user) {
       setShowLoginModal(true);
       return;
     }
-    
+
     // Si está logueado, mostrar modal de pago
     setShowPaymentModal(true);
   };
-  
+
   const handlePayment = async () => {
     // Aquí iría la lógica de pago
     // Por ahora, crear la reserva directamente
@@ -194,12 +221,12 @@ const MarketplaceBookingPage: React.FC = () => {
       const [hora, minuto] = selectedTime!.split(':').map(Number);
       const fechaHoraInicio = new Date(selectedDate!);
       fechaHoraInicio.setHours(hora, minuto, 0, 0);
-      
+
       const fechaHoraFin = new Date(fechaHoraInicio);
       fechaHoraFin.setHours(fechaHoraFin.getHours() + 1);
-      
+
       const establecimientoId = selectedServicio?.id || service?.id;
-      
+
       await apiClient.post('/reservas', {
         fecha_hora_inicio: fechaHoraInicio.toISOString(),
         fecha_hora_fin: fechaHoraFin.toISOString(),
@@ -213,31 +240,31 @@ const MarketplaceBookingPage: React.FC = () => {
         precio: service?.precio || 0,
         notas: ''
       });
-      
+
       analytics.completeBooking(service?.id, service?.nombre, service?.categoria);
-      
+
       // Redirigir a página de confirmación
       navigate(`/${params.ciudad}/${params.categoria}/${params.id}/confirmacion`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al crear la reserva');
     }
   };
-  
+
   if (loading) {
     return <div className="marketplace-booking-loading">Cargando...</div>;
   }
-  
+
   if (error && !service) {
     return <div className="marketplace-booking-error">{error}</div>;
   }
-  
+
   const availableTimes = getAvailableTimes();
-  
+
   return (
     <div className="marketplace-booking-page">
       {/* Header con botón de volver */}
       <div className="booking-header">
-        <button 
+        <button
           className="back-button"
           onClick={() => navigate(-1)}
         >
@@ -245,7 +272,7 @@ const MarketplaceBookingPage: React.FC = () => {
         </button>
         <h1 className="booking-title">Reservar en {service?.nombre}</h1>
       </div>
-      
+
       {/* Galería de fotos */}
       {service?.imagenes && service.imagenes.length > 0 && (
         <div className="booking-gallery">
@@ -254,7 +281,7 @@ const MarketplaceBookingPage: React.FC = () => {
           ))}
         </div>
       )}
-      
+
       {/* Selección de servicio (si hay múltiples) */}
       {servicios.length > 1 && (
         <div className="booking-section">
@@ -273,7 +300,7 @@ const MarketplaceBookingPage: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Selección de profesional */}
       <div className="booking-section">
         <h2 className="section-title">Elige tu profesional</h2>
@@ -301,7 +328,7 @@ const MarketplaceBookingPage: React.FC = () => {
           ))}
         </div>
       </div>
-      
+
       {/* Selección de fecha */}
       <div className="booking-section">
         <h2 className="section-title">Elige la fecha</h2>
@@ -313,7 +340,7 @@ const MarketplaceBookingPage: React.FC = () => {
           onChange={(e) => setSelectedDate(new Date(e.target.value))}
         />
       </div>
-      
+
       {/* Selección de hora */}
       {selectedDate && (
         <div className="booking-section">
@@ -335,7 +362,7 @@ const MarketplaceBookingPage: React.FC = () => {
           )}
         </div>
       )}
-      
+
       {/* Botón de confirmar */}
       <div className="booking-footer">
         <div className="booking-summary">
@@ -364,7 +391,7 @@ const MarketplaceBookingPage: React.FC = () => {
           {user ? 'Continuar al pago' : 'Iniciar sesión para reservar'}
         </button>
       </div>
-      
+
       {/* Modal de login */}
       {showLoginModal && (
         <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
@@ -397,7 +424,7 @@ const MarketplaceBookingPage: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal de pago */}
       {showPaymentModal && (
         <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
@@ -427,5 +454,5 @@ const MarketplaceBookingPage: React.FC = () => {
   );
 };
 
-export default MarketplaceBookingPage;
+export default ServiceBookingPage;
 

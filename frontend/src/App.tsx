@@ -25,7 +25,7 @@ import LandingPage from './pages/LandingPage';
 import DemoLandingPage from './pages/DemoLandingPage';
 import MarketplacePage from './pages/MarketplacePage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
-import MarketplaceBookingPage from './pages/MarketplaceBookingPage';
+import ServiceBookingPage from './pages/ServiceBookingPage';
 
 // Calendario público (sin autenticación)
 import PublicCalendarPage from './pages/PublicCalendarPage';
@@ -46,24 +46,24 @@ import DemoAuthModal from './components/DemoAuthModal';
 import { AuthProvider } from './hooks/useAuth';
 import { SplashProvider } from './contexts/SplashContext';
 import { RealtimeProvider } from './contexts/RealtimeContext';
-import { useSplashScreen } from './hooks/useSplashScreen'; 
+import { useSplashScreen } from './hooks/useSplashScreen';
 import { useTenantConfig } from './hooks/useTenantConfig';
 import './App.css';
 import './styles/GlobalPanel.css';
 
 function TenantAppContent() {
   const location = useLocation();
-  const [isNavOpen, setIsNavOpen] = useState(false);  
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const { showSplash, isInitialized, hideSplash } = useSplashScreen();
   const { isTutorialEnabled } = useTenantConfig();
   const [tutorialEnabled, setTutorialEnabled] = useState(isTutorialEnabled);
   const { user } = useAuth();
-  
+
   // Detectar si estamos en modo demo
   const hostname = window.location.hostname;
   const isDemoMode = hostname === 'demo.weekly.pe' || hostname.split('.')[0] === 'demo';
   const [showDemoModal, setShowDemoModal] = useState(false);
-  
+
   // Mostrar modal en demo si no hay usuario (solo una vez)
   useEffect(() => {
     if (isDemoMode && !user && isInitialized && !showSplash) {
@@ -73,12 +73,12 @@ function TenantAppContent() {
       }
     }
   }, [isDemoMode, user, isInitialized, showSplash]);
-  
+
   // Determinar el rol del usuario
   // En modo demo: /calendario = colaborador, /dashboard = admin, otros = admin
   const pathname = location.pathname;
   const isColaboradorView = isDemoMode && (pathname === '/calendario' || pathname === '/calendario/');
-  const isAdmin = isDemoMode 
+  const isAdmin = isDemoMode
     ? !isColaboradorView  // En demo, admin si no es vista colaborador
     : (user?.rol === 'admin');
 
@@ -175,37 +175,37 @@ function TenantAppContent() {
           {!showSplash && isInitialized && tutorialEnabled && <TourOrchestrator />}
 
           {/* Configuración de tutorial (siempre visible para administradores) */}
-          {!showSplash && isInitialized && <TutorialSettings 
+          {!showSplash && isInitialized && <TutorialSettings
             isTutorialEnabled={tutorialEnabled}
             onToggleTutorial={() => setTutorialEnabled(!tutorialEnabled)}
           />}
 
-            <main className="content-container">
-              <Routes>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/servicios" element={
-                  <ProtectedFeatureRoute feature="servicios">
-                    <GestionServicios />
-                  </ProtectedFeatureRoute>
-                } />
-                <Route path="/clientes" element={<GestionClientes />} />
-                <Route path="/staff" element={
-                  <ProtectedFeatureRoute feature="colaboradores">
-                    <GestionStaff />
-                  </ProtectedFeatureRoute>
-                } />
-                <Route path="/inmuebles" element={<GestionInmuebles />} />
-                <Route path="/categorias" element={
-                  <ProtectedFeatureRoute feature="categorias">
-                    <GestionCategorias />
-                  </ProtectedFeatureRoute>
-                } />
-                <Route path="/estadisticas" element={<EstadisticasPage />} />
-                <Route path="/calendario" element={<UserCalendarView />} />
-                <Route path="/configuracion" element={<Configuracion />} />
-              </Routes>
-            </main>
+          <main className="content-container">
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/servicios" element={
+                <ProtectedFeatureRoute feature="servicios">
+                  <GestionServicios />
+                </ProtectedFeatureRoute>
+              } />
+              <Route path="/clientes" element={<GestionClientes />} />
+              <Route path="/staff" element={
+                <ProtectedFeatureRoute feature="colaboradores">
+                  <GestionStaff />
+                </ProtectedFeatureRoute>
+              } />
+              <Route path="/inmuebles" element={<GestionInmuebles />} />
+              <Route path="/categorias" element={
+                <ProtectedFeatureRoute feature="categorias">
+                  <GestionCategorias />
+                </ProtectedFeatureRoute>
+              } />
+              <Route path="/estadisticas" element={<EstadisticasPage />} />
+              <Route path="/calendario" element={<UserCalendarView />} />
+              <Route path="/configuracion" element={<Configuracion />} />
+            </Routes>
+          </main>
 
           {isNavOpen && (
             <div className="overlay" onClick={() => setIsNavOpen(false)}></div>
@@ -222,7 +222,7 @@ function TenantAppContent() {
             {!showSplash && isInitialized && tutorialEnabled && <TourOrchestrator />}
 
             {/* Configuración de tutorial (siempre visible para administradores) */}
-            {!showSplash && isInitialized && <TutorialSettings 
+            {!showSplash && isInitialized && <TutorialSettings
               isTutorialEnabled={tutorialEnabled}
               onToggleTutorial={() => setTutorialEnabled(!tutorialEnabled)}
             />}
@@ -264,9 +264,9 @@ function TenantAppContent() {
 
       {/* Modal de autenticación demo */}
       {isDemoMode && (
-        <DemoAuthModal 
-          isOpen={showDemoModal} 
-          onClose={() => setShowDemoModal(false)} 
+        <DemoAuthModal
+          isOpen={showDemoModal}
+          onClose={() => setShowDemoModal(false)}
         />
       )}
     </>
@@ -318,21 +318,21 @@ function getConfiguredDomains(values: Array<string | undefined>) {
 
 function AppContent() {
   const { user, isLoading } = useAuth();
-  
+
   // Detectar el dominio actual
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   const normalizedHost = normalizeHost(hostname);
-  
+
   // IMPORTANTE: Verificar PRIMERO si estamos en el marketplace principal
   // Esto previene que se detecte incorrectamente un subdominio
   const isMarketplaceMainDomain = hostname === 'weekly.pe' || hostname === 'merchants.weekly.pe';
-  
+
   // Extraer subdominio si existe
   // CRÍTICO: NO detectar subdominio si estamos en weekly.pe o merchants.weekly.pe
   const parts = hostname.split('.');
   let subdomain: string | null = null;
-  
+
   if (!isMarketplaceMainDomain && parts.length >= 3 && !hostname.includes('localhost')) {
     subdomain = parts[0];
     // Excluir subdominios del sistema
@@ -340,7 +340,7 @@ function AppContent() {
       subdomain = null;
     }
   }
-  
+
   console.log('🔍 App.tsx Routing Debug:', {
     hostname,
     pathname,
@@ -374,12 +374,12 @@ function AppContent() {
   const isMarketplaceDomain = marketplaceDomains.includes(normalizedHost);
   const isMerchantsDomain = merchantsDomains.includes(normalizedHost);
   const isPanelDomain = panelDomains.includes(normalizedHost) || subdomain === 'panel';
-  
+
   // Logs de depuración en producción también
-  console.log('🔍 AppContent Routing:', { 
-    hostname, 
-    subdomain, 
-    pathname, 
+  console.log('🔍 AppContent Routing:', {
+    hostname,
+    subdomain,
+    pathname,
     parts: parts.length,
     normalizedHost,
     isMarketplaceMainDomain,
@@ -388,19 +388,19 @@ function AppContent() {
     isMarketplaceDomain,
     isMerchantsDomain,
   });
-  
+
   // Si es demo.weekly.pe, mostrar landing page o booking
   if (hostname === 'demo.weekly.pe' || subdomain === 'demo') {
     // Si la ruta es /booking, mostrar calendario público
     if (pathname === '/booking' || pathname === '/booking/') {
       return <PublicCalendarPage />;
     }
-    
+
     // Si la ruta es /login, mostrar login del tenant
     if (pathname === '/login' || pathname === '/login/') {
       return <LoginPage />;
     }
-    
+
     // Si está en la raíz y no está autenticado, mostrar landing page de demo
     if (pathname === '/' || pathname === '') {
       if (!user) {
@@ -409,26 +409,26 @@ function AppContent() {
       // Si está autenticado, redirigir al dashboard
       return <TenantAppContent />;
     }
-    
+
     // Si es /calendario en demo, mostrar vista de colaborador (sin sidebar, solo calendario y toggle tema)
     if (pathname === '/calendario' || pathname === '/calendario/') {
       return <TenantAppContent />;
     }
-    
+
     // Para rutas autenticadas o en demo (sin auth requerida), usar TenantAppContent
     // En demo, permitir acceso sin autenticación a todas las rutas de admin
-    const adminRoutes = ['/dashboard', '/servicios', '/clientes', '/staff', 
-                         '/categorias', '/estadisticas', '/configuracion', '/calendario'];
+    const adminRoutes = ['/dashboard', '/servicios', '/clientes', '/staff',
+      '/categorias', '/estadisticas', '/configuracion', '/calendario'];
     const isAdminRoute = adminRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
-    
+
     if (user || isAdminRoute) {
       return <TenantAppContent />;
     }
-    
+
     // Si no está autenticado y no es una ruta pública ni de admin, mostrar landing
     return <DemoLandingPage />;
   }
-  
+
   // PRIORIDAD 1: Dominios informativos de merchants (MÁXIMA PRIORIDAD - antes que todo)
   // Esto debe estar ANTES de marketplace y tenants para evitar redirecciones
   if (isMerchantsDomain || subdomain === 'merchants') {
@@ -436,7 +436,7 @@ function AppContent() {
     // Merchants es puramente informativo. SIEMPRE mostrar landing, nunca booking ni tenant app
     return <LandingPage />;
   }
-  
+
   // PRIORIDAD 2: Dominios del marketplace/ecommerce (weekly.pe por defecto)
   if (isMarketplaceDomain) {
     console.log('✅ PRIORIDAD 2: Detectado weekly.pe - Mostrando MarketplacePage');
@@ -453,7 +453,7 @@ function AppContent() {
     const routeParts = pathname.split('/').filter(Boolean);
     if (routeParts.length >= 4 && routeParts[routeParts.length - 1] === 'booking') {
       // Usar la nueva página de booking del marketplace
-      return <MarketplaceBookingPage />;
+      return <ServiceBookingPage />;
     }
     // Rutas dinámicas: /:ciudad/:categoria/:id-negocio
     if (routeParts.length >= 3) {
@@ -473,10 +473,10 @@ function AppContent() {
     // Si no, mostrar marketplace principal
     return <MarketplacePage />;
   }
-  
+
   // Si es localhost sin subdominio, también mostrar marketplace (desarrollo)
   const isMainDomain = hostname === 'localhost' && !subdomain;
-  
+
   // Solo para localhost en desarrollo
   if (isMainDomain) {
     console.log('✅ Desarrollo local: Mostrando MarketplacePage');
@@ -488,19 +488,19 @@ function AppContent() {
     }
     return <MarketplacePage />;
   }
-  
+
   // Si es panel.weekly o panel.weekly.pe, mostrar panel global directamente
   if (isPanelDomain) {
     return <GlobalAppContent />;
   }
-  
+
   // Determinar si es panel global o tenant basado en el usuario
   const isGlobalPanel = user?.userType === 'global' || user?.rol === 'super_admin';
-  
+
   if (isGlobalPanel && !subdomain) {
     return <GlobalAppContent />;
   }
-  
+
   // Si hay un subdominio y no es demo ni panel, es un tenant
   // IMPORTANTE: Esto solo aplica para subdominios de tenant (ej: peluqueria.weekly.pe)
   // NO debe aplicarse si estamos en weekly.pe (marketplace)
@@ -518,30 +518,30 @@ function AppContent() {
     if (pathname === '/booking' || pathname === '/booking/') {
       return <PublicCalendarPage />;
     }
-    
+
     // Si la ruta es /login y no está autenticado, mostrar login del tenant
     if (pathname === '/login' && !user && !isLoading) {
       return <LoginPage />;
     }
-    
+
     // Si está en la raíz del tenant y no está autenticado, redirigir a /booking del mismo tenant
     if (pathname === '/' && !user && !isLoading) {
       console.log('⚠️ Redirigiendo tenant desde raíz a /booking');
       window.location.href = `/booking`;
       return <div>Cargando...</div>;
     }
-    
+
     // Para rutas autenticadas, usar TenantAppContent (dashboard, servicios, etc.)
     return <TenantAppContent />;
   }
-  
+
   // Fallback: Si es un dominio del marketplace, mostrar marketplace
   // Esto es un safety net por si acaso la verificación anterior falla
   if (isMarketplaceDomain) {
     console.log('🔄 Fallback: Detectado weekly.pe, mostrando MarketplacePage');
     return <MarketplacePage />;
   }
-  
+
   // Default: Si llegamos aquí sin match, algo está mal
   console.error('⚠️ AppContent: No se encontró match para:', { hostname, subdomain, pathname });
   console.error('⚠️ Esto NO debería pasar. Retornando TenantAppContent como fallback.');
@@ -558,7 +558,7 @@ function App() {
             <Routes>
               {/* Rutas públicas (sin autenticación) */}
               <Route path="/calendario-publico" element={<PublicCalendarPage />} />
-              
+
               {/* Todas las rutas pasan por AppContent que maneja el routing según subdominio */}
               {/* merchants.weekly.pe → LandingPage (página de información para merchants) */}
               {/* weekly.pe → MarketplacePage (marketplace/ecommerce) */}
