@@ -77,9 +77,12 @@ jobs:
           
           # Enviar tarball directamente como multipart/form-data
           # CapRover espera el archivo en el campo 'tarFile'
+          # Agregar timestamp para forzar rebuild sin cache
+          TIMESTAMP=$(date +%s)
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -F "tarFile=@weekly-unified.tar.gz" \
-            "$CAPROVER_WEBHOOK_URL")
+            -F "forceBuild=1" \
+            "$CAPROVER_WEBHOOK_URL?t=$TIMESTAMP")
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
