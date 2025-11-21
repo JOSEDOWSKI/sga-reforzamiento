@@ -16,8 +16,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
-    padding-bottom: 0.5rem;
+    padding: var(--spacing-lg); /* 16px */
+    padding-bottom: var(--spacing-sm); /* 8px */
     background-color: var(--background);
     border-bottom: 1px solid var(--border);
 }
@@ -43,8 +43,8 @@
 .calendar-title {
     flex: 1;
     text-align: center;
-    font-size: 1.125rem;
-    font-weight: 700;
+    font-size: var(--font-size-body); /* Responsivo: 18px/16px/14px */
+    font-weight: var(--font-weight-bold); /* 700 */
     color: var(--foreground);
     margin: 0;
     padding-right: 2.5rem; /* Compensar el botón de volver */
@@ -55,7 +55,7 @@
 }
 
 .reservas-page {
-    padding: 1rem;
+    padding: var(--spacing-lg); /* 16px */
     flex: 1;
     display: flex;
     align-items: flex-start;
@@ -70,7 +70,7 @@
     max-width: 1600px;
     width: 100%;
     background: #0f1419;
-    border-radius: 20px;
+    border-radius: var(--radius-xl); /* 20px */
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
                 0 0 50px rgba(170, 223, 173, 0.1),
                 inset 0 1px 0 rgba(170, 223, 173, 0.05);
@@ -81,7 +81,7 @@
 /* Primera columna: Información de empresa y profesores */
 .columna-info {
     background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
-    padding: 2.5rem;
+    padding: var(--spacing-3xl); /* 32px - aproximado a 2.5rem */
     border-right: 1px solid rgba(170, 223, 173, 0.15);
     display: flex;
     flex-direction: column;
@@ -89,23 +89,23 @@
 
 .empresa-info {
     border-bottom: 1px solid rgba(170, 223, 173, 0.15);
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
+    padding-bottom: var(--spacing-2xl); /* 24px */
+    margin-bottom: var(--spacing-2xl); /* 24px */
 }
 
 .empresa-info h1 {
     color: #AADFAD;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.9rem;
-    font-weight: 700;
+    margin: 0 0 var(--spacing-sm) 0; /* 0 0 8px 0 */
+    font-size: var(--font-size-title); /* Responsivo: 40px/32px/28px */
+    font-weight: var(--font-weight-bold); /* 700 */
     letter-spacing: -0.5px;
 }
 
 .empresa-info p {
     color: #a0aec0;
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
-    line-height: 1.5;
+    margin: var(--spacing-sm) 0; /* 8px 0 */
+    font-size: var(--font-size-small); /* Responsivo: 14px/14px/12px */
+    line-height: var(--line-height-normal); /* 1.5 */
 }
 
 .contacto {
@@ -120,15 +120,15 @@
 /* Filtro de servicios */
 .servicios-filter {
     border-bottom: 1px solid rgba(170, 223, 173, 0.15);
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
+    padding-bottom: var(--spacing-xl); /* 20px */
+    margin-bottom: var(--spacing-xl); /* 20px */
 }
 
 .servicios-filter h2 {
     color: #AADFAD;
-    font-size: 1.2rem;
-    margin: 0 0 1rem 0;
-    font-weight: 600;
+    font-size: var(--font-size-body); /* Responsivo: 18px/16px/14px */
+    margin: 0 0 var(--spacing-lg) 0; /* 0 0 16px 0 */
+    font-weight: var(--font-weight-semibold); /* 600 */
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -140,16 +140,17 @@
 }
 
 .servicio-btn {
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg); /* 12px 16px */
+    border-radius: var(--radius-lg); /* 16px */
     border: 1px solid rgba(170, 223, 173, 0.15);
     background: rgba(170, 223, 173, 0.05);
     color: #a0aec0;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--font-size-small); /* Responsivo: 14px/14px/12px */
+    font-weight: var(--font-weight-medium); /* 500 */
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-slow); /* all 0.3s ease */
     text-align: left;
+    font-family: 'Inter', sans-serif;
 }
 
 .servicio-btn:hover {
@@ -202,12 +203,12 @@
 
 .profesor-card {
     display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    border-radius: 12px;
+    gap: var(--spacing-lg); /* 16px */
+    padding: var(--spacing-lg); /* 16px */
+    border-radius: var(--radius-md); /* 12px */
     border: 1px solid rgba(170, 223, 173, 0.15);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-slow); /* all 0.3s ease */
     background: rgba(170, 223, 173, 0.05);
 }
 
@@ -230,14 +231,14 @@
 .profesor-avatar {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: var(--radius-md); /* 12px */
     background: linear-gradient(135deg, #AADFAD 0%, #85c987 100%);
     color: #0f1419;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: var(--font-size-body); /* Responsivo: 18px/16px/14px */
+    font-weight: var(--font-weight-bold); /* 700 */
     flex-shrink: 0;
     box-shadow: 0 0 20px rgba(170, 223, 173, 0.3);
 }
@@ -492,8 +493,8 @@
 
 .modal-content {
     background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
-    padding: 2.5rem;
-    border-radius: 20px;
+    padding: var(--spacing-3xl); /* 32px - aproximado a 2.5rem */
+    border-radius: var(--radius-xl); /* 20px */
     width: 90%;
     max-width: 500px;
     box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8),
@@ -554,15 +555,16 @@
 
 .form-group input {
     width: 100%;
-    padding: 0.9rem 1.2rem;
+    padding: var(--spacing-md) var(--spacing-lg); /* 12px 16px */
     border: 2px solid rgba(170, 223, 173, 0.15);
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--radius-md); /* 12px */
+    font-size: var(--font-size-body); /* Responsivo: 18px/16px/14px */
+    transition: var(--transition-slow); /* all 0.3s ease */
     box-sizing: border-box;
     background: linear-gradient(135deg, rgba(170, 223, 173, 0.08) 0%, rgba(170, 223, 173, 0.03) 100%);
     color: #e2e8f0;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium); /* 500 */
+    font-family: 'Inter', sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
                 inset 0 1px 2px rgba(170, 223, 173, 0.05);
 }
@@ -661,13 +663,14 @@
 }
 
 .modal-buttons button {
-    padding: 1rem 2rem;
-    border-radius: 12px;
+    padding: var(--spacing-lg) var(--spacing-2xl); /* 16px 24px */
+    border-radius: var(--radius-md); /* 12px */
     cursor: pointer;
-    font-weight: 700;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: var(--font-weight-bold); /* 700 */
+    transition: var(--transition-slow); /* all 0.3s ease */
     border: none;
-    font-size: 0.95rem;
+    font-size: var(--font-size-small); /* Responsivo: 14px/14px/12px */
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -771,16 +774,23 @@
 
 .confirm-button {
     width: 100%;
-    height: 3rem;
-    border-radius: var(--radius-xl);
-    background-color: var(--primary);
-    color: white;
+    height: 56px; /* Desktop: 56px, Móvil: 48px - Valor exacto de estilos_weekly.md */
+    border-radius: var(--radius-xl); /* 20px */
+    background-color: var(--primary); /* #16A34A */
+    color: #FFFFFF;
     border: none;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--font-size-body); /* Responsivo: 18px/16px/14px */
+    font-weight: var(--font-weight-bold); /* 700 */
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--transition-standard); /* all 0.2s ease */
     box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+}
+
+@media (max-width: 899px) {
+    .confirm-button {
+        height: 48px; /* Móvil: 48px */
+    }
 }
 
 .confirm-button:hover:not(:disabled) {
