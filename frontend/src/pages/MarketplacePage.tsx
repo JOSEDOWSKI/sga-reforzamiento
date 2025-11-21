@@ -48,6 +48,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'default' | 'distance' | 'rating' | 'name'>('default');
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Visible por defecto en desktop
 
   // Redirigir a ciudad detectada si no hay ciudad en URL y se detectó una
   useEffect(() => {
@@ -191,17 +192,154 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
     }
   };
 
+  // Detectar si es desktop para mostrar sidebar por defecto
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="marketplace-page">
-      {/* Header con búsqueda */}
-      <div className="marketplace-header">
+      {/* Sidebar de navegación */}
+      <aside className={`marketplace-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <button 
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
+          >
+            <span className="material-symbols-outlined">
+              {sidebarOpen ? 'menu_open' : 'menu'}
+            </span>
+          </button>
+        </div>
+        
+        {sidebarOpen && (
+          <div className="sidebar-content">
+            {/* Botones de autenticación */}
+            <div className="sidebar-auth">
+              <button className="sidebar-btn-primary" onClick={() => navigate('/login')}>
+                Ingreso
+              </button>
+              <button className="sidebar-btn-secondary" onClick={() => navigate('/register')}>
+                Registro
+              </button>
+            </div>
+
+            {/* Promociones */}
+            <button className="sidebar-promo">
+              <span className="material-symbols-outlined">local_offer</span>
+              <span>Descubre nuestras promociones</span>
+            </button>
+
+            {/* Secciones */}
+            <div className="sidebar-section">
+              <h3 className="sidebar-section-title">SECCIONES</h3>
+              <nav className="sidebar-nav">
+                {availableCategories.length > 0 ? (
+                  availableCategories.slice(0, 6).map(category => (
+                    <button
+                      key={category}
+                      className={`sidebar-nav-item ${selectedCategory === category ? 'active' : ''}`}
+                      onClick={() => handleCategoryChange(category)}
+                    >
+                      <span>{category}</span>
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                  ))
+                ) : (
+                  <>
+                    <button
+                      className={`sidebar-nav-item ${!selectedCategory ? 'active' : ''}`}
+                      onClick={() => setSelectedCategory(null)}
+                    >
+                      <span>Todos los servicios</span>
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                    <button
+                      className={`sidebar-nav-item ${selectedCategory === 'Restaurantes' ? 'active' : ''}`}
+                      onClick={() => handleCategoryChange('Restaurantes')}
+                    >
+                      <span>Restaurantes</span>
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                    <button
+                      className={`sidebar-nav-item ${selectedCategory === 'Servicios' ? 'active' : ''}`}
+                      onClick={() => handleCategoryChange('Servicios')}
+                    >
+                      <span>Servicios</span>
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                  </>
+                )}
+                {availableCategories.length > 6 && (
+                  <button className="sidebar-nav-item sidebar-nav-more">
+                    <span>Ver más</span>
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                )}
+              </nav>
+            </div>
+
+            {/* Otros */}
+            <div className="sidebar-section">
+              <h3 className="sidebar-section-title">OTROS</h3>
+              <nav className="sidebar-nav">
+                <button className="sidebar-nav-item" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
+                  <span>Registra tu negocio</span>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+                <button className="sidebar-nav-item" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
+                  <span>Quiero ser repartidor</span>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+                <button className="sidebar-nav-item" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
+                  <span>Pauta en Weekly</span>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </nav>
+            </div>
+
+            {/* Selector de país */}
+            <div className="sidebar-country">
+              <button className="sidebar-country-btn">
+                <span className="country-flag">🇵🇪</span>
+                <span>Perú</span>
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {/* Overlay para móvil */}
+      {sidebarOpen && window.innerWidth < 1024 && (
+        <div 
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Contenido principal con sidebar */}
+      <div className="marketplace-main">
+        {/* Header con búsqueda */}
+        <div className="marketplace-header">
         <div className="marketplace-header-top">
           <button 
             className="icon-button"
-            onClick={() => navigate(-1)}
-            aria-label="Volver"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
           >
-            <span className="material-symbols-outlined">arrow_back</span>
+            <span className="material-symbols-outlined">menu</span>
           </button>
           <h1 className="marketplace-title">Weekly</h1>
           <button 
@@ -398,8 +536,8 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         </div>
       </div>
 
-      {/* Contenido principal */}
-      <main className="marketplace-content">
+        {/* Contenido principal */}
+        <main className="marketplace-content">
         {loading ? (
           <div className="loading-message">Cargando servicios...</div>
         ) : filteredServices.length === 0 ? (
@@ -497,6 +635,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         <span className="material-symbols-outlined">map</span>
         <span>Mapa</span>
       </button>
+      </div>
     </div>
   );
 };
