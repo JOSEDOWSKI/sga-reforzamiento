@@ -333,7 +333,7 @@ function AppContent() {
   const parts = hostname.split('.');
   let subdomain: string | null = null;
 
-  if (!isMarketplaceMainDomain && parts.length >= 3 && !hostname.includes('localhost')) {
+  if (!isMarketplaceMainDomain && parts.length >= 3 && !hostname.includes('localhost') && !hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
     subdomain = parts[0];
     // Excluir subdominios del sistema
     if (['www', 'api', 'admin', 'app', 'demo', 'panel', 'merchants'].includes(subdomain)) {
@@ -474,8 +474,9 @@ function AppContent() {
     return <MarketplacePage />;
   }
 
-  // Si es localhost sin subdominio, también mostrar marketplace (desarrollo)
-  const isMainDomain = hostname === 'localhost' && !subdomain;
+  // Si es localhost o IP local sin subdominio, también mostrar marketplace (desarrollo)
+  const isLocalIP = hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
+  const isMainDomain = (hostname === 'localhost' || isLocalIP) && !subdomain;
 
   // Solo para localhost en desarrollo
   if (isMainDomain) {
