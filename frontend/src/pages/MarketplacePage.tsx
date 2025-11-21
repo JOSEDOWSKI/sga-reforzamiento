@@ -182,6 +182,13 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
   };
 
   const handleServiceClick = (service: Service) => {
+    console.log('🔍 handleServiceClick:', { 
+      service: service.nombre, 
+      tenant_name: service.tenant_name,
+      selectedCity,
+      categoria: service.categoria 
+    });
+    
     analytics.viewService(
       service.id,
       service.nombre,
@@ -189,12 +196,16 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
       selectedCity || undefined
     );
     
+    // SIEMPRE usar rutas dinámicas del marketplace, NUNCA subdominios de tenant
     if (service.tenant_name) {
       const citySlug = selectedCity?.toLowerCase() || 'lima';
       const categorySlug = service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
       const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      navigate(`/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}`);
+      const targetPath = `/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}`;
+      console.log('✅ Navegando a ruta dinámica:', targetPath);
+      navigate(targetPath);
     } else {
+      console.log('✅ Navegando a ruta genérica:', `/service/${service.id}`);
       navigate(`/service/${service.id}`);
     }
   };
