@@ -324,11 +324,31 @@ function AppContent() {
   const pathname = window.location.pathname;
   const normalizedHost = normalizeHost(hostname);
   
-  // Extraer subdominio si existe
-  // IMPORTANTE: NO detectar subdominio si estamos en weekly.pe o merchants.weekly.pe
-  const parts = hostname.split('.');
+  // IMPORTANTE: Verificar PRIMERO si estamos en el marketplace principal
+  // Esto previene que se detecte incorrectamente un subdominio
   const isMarketplaceMainDomain = hostname === 'weekly.pe' || hostname === 'merchants.weekly.pe';
-  const subdomain = !isMarketplaceMainDomain && parts.length >= 3 && !hostname.includes('localhost') ? parts[0] : null;
+  
+  // Extraer subdominio si existe
+  // CRÍTICO: NO detectar subdominio si estamos en weekly.pe o merchants.weekly.pe
+  const parts = hostname.split('.');
+  let subdomain: string | null = null;
+  
+  if (!isMarketplaceMainDomain && parts.length >= 3 && !hostname.includes('localhost')) {
+    subdomain = parts[0];
+    // Excluir subdominios del sistema
+    if (['www', 'api', 'admin', 'app', 'demo', 'panel', 'merchants'].includes(subdomain)) {
+      subdomain = null;
+    }
+  }
+  
+  console.log('🔍 App.tsx Routing Debug:', {
+    hostname,
+    pathname,
+    normalizedHost,
+    isMarketplaceMainDomain,
+    subdomain,
+    parts: parts.length
+  });
 
   // Dominios configurables (permite variaciones sin tocar el código)
   const marketplaceDomains = [
@@ -362,6 +382,7 @@ function AppContent() {
     pathname, 
     parts: parts.length,
     normalizedHost,
+    isMarketplaceMainDomain,
     marketplaceDomains,
     merchantsDomains,
     isMarketplaceDomain,
