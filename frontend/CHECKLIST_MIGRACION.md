@@ -17,6 +17,12 @@
 - [x] DemoContactCard.css - botones, inputs, cards migrados
 - [x] LocationSelector.css - inputs, botones migrados
 - [x] UserCalendarView.css - selects, labels, botones FullCalendar migrados
+- [x] MarketplacePage.css - header, búsqueda, filtros, cards, favoritos, mapa migrados
+- [x] ServiceDetailPage.css - header, galería, contenido, características, footer migrados
+- [x] Toast.css - notificaciones migradas
+- [x] SkeletonLoader.css - loaders migrados
+- [x] Navbar.css - navegación migrada
+- [x] Header.css - header móvil migrado
 - [ ] Otros componentes menores
 
 ## Validación

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../config/api';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useFavorites } from '../hooks/useFavorites';
+import { calculateDistance, formatDistance } from '../utils/distanceUtils';
 import { analytics } from '../utils/analytics';
 import './MarketplacePage.css';
 
@@ -20,6 +21,7 @@ interface Service {
   tenant_name?: string;
   latitud?: number;
   longitud?: number;
+  distancia?: number | null; // Distancia en km desde el usuario
 }
 
 interface MarketplacePageProps {
@@ -30,7 +32,7 @@ interface MarketplacePageProps {
 const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, category: propCategory }) => {
   const navigate = useNavigate();
   const params = useParams<{ ciudad?: string; categoria?: string }>();
-  const { city: detectedCity, loading: geoLoading, setCity } = useGeolocation();
+  const { city: detectedCity, loading: geoLoading, setCity, coordinates } = useGeolocation();
   const { toggleFavorite, isFavorite } = useFavorites();
   
   // Usar ciudad de props, params, o geolocalización
@@ -74,20 +76,35 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         const data = response.data;
         
         // Mapear tenants a servicios para el marketplace
-        const servicesData = (data.data || data.tenants || []).map((tenant: any) => ({
-          id: tenant.id,
-          nombre: tenant.name || tenant.display_name || tenant.cliente_nombre || tenant.tenant_name,
-          descripcion: tenant.address || tenant.cliente_direccion || 'Servicio disponible',
-          precio: 0,
-          ubicacion: tenant.address || tenant.cliente_direccion || 'Ubicación no disponible',
-          city: tenant.city || tenant.cliente_direccion?.split(',')[0] || 'Sin ciudad',
-          rating: 4.5,
-          reviews: 0,
-          categoria: tenant.category || tenant.tipo_negocio || 'Servicio',
-          tenant_name: tenant.tenant_name,
-          latitud: tenant.latitud,
-          longitud: tenant.longitud,
-        }));
+        const servicesData = (data.data || data.tenants || []).map((tenant: any) => {
+          let distancia: number | null = null;
+          
+          // Calcular distancia si tenemos coordenadas del usuario y del servicio
+          if (coordinates && tenant.latitud && tenant.longitud) {
+            distancia = calculateDistance(
+              coordinates.lat,
+              coordinates.lng,
+              parseFloat(tenant.latitud),
+              parseFloat(tenant.longitud)
+            );
+          }
+          
+          return {
+            id: tenant.id,
+            nombre: tenant.name || tenant.display_name || tenant.cliente_nombre || tenant.tenant_name,
+            descripcion: tenant.address || tenant.cliente_direccion || 'Servicio disponible',
+            precio: 0,
+            ubicacion: tenant.address || tenant.cliente_direccion || 'Ubicación no disponible',
+            city: tenant.city || tenant.cliente_direccion?.split(',')[0] || 'Sin ciudad',
+            rating: 4.5,
+            reviews: 0,
+            categoria: tenant.category || tenant.tipo_negocio || 'Servicio',
+            tenant_name: tenant.tenant_name,
+            latitud: tenant.latitud,
+            longitud: tenant.longitud,
+            distancia: distancia, // Distancia en km
+          };
+        });
         
         setServices(servicesData);
         
@@ -105,7 +122,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
     };
     
     fetchTenants();
-  }, [selectedCity, selectedCategory]);
+  }, [selectedCity, selectedCategory, coordinates]);
 
   const filteredServices = services
     .filter(service => {
@@ -125,8 +142,12 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         case 'rating':
           return (b.rating || 0) - (a.rating || 0);
         case 'distance':
-          // TODO: Calcular distancia real cuando tengamos coordenadas del usuario
-          // Por ahora ordenar alfabéticamente por ciudad
+          // Ordenar por distancia si está disponible
+          if (a.distancia !== null && b.distancia !== null) {
+            return a.distancia - b.distancia;
+          }
+          if (a.distancia !== null) return -1;
+          if (b.distancia !== null) return 1;
           return (a.city || '').localeCompare(b.city || '');
         default:
           return 0;
@@ -420,7 +441,15 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
                 </div>
                 <div className="service-info">
                   <h3 className="service-name">{service.nombre}</h3>
-                  <p className="service-location">{service.ubicacion}</p>
+                  <p className="service-location">
+                    {service.ubicacion}
+                    {service.distancia !== null && service.distancia !== undefined && (
+                      <span className="service-distance"> • {formatDistance(service.distancia)}</span>
+                    )}
+                    {coordinates && service.distancia !== null && service.distancia < 5 && (
+                      <span className="service-nearby"> • Cerca de ti</span>
+                    )}
+                  </p>
                   {service.rating && (
                     <div className="service-rating">
                       <span className="material-symbols-outlined filled-star">star</span>

@@ -1662,6 +1662,71 @@ backdrop-filter: blur(4px);
 }
 ```
 
+### Componentes de Navegación (Navbar)
+
+**Navbar Principal**
+```css
+.navbar {
+  width: 280px;
+  padding: var(--spacing-2xl); /* 24px */
+  border-radius: var(--radius-lg); /* 16px */
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(22px);
+  transition: var(--transition-slow);
+  font-family: 'Inter', sans-serif;
+}
+
+.nav-links a {
+  padding: var(--spacing-lg); /* 16px */
+  border-radius: var(--radius-md); /* 12px */
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold); /* 600 */
+  font-family: 'Inter', sans-serif;
+}
+
+.nav-links a.active {
+  background: var(--primary); /* #16A34A */
+  color: #FFFFFF;
+  font-weight: var(--font-weight-bold); /* 700 */
+}
+```
+
+### Componentes de Notificaciones (Toast)
+
+**Toast Notifications**
+```css
+.toast {
+  padding: var(--spacing-lg) var(--spacing-xl); /* 16px 20px */
+  border-radius: var(--radius-md); /* 12px */
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--outline-variant-light);
+  font-family: 'Inter', sans-serif;
+}
+
+.toast-success {
+  background: rgba(22, 163, 74, var(--opacity-15));
+  color: var(--primary); /* #16A34A */
+}
+```
+
+### Componentes de Carga (Skeleton)
+
+**Skeleton Loaders**
+```css
+.skeleton {
+  background: var(--surface-light);
+  border-radius: var(--radius-md); /* 12px */
+  font-family: 'Inter', sans-serif;
+}
+
+.skeleton-card {
+  padding: var(--spacing-2xl); /* 24px */
+  border-radius: var(--radius-xl); /* 20px */
+  border: 1px solid var(--outline-variant-light);
+}
+```
+
 ### Componentes de Contacto (DemoContactCard)
 
 **Botones de Contacto**
@@ -1908,7 +1973,11 @@ Los siguientes componentes han sido migrados a estilos estrictos en `weekly.pe`:
 - ✅ **LocationSelector.css** - Inputs de dirección, botones de búsqueda
 - ✅ **UserCalendarView.css** - Selects, labels, botones FullCalendar, cards
 - ✅ **MarketplacePage.css** - Header, búsqueda, filtros, cards, botones, favoritos, mapa
-- ✅ **ServiceDetailPage.css** - Header, galería, contenido, características, host, descripción, footer de reserva
+- ✅ **ServiceDetailPage.css** - Header, galería, contenido, características, host, descripción, footer de reserva, breadcrumbs, mapa
+- ✅ **Toast.css** - Notificaciones toast con estilos estrictos
+- ✅ **SkeletonLoader.css** - Loaders de carga con estilos estrictos
+- ✅ **Navbar.css** - Navegación principal con estilos estrictos
+- ✅ **Header.css** - Header móvil con estilos estrictos
 
 Todos estos componentes usan valores exactos de esta guía y están adaptados al sistema multi-tenant existente.
 

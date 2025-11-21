@@ -323,6 +323,101 @@
   height: 5rem; /* 80px */
 }
 
+/* Breadcrumbs */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* 8px */
+  margin-bottom: var(--spacing-2xl); /* 24px */
+  font-size: var(--font-size-small); /* Responsivo */
+  font-family: 'Inter', sans-serif;
+}
+
+.breadcrumb-link {
+  color: var(--text-secondary-light);
+  text-decoration: none;
+  transition: var(--transition-standard);
+}
+
+[data-theme='dark'] .breadcrumb-link {
+  color: var(--text-secondary-dark);
+}
+
+.breadcrumb-link:hover {
+  color: var(--primary); /* #16A34A */
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--text-secondary-light);
+}
+
+[data-theme='dark'] .breadcrumb-separator {
+  color: var(--text-secondary-dark);
+}
+
+.breadcrumb-current {
+  color: var(--text-primary-light);
+  font-weight: var(--font-weight-semibold); /* 600 */
+}
+
+[data-theme='dark'] .breadcrumb-current {
+  color: var(--text-primary-dark);
+}
+
+.service-distance {
+  color: var(--primary); /* #16A34A */
+  font-weight: var(--font-weight-semibold); /* 600 */
+}
+
+.service-nearby {
+  color: var(--primary); /* #16A34A */
+  font-weight: var(--font-weight-bold); /* 700 */
+}
+
+/* Mapa y Cómo llegar */
+.map-section {
+  margin-bottom: var(--spacing-2xl); /* 24px */
+}
+
+.map-container {
+  width: 100%;
+  margin-bottom: var(--spacing-lg); /* 16px */
+  border-radius: var(--radius-lg); /* 16px - Valor exacto */
+  overflow: hidden;
+  box-shadow: var(--shadow-md); /* 0 6px 12px rgba(0, 0, 0, 0.05) */
+}
+
+[data-theme='dark'] .map-container {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.directions-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm); /* 8px */
+  width: 100%;
+  padding: 14px 24px; /* Valor exacto de weekly-filled-button */
+  border-radius: var(--radius-md); /* 12px - Valor exacto */
+  background-color: var(--primary); /* #16A34A */
+  color: #FFFFFF;
+  border: none;
+  font-size: var(--font-size-body); /* Responsivo */
+  font-weight: var(--font-weight-bold); /* 700 - Valor exacto */
+  cursor: pointer;
+  transition: var(--transition-standard);
+  font-family: 'Inter', sans-serif;
+}
+
+.directions-button:hover {
+  opacity: 0.9; /* Valor exacto de weekly-filled-button */
+}
+
+.directions-button .material-symbols-outlined {
+  font-size: 1.25rem; /* 20px */
+}
+
 /* Footer de reserva */
 .booking-footer {
   position: fixed;

@@ -463,6 +463,16 @@
   color: var(--text-secondary-dark);
 }
 
+.service-distance {
+  color: var(--primary); /* #16A34A */
+  font-weight: var(--font-weight-semibold); /* 600 */
+}
+
+.service-nearby {
+  color: var(--primary); /* #16A34A */
+  font-weight: var(--font-weight-bold); /* 700 */
+}
+
 .service-rating {
   display: flex;
   align-items: center;

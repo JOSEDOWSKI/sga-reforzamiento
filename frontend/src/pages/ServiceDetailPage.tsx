@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { analytics } from '../utils/analytics';
 import { useFavorites } from '../hooks/useFavorites';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { calculateDistance, formatDistance } from '../utils/distanceUtils';
 import { shareService, getShareUrl } from '../utils/shareUtils';
 import apiClient from '../config/api';
 import './ServiceDetailPage.css';
@@ -24,12 +26,15 @@ interface Service {
     experiencia?: string;
     avatar?: string;
   };
+  latitud?: number;
+  longitud?: number;
 }
 
 const ServiceDetailPage: React.FC = () => {
   const params = useParams<{ ciudad?: string; categoria?: string; id?: string }>();
   const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { coordinates } = useGeolocation();
   
   // Extraer ID del parámetro (puede venir como "123-salon-bella-vista")
   const idParam = params.id || '';
@@ -38,6 +43,7 @@ const ServiceDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex] = useState(0); // TODO: Implementar navegación de imágenes en el futuro
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [distance, setDistance] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -47,7 +53,7 @@ const ServiceDetailPage: React.FC = () => {
         const response = await apiClient.get(`/public/tenants/${serviceId}`);
         const tenant = response.data.data || response.data;
         
-        setService({
+        const serviceData = {
           id: tenant.id,
           nombre: tenant.name || tenant.display_name || tenant.cliente_nombre,
           descripcion: tenant.cliente_direccion || 'Servicio disponible',
@@ -64,8 +70,23 @@ const ServiceDetailPage: React.FC = () => {
             nombre: tenant.cliente_nombre || 'Anfitrión',
             experiencia: undefined,
             avatar: undefined
-          }
-        });
+          },
+          latitud: tenant.latitud,
+          longitud: tenant.longitud,
+        };
+        
+        setService(serviceData);
+        
+        // Calcular distancia si tenemos coordenadas
+        if (coordinates && tenant.latitud && tenant.longitud) {
+          const calculatedDistance = calculateDistance(
+            coordinates.lat,
+            coordinates.lng,
+            parseFloat(tenant.latitud),
+            parseFloat(tenant.longitud)
+          );
+          setDistance(calculatedDistance);
+        }
         
         // Track view
         analytics.viewService(
@@ -108,6 +129,21 @@ const ServiceDetailPage: React.FC = () => {
       setLoading(false);
     }
   }, [serviceId, params.ciudad, params.categoria]);
+
+  // Recalcular distancia cuando cambien las coordenadas
+  useEffect(() => {
+    if (service && coordinates && service.latitud && service.longitud) {
+      const calculatedDistance = calculateDistance(
+        coordinates.lat,
+        coordinates.lng,
+        parseFloat(service.latitud),
+        parseFloat(service.longitud)
+      );
+      setDistance(calculatedDistance);
+    } else {
+      setDistance(null);
+    }
+  }, [service, coordinates]);
 
   if (loading) {
     return <div className="service-detail-loading">Cargando...</div>;
@@ -208,12 +244,74 @@ const ServiceDetailPage: React.FC = () => {
           {service.ubicacion && (
             <div className="meta-item">
               <span className="material-symbols-outlined">location_on</span>
-              <span className="location-text">{service.ubicacion}</span>
+              <span className="location-text">
+                {service.ubicacion}
+                {distance !== null && (
+                  <span className="service-distance"> • {formatDistance(distance)}</span>
+                )}
+                {coordinates && distance !== null && distance < 5 && (
+                  <span className="service-nearby"> • Cerca de ti</span>
+                )}
+              </span>
             </div>
           )}
         </div>
 
+        {/* Breadcrumbs */}
+        {(params.ciudad || params.categoria) && (
+          <nav className="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/" className="breadcrumb-link">Inicio</a>
+            {params.ciudad && (
+              <>
+                <span className="breadcrumb-separator">/</span>
+                <a href={`/${params.ciudad}`} className="breadcrumb-link">{params.ciudad}</a>
+              </>
+            )}
+            {params.categoria && (
+              <>
+                <span className="breadcrumb-separator">/</span>
+                <a href={`/${params.ciudad}/${params.categoria}`} className="breadcrumb-link">{params.categoria}</a>
+              </>
+            )}
+            <span className="breadcrumb-separator">/</span>
+            <span className="breadcrumb-current">{service.nombre}</span>
+          </nav>
+        )}
+
         <hr className="divider" />
+
+        {/* Mapa y Cómo llegar */}
+        {service.latitud && service.longitud && (
+          <div className="map-section">
+            <h2 className="section-title">Ubicación</h2>
+            <div className="map-container">
+              <iframe
+                width="100%"
+                height="300"
+                style={{ border: 0, borderRadius: '16px' }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&q=${service.latitud},${service.longitud}&zoom=15`}
+              />
+            </div>
+            <button 
+              className="directions-button"
+              onClick={() => {
+                const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${service.latitud},${service.longitud}`;
+                window.open(mapsUrl, '_blank');
+                analytics.trackEvent('click_directions', {
+                  service_id: service.id,
+                  service_name: service.nombre
+                });
+              }}
+            >
+              <span className="material-symbols-outlined">directions</span>
+              Cómo llegar
+            </button>
+            <hr className="divider" />
+          </div>
+        )}
 
         {/* Características clave */}
         {service.features && service.features.length > 0 && (
@@ -253,6 +351,59 @@ const ServiceDetailPage: React.FC = () => {
             </div>
             <hr className="divider" />
           </>
+        )}
+
+        {/* Breadcrumbs */}
+        {(params.ciudad || params.categoria) && (
+          <nav className="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/" className="breadcrumb-link">Inicio</a>
+            {params.ciudad && (
+              <>
+                <span className="breadcrumb-separator">/</span>
+                <a href={`/${params.ciudad}`} className="breadcrumb-link">{params.ciudad}</a>
+              </>
+            )}
+            {params.categoria && (
+              <>
+                <span className="breadcrumb-separator">/</span>
+                <a href={`/${params.ciudad}/${params.categoria}`} className="breadcrumb-link">{params.categoria}</a>
+              </>
+            )}
+            <span className="breadcrumb-separator">/</span>
+            <span className="breadcrumb-current">{service.nombre}</span>
+          </nav>
+        )}
+
+        {/* Mapa y Cómo llegar */}
+        {service.latitud && service.longitud && (
+          <div className="map-section">
+            <h2 className="section-title">Ubicación</h2>
+            <div className="map-container">
+              <iframe
+                width="100%"
+                height="300"
+                style={{ border: 0, borderRadius: '16px' }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&q=${service.latitud},${service.longitud}&zoom=15`}
+              />
+            </div>
+            <button 
+              className="directions-button"
+              onClick={() => {
+                const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${service.latitud},${service.longitud}`;
+                window.open(mapsUrl, '_blank');
+                analytics.trackEvent('click_directions', {
+                  service_id: service.id,
+                  service_name: service.nombre
+                });
+              }}
+            >
+              <span className="material-symbols-outlined">directions</span>
+              Cómo llegar
+            </button>
+          </div>
         )}
 
         {/* Descripción */}

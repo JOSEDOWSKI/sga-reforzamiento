@@ -5,15 +5,22 @@
   left: 0;
   width: 100%;
   z-index: 1001; /* Por encima del navbar */
-  background-color: var(--card);
+  background-color: var(--surface-light);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--outline-variant-light);
+  padding: var(--spacing-lg) var(--spacing-2xl); /* 16px 24px */
   align-items: center;
   justify-content: space-between;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: var(--transition-slow);
+  box-shadow: var(--shadow-sm); /* 0 2px 8px rgba(0, 0, 0, 0.05) */
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .mobile-header {
+  background-color: var(--surface-dark);
+  border-bottom-color: var(--outline-variant-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* En desktop, el header no se muestra (el navbar es constante) */
@@ -38,16 +45,21 @@
 .mobile-header .nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--foreground);
+  gap: var(--spacing-md); /* 12px */
+  font-size: var(--font-size-body); /* Responsivo */
+  font-weight: var(--font-weight-bold); /* 700 - Valor exacto */
+  color: var(--text-primary-light);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: var(--transition-standard);
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .mobile-header .nav-brand {
+  color: var(--text-primary-dark);
 }
 
 .mobile-header .nav-brand:hover {
-  color: var(--primary);
+  color: var(--primary); /* #16A34A */
 }
 
 /* Logo de PROMESA en el header */
@@ -69,8 +81,9 @@
   height: 32px;
   flex-shrink: 0;
   background: linear-gradient(45deg, var(--primary), hsl(190, 80%, 60%));
-  border-radius: var(--radius);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: var(--radius-lg); /* 16px - Valor exacto */
+  transition: var(--transition-slow);
+  font-family: 'Inter', sans-serif;
 }
 
 .mobile-header .nav-brand:hover .logo-placeholder {
@@ -79,18 +92,18 @@
 
 /* Hamburger button styles mejorados */
 .hamburger-button {
-  padding: 12px;
+  padding: var(--spacing-md); /* 12px */
   display: inline-block;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition-slow);
   font: inherit;
   color: inherit;
   text-transform: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, var(--opacity-10));
   backdrop-filter: blur(8px) saturate(180%);
   -webkit-backdrop-filter: blur(8px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, var(--opacity-20));
+  border-radius: var(--radius-md); /* 12px - Valor exacto */
   margin: 0;
   overflow: hidden;
   position: relative;
@@ -99,6 +112,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Inter', sans-serif;
 }
 
 [data-theme='dark'] .hamburger-button {
@@ -135,9 +149,13 @@
 }
 
 .hamburger-button:hover {
-  background-color: var(--muted);
-  border-color: var(--primary);
+  background-color: rgba(0, 0, 0, var(--opacity-05));
+  border-color: var(--primary); /* #16A34A */
   transform: scale(1.05);
+}
+
+[data-theme='dark'] .hamburger-button:hover {
+  background-color: rgba(255, 255, 255, var(--opacity-05));
 }
 
 .hamburger-button:active {
@@ -145,13 +163,13 @@
 }
 
 .hamburger-button.is-active {
-  background-color: var(--primary);
+  background-color: var(--primary); /* #16A34A */
   border-color: var(--primary);
 }
 
 .hamburger-button.is-active:hover {
   background-color: var(--primary);
-  opacity: 0.9;
+  opacity: 0.9; /* Valor exacto de weekly-filled-button */
 }
 
 .hamburger-button.is-active .hamburger-inner, 
@@ -278,20 +296,25 @@
 .user-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
+  gap: var(--spacing-sm); /* 8px */
+  padding: var(--spacing-sm) var(--spacing-md); /* 8px 12px */
+  background: rgba(255, 255, 255, var(--opacity-10));
   backdrop-filter: blur(8px) saturate(180%);
   -webkit-backdrop-filter: blur(8px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, var(--opacity-20));
+  border-radius: var(--radius-md); /* 12px - Valor exacto */
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--foreground);
-  font-size: 0.875rem;
+  transition: var(--transition-slow);
+  color: var(--text-primary-light);
+  font-size: var(--font-size-small); /* Responsivo */
   min-height: 40px;
   position: relative;
   overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+[data-theme='dark'] .user-button {
+  color: var(--text-primary-dark);
 }
 
 [data-theme='dark'] .user-button {

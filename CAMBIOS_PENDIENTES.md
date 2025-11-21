@@ -155,9 +155,9 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 ### MarketplacePage
 - [x] **9.1** Agregar selector de ciudad en header (dropdown) ✅
 - [x] **9.2** Agregar filtros de categoría (dropdown) ✅
-- [ ] **9.3** Mostrar "cerca de ti" si hay geolocalización - Pendiente (mejora UX)
+- [x] **9.3** Mostrar "cerca de ti" si hay geolocalización ✅
 - [ ] **9.4** Agregar botón "Cambiar ubicación" si la detección falla - Pendiente (mejora UX)
-- [ ] **9.5** Mostrar distancia en cada tarjeta de negocio - Pendiente (requiere cálculo de distancia)
+- [x] **9.5** Mostrar distancia en cada tarjeta de negocio ✅
 - [x] **9.6** Agregar ordenamiento (dropdown: "Más cercano", "Mejor rating", etc.) ✅
 - [x] **9.7** Migrar MarketplacePage.css a estilos estrictos ✅
 - [x] **9.8** Implementar funcionalidad de favoritos (localStorage + UI) ✅
@@ -169,10 +169,10 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 - [x] **9.12** Implementar botón "Mostrar más" en descripción ✅
 - [x] **9.13** Implementar favoritos en detalle de servicio ✅
 - [x] **9.14** Implementar compartir en detalle de servicio ✅
-- [ ] **9.15** Mostrar mapa con ubicación del negocio - Pendiente
-- [ ] **9.16** Agregar botón "Cómo llegar" (Google Maps) - Pendiente
-- [ ] **9.17** Mostrar distancia desde ubicación del usuario - Pendiente
-- [ ] **9.18** Agregar breadcrumbs: `Lima > Peluquería > Salón Bella Vista` - Pendiente
+- [x] **9.15** Mostrar mapa con ubicación del negocio ✅
+- [x] **9.16** Agregar botón "Cómo llegar" (Google Maps) ✅
+- [x] **9.17** Mostrar distancia desde ubicación del usuario ✅
+- [x] **9.18** Agregar breadcrumbs: `Lima > Peluquería > Salón Bella Vista` ✅
 
 ---
 
@@ -275,6 +275,9 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 **Completado Recientemente:**
 - ✅ **9.7-9.10** MarketplacePage: Estilos estrictos, favoritos, compartir, mapa funcional
 - ✅ **9.11-9.14** ServiceDetailPage: Estilos estrictos, favoritos, compartir, mostrar más
+- ✅ **9.3, 9.5** MarketplacePage: Mostrar "cerca de ti" y distancia en tarjetas
+- ✅ **9.15-9.18** ServiceDetailPage: Mapa, botón "Cómo llegar", distancia, breadcrumbs
+- ✅ **Componentes CSS**: Toast.css, SkeletonLoader.css, Navbar.css, Header.css migrados a estilos estrictos
 
 **Próximos pasos (Sprint 2):**
 1. Migrar marketplace a Next.js para mejor SEO
