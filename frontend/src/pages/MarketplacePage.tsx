@@ -538,12 +538,126 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
 
         {/* Contenido principal */}
         <main className="marketplace-content">
-        {loading ? (
-          <div className="loading-message">Cargando servicios...</div>
-        ) : filteredServices.length === 0 ? (
-          <div className="empty-message">No se encontraron servicios</div>
-        ) : (
-          <div className={`services-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
+          {/* Banner promocional */}
+          <section className="hero-banner">
+            <div className="hero-banner-content">
+              <div className="hero-banner-text">
+                <h2 className="hero-banner-title">Disfruta de envíos gratis por semanas!</h2>
+                <p className="hero-banner-subtitle">
+                  Para tus primeros pedidos en Restaurantes pagando con tarjeta.
+                </p>
+                <p className="hero-banner-terms">*Aplican TyC</p>
+                <button className="hero-banner-button">
+                  ¡Pide ahora!
+                </button>
+              </div>
+              <div className="hero-banner-illustration">
+                {/* Ilustración placeholder */}
+                <div className="hero-illustration-placeholder">
+                  <span className="material-symbols-outlined">delivery_dining</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Banner de promociones */}
+          <section className="promotions-banner">
+            <button className="promotions-banner-button">
+              <span className="material-symbols-outlined">settings</span>
+              <span>Descubre las PROMOCIONES que tenemos para ti</span>
+            </button>
+          </section>
+
+          {/* Categorías principales */}
+          <section className="main-categories">
+            <button 
+              className="main-category-btn main-category-restaurants"
+              onClick={() => handleCategoryChange('Restaurantes')}
+            >
+              Restaurantes
+            </button>
+            <button 
+              className="main-category-btn main-category-supermarkets"
+              onClick={() => handleCategoryChange('Supermercados')}
+            >
+              Supermercados
+            </button>
+          </section>
+
+          {/* Iconos de servicios */}
+          <section className="service-icons">
+            {availableCategories.slice(0, 8).map((category, index) => {
+              const icons = ['local_pharmacy', 'flash_on', 'store', 'wine_bar', 'shopping_bag', 'flight', 'bolt', 'card_giftcard'];
+              return (
+                <button
+                  key={category}
+                  className={`service-icon-btn ${selectedCategory === category ? 'active' : ''}`}
+                  onClick={() => handleCategoryChange(category)}
+                >
+                  <div className="service-icon-circle">
+                    <span className="material-symbols-outlined">{icons[index] || 'category'}</span>
+                  </div>
+                  <span className="service-icon-label">{category}</span>
+                </button>
+              );
+            })}
+          </section>
+
+          {/* Lo más buscado */}
+          <section className="popular-searches">
+            <h3 className="section-title">Lo más buscado</h3>
+            <div className="popular-searches-chips">
+              {['Makis', 'Pizza', 'Pollo', 'Chifa', 'Pollo a la brasa', 'Postres', 'Menu', 'Alitas', 'Agua', 'Vape'].map(term => (
+                <button
+                  key={term}
+                  className="search-chip"
+                  onClick={() => {
+                    setSearchQuery(term);
+                    analytics.searchService(term, filteredServices.length);
+                  }}
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Los más elegidos */}
+          {filteredServices.length > 0 && (
+            <section className="top-services">
+              <h3 className="section-title">¡Los 10 más elegidos!</h3>
+              <div className="top-services-grid">
+                {filteredServices.slice(0, 10).map((service) => (
+                  <div
+                    key={service.id}
+                    className="top-service-card"
+                    onClick={() => handleServiceClick(service)}
+                  >
+                    <div className="top-service-logo">
+                      {service.imagen ? (
+                        <img src={service.imagen} alt={service.nombre} />
+                      ) : (
+                        <div className="top-service-logo-placeholder">
+                          <span className="material-symbols-outlined">store</span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="top-service-name">{service.nombre}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Grid de servicios */}
+          {loading ? (
+            <div className="loading-message">Cargando servicios...</div>
+          ) : filteredServices.length === 0 ? (
+            <div className="empty-message">No se encontraron servicios</div>
+          ) : (
+            <section className="services-section">
+              <h3 className="section-title">Todos los servicios</h3>
+              <div className={`services-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
             {filteredServices.map((service) => (
               <div
                 key={service.id}
@@ -603,10 +717,42 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
                   )}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </main>
+              ))}
+            </div>
+          </section>
+          )}
+
+          {/* Sección "Únete a Weekly" */}
+          <section className="join-section">
+            <h3 className="section-title">Únete a Weekly</h3>
+            <div className="join-cards">
+              <div className="join-card">
+                <span className="material-symbols-outlined join-card-icon">restaurant</span>
+                <h4 className="join-card-title">Registra tu restaurante</h4>
+                <p className="join-card-description">Llega a más clientes y aumenta tus ventas</p>
+                <button className="join-card-button" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
+                  Conocer más
+                </button>
+              </div>
+              <div className="join-card">
+                <span className="material-symbols-outlined join-card-icon">store</span>
+                <h4 className="join-card-title">Registra tu comercio</h4>
+                <p className="join-card-description">Expande tu negocio con nuestra plataforma</p>
+                <button className="join-card-button" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
+                  Conocer más
+                </button>
+              </div>
+              <div className="join-card">
+                <span className="material-symbols-outlined join-card-icon">delivery_dining</span>
+                <h4 className="join-card-title">¡Únete como repartidor!</h4>
+                <p className="join-card-description">Gana dinero entregando pedidos</p>
+                <button className="join-card-button join-card-button-primary" onClick={() => window.open('https://merchants.weekly.pe', '_blank')}>
+                  ¡Regístrate ahora!
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
 
       {/* Botón flotante de mapa - Funcional */}
       <button 
