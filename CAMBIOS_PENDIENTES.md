@@ -91,9 +91,9 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
   - [x] `geolocation_detected` (ciudad detectada) ✅
 
 #### Microsoft Clarity (Alternativa Gratuita a Hotjar)
-- [ ] **4.3** Crear cuenta en Microsoft Clarity
-- [ ] **4.4** Agregar script de Clarity en `index.html`
-- [ ] **4.5** Configurar heatmaps para marketplace
+- [ ] **4.3** Crear cuenta en Microsoft Clarity - Pendiente (requiere cuenta)
+- [x] **4.4** Agregar script de Clarity en `index.html` ✅ (pendiente reemplazar YOUR_CLARITY_PROJECT_ID)
+- [ ] **4.5** Configurar heatmaps para marketplace - Pendiente (requiere cuenta)
 
 ### Fase 2: SEO y Performance (Prioridad Media)
 
@@ -143,10 +143,10 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 - ✅ `show_in_marketplace` (BOOLEAN) - Si aparece en marketplace
 
 ### Tareas Adicionales
-- [ ] **8.1** Verificar que todos los tenants tengan `city` poblado
-- [ ] **8.2** Agregar índice en `city` para búsquedas rápidas (ya existe)
-- [ ] **8.3** Crear endpoint `/api/public/tenants?city=lima&category=peluqueria&lat=X&lng=Y&radius=5`a
-- [ ] **8.4** Implementar cálculo de distancia (Haversine) para "cerca de mí"
+- [x] **8.1** Script SQL creado para verificar y poblar `city` en tenants (`backend/db/populate-cities.sql`) ✅
+- [x] **8.2** Agregar índice en `city` para búsquedas rápidas (ya existe) ✅
+- [x] **8.3** Endpoint `/api/public/tenants?city=lima&category=peluqueria&lat=X&lng=Y&radius=5` implementado ✅
+- [x] **8.4** Implementar cálculo de distancia (Haversine) para "cerca de mí" ✅
 
 ---
 
@@ -173,10 +173,10 @@ Transformar Weekly en un marketplace estilo Rappi con rutas basadas en ubicació
 ### Endpoints Públicos
 - [x] **10.1** `GET /api/public/tenants?city=lima` - Listar por ciudad ✅
 - [x] **10.2** `GET /api/public/tenants?city=lima&category=peluqueria` - Listar por ciudad + categoría ✅
-- [ ] **10.3** `GET /api/public/tenants?lat=-12.0464&lng=-77.0428&radius=5` - Listar por radio - Pendiente
+- [x] **10.3** `GET /api/public/tenants?lat=-12.0464&lng=-77.0428&radius=5` - Listar por radio ✅
 - [x] **10.4** `GET /api/public/tenants/:id` - Detalle del tenant (para marketplace) ✅
-- [ ] **10.5** `GET /api/public/cities` - Lista de ciudades disponibles - Pendiente
-- [ ] **10.6** `GET /api/public/categories` - Lista de categorías disponibles - Pendiente
+- [x] **10.5** `GET /api/public/cities` - Lista de ciudades disponibles ✅
+- [x] **10.6** `GET /api/public/categories` - Lista de categorías disponibles ✅
 
 ---
 

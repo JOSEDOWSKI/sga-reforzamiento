@@ -36,5 +36,11 @@ const marketplaceUserController = require('../controllers/marketplaceUserControl
 router.post('/marketplace-user/profile', marketplaceUserController.saveProfile);
 router.get('/marketplace-user/profile', marketplaceUserController.getProfile);
 
+// Obtener lista de ciudades disponibles
+router.get('/cities', publicController.getCities);
+
+// Obtener lista de categorías disponibles
+router.get('/categories', publicController.getCategories);
+
 module.exports = router;
 

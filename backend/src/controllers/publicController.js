@@ -499,7 +499,20 @@ class PublicController {
             const globalPool = new Pool(globalDbConfig);
             
             // Obtener filtros de query params
-            const { city, category } = req.query;
+            const { city, category, lat, lng, radius } = req.query;
+            
+            // Función para calcular distancia Haversine
+            const calculateDistance = (lat1, lon1, lat2, lon2) => {
+                const R = 6371; // Radio de la Tierra en km
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = 
+                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            };
             
             // Construir query con filtros
             let query = `SELECT 
@@ -584,6 +597,22 @@ class PublicController {
                         return null;
                     }
 
+                    // Calcular distancia si se proporcionan coordenadas del usuario
+                    let distance = null;
+                    if (lat && lng && coordinates && coordinates.length === 2) {
+                        distance = calculateDistance(
+                            parseFloat(lat),
+                            parseFloat(lng),
+                            coordinates[0],
+                            coordinates[1]
+                        );
+                        
+                        // Filtrar por radio si se especifica
+                        if (radius && distance > parseFloat(radius)) {
+                            return null;
+                        }
+                    }
+
                     return {
                         id: tenant.id,
                         tenant_name: tenant.tenant_name,
@@ -596,11 +625,22 @@ class PublicController {
                         coordinates: coordinates,
                         latitud: tenant.latitud ? parseFloat(tenant.latitud) : null,
                         longitud: tenant.longitud ? parseFloat(tenant.longitud) : null,
+                        distance: distance ? parseFloat(distance.toFixed(2)) : null,
                         plan: tenant.plan,
                         estado: tenant.estado
                     };
                 })
-            )).filter(tenant => tenant !== null); // Filtrar nulls si hay filtro de categoría
+            )).filter(tenant => tenant !== null); // Filtrar nulls si hay filtro de categoría o radio
+            
+            // Ordenar por distancia si se proporcionaron coordenadas
+            if (lat && lng) {
+                tenantsWithLocation.sort((a, b) => {
+                    if (a.distance === null && b.distance === null) return 0;
+                    if (a.distance === null) return 1;
+                    if (b.distance === null) return -1;
+                    return a.distance - b.distance;
+                });
+            }
 
             res.json({
                 success: true,
@@ -769,6 +809,82 @@ class PublicController {
             return res.status(500).json({
                 success: false,
                 message: 'Error al geocodificar dirección'
+            });
+        }
+    }
+
+    /**
+     * Obtener lista de ciudades disponibles
+     * GET /api/public/cities
+     */
+    async getCities(req, res) {
+        try {
+            const { Pool } = require('pg');
+            
+            const globalDbConfig = {
+                user: process.env.DB_USER || 'postgres',
+                host: process.env.DB_HOST || 'localhost',
+                database: 'weekly_global',
+                password: process.env.DB_PASSWORD || 'postgres',
+                port: parseInt(process.env.DB_PORT) || 5432,
+            };
+
+            const globalPool = new Pool(globalDbConfig);
+            
+            const result = await globalPool.query(
+                `SELECT DISTINCT city 
+                 FROM tenants 
+                 WHERE estado = 'activo' 
+                   AND show_in_marketplace = true 
+                   AND city IS NOT NULL 
+                   AND city != ''
+                 ORDER BY city ASC`
+            );
+
+            await globalPool.end();
+
+            const cities = result.rows.map(row => row.city);
+
+            res.json({
+                success: true,
+                data: cities
+            });
+        } catch (error) {
+            console.error('Error obteniendo ciudades:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Error interno del servidor',
+                message: error.message
+            });
+        }
+    }
+
+    /**
+     * Obtener lista de categorías disponibles
+     * GET /api/public/categories
+     */
+    async getCategories(req, res) {
+        try {
+            // Categorías predefinidas basadas en tenant_name
+            const categories = [
+                'Peluquería',
+                'Academia',
+                'Clínica',
+                'Gimnasio',
+                'Spa',
+                'Otros'
+            ];
+
+            res.json({
+                success: true,
+                data: categories
+            });
+        } catch (error) {
+            console.error('Error obteniendo categorías:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Error interno del servidor',
+                message: error.message
             });
         }
     }
