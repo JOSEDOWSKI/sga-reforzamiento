@@ -296,13 +296,18 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 280px; /* Ancho del sidebar */
-  min-width: 0; /* Para que el contenido no se desborde */
+  margin-left: 0; /* Default: sin margen */
+  min-width: 0;
+  transition: margin-left var(--transition-standard);
+}
+
+.marketplace-main.with-sidebar {
+  margin-left: 280px; /* Solo cuando el sidebar está abierto */
 }
 
 @media (max-width: 1023px) {
-  .marketplace-main {
-    margin-left: 0;
+  .marketplace-main.with-sidebar {
+    margin-left: 0; /* En móvil, el sidebar es overlay, no empuja contenido */
   }
 }
 

@@ -371,17 +371,19 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
       )}
 
       {/* Contenido principal con sidebar */}
-      <div className="marketplace-main">
+      <div className={`marketplace-main ${sidebarOpen ? 'with-sidebar' : ''}`}>
         {/* Header con búsqueda */}
         <div className="marketplace-header">
           <div className="marketplace-header-top">
-            <button
-              className="icon-button"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
+            {!sidebarOpen && (
+              <button
+                className="icon-button"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Mostrar menú"
+              >
+                <span className="material-symbols-outlined">menu</span>
+              </button>
+            )}
             <h1 className="marketplace-title">Weekly</h1>
             <button
               className="icon-button"
@@ -626,8 +628,13 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
                   Reserva citas en salones, spas, consultorios y más servicios.
                 </p>
                 <p className="hero-banner-terms">*Aplican TyC</p>
-                <button className="hero-banner-button">
-                  ¡Pide ahora!
+                <button
+                  className="hero-banner-button"
+                  onClick={() => {
+                    document.querySelector('.services-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  ¡Reserva ahora!
                 </button>
               </div>
               <div className="hero-banner-illustration">
@@ -641,9 +648,15 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
 
           {/* Banner de promociones */}
           <section className="promotions-banner">
-            <button className="promotions-banner-button">
+            <button
+              className="promotions-banner-button"
+              onClick={() => {
+                // Por ahora scrollear a servicios, luego puede ser una página de promos
+                document.querySelector('.services-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               <span className="material-symbols-outlined">settings</span>
-              <span>Descubre las PROMOCIONES que tenemos para ti</span>
+              <span>Descubre los mejores profesionales para ti</span>
             </button>
           </section>
 
