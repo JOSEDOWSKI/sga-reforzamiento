@@ -4,6 +4,32 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  css: {
+    // Suprimir warnings de CSS de librerías de terceros
+    devSourcemap: true,
+    postcss: {
+      // Configuración para manejar CSS de dependencias
+    }
+  },
+  build: {
+    // Suprimir warnings de CSS durante el build
+    cssCodeSplit: true,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Suprimir warnings de propiedades CSS obsoletas de librerías de terceros
+        if (
+          warning.code === 'CSS_UNKNOWN_PROPERTY' ||
+          warning.message?.includes('unknown property') ||
+          warning.message?.includes('behavior') ||
+          warning.message?.includes('progid') ||
+          warning.message?.includes('image-rendering')
+        ) {
+          return;
+        }
+        warn(warning);
+      }
+    }
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
