@@ -26,18 +26,23 @@ const corsOptions = {
         }
         
         // En producción, permitir automáticamente dominios weekly.pe y getdevtools.com
-        if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === undefined) {
+        // IMPORTANTE: Verificar tanto con http como https
+        if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === undefined || !process.env.NODE_ENV) {
+            // Normalizar origin para comparación (sin protocolo)
+            const originHost = origin ? origin.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+            
             // Permitir todos los subdominios de weekly.pe (incluyendo weekly.pe, merchants.weekly.pe, demo.weekly.pe, etc.)
-            if (origin && (
-                origin.includes('weekly.pe') || 
-                origin === 'https://weekly.pe' || 
-                origin === 'http://weekly.pe' ||
-                origin.endsWith('.weekly.pe')
+            if (originHost && (
+                originHost === 'weekly.pe' ||
+                originHost.endsWith('.weekly.pe') ||
+                originHost.includes('weekly.pe')
             )) {
+                console.log(`✅ CORS allowed for weekly.pe domain: ${origin}`);
                 return callback(null, true);
             }
             // Permitir dominios getdevtools.com (para desarrollo en CapRover)
-            if (origin && (origin.includes('.getdevtools.com') || origin.includes('getdevtools.com'))) {
+            if (originHost && (originHost.includes('.getdevtools.com') || originHost.includes('getdevtools.com'))) {
+                console.log(`✅ CORS allowed for getdevtools.com domain: ${origin}`);
                 return callback(null, true);
             }
         }
@@ -57,8 +62,11 @@ const corsOptions = {
         if (isAllowed) {
             callback(null, true);
         } else {
-            console.log(`CORS blocked origin: ${origin}`);
-            console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+            // Log detallado para debugging
+            console.log(`❌ CORS blocked origin: ${origin}`);
+            console.log(`   Origin host: ${originHost || 'N/A'}`);
+            console.log(`   Allowed origins: ${allowedOrigins.length > 0 ? allowedOrigins.join(', ') : '(empty)'}`);
+            console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
             callback(new Error('Not allowed by CORS policy'));
         }
     },

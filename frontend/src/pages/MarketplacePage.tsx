@@ -114,8 +114,15 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
         const categories = [...new Set(servicesData.map((s: Service) => s.categoria).filter(Boolean))] as string[];
         setAvailableCities(cities.sort());
         setAvailableCategories(categories.sort());
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error cargando tenants:', error);
+        if (error.response) {
+          console.error('Response status:', error.response.status);
+          console.error('Response data:', error.response.data);
+        }
+        if (error.message?.includes('CORS') || error.message?.includes('Network Error')) {
+          console.error('❌ Error de CORS o red. Verifica que el backend permita el origen:', window.location.origin);
+        }
         setServices([]);
       } finally {
         setLoading(false);
@@ -653,7 +660,27 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
           {loading ? (
             <div className="loading-message">Cargando servicios...</div>
           ) : filteredServices.length === 0 ? (
-            <div className="empty-message">No se encontraron servicios</div>
+            <div className="empty-state">
+              <span className="material-symbols-outlined empty-icon">search_off</span>
+              <h3 className="empty-title">No se encontraron servicios</h3>
+              <p className="empty-description">
+                {selectedCity || selectedCategory 
+                  ? `Intenta cambiar los filtros de ${selectedCity ? 'ciudad' : ''}${selectedCity && selectedCategory ? ' o ' : ''}${selectedCategory ? 'categoría' : ''}`
+                  : 'No hay servicios disponibles en este momento'}
+              </p>
+              {(selectedCity || selectedCategory) && (
+                <button 
+                  className="empty-action-button"
+                  onClick={() => {
+                    setSelectedCity(null);
+                    setSelectedCategory(null);
+                    navigate('/');
+                  }}
+                >
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
           ) : (
             <section className="services-section">
               <h3 className="section-title">Todos los servicios</h3>

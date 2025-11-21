@@ -449,15 +449,15 @@ const ServiceDetailPage: React.FC = () => {
             analytics.clickBooking(service.id, service.nombre, service.categoria);
             
             // Navegar a booking con nueva estructura de URL
-            if (service.tenant_name && params.ciudad && params.categoria) {
-              const citySlug = params.ciudad.toLowerCase();
-              const categorySlug = params.categoria.toLowerCase();
+            // SIEMPRE usar rutas dinámicas del marketplace, nunca subdominios de tenant
+            if (service.tenant_name) {
+              // Usar ciudad y categoría de params, o valores por defecto
+              const citySlug = params.ciudad?.toLowerCase() || 'lima';
+              const categorySlug = params.categoria?.toLowerCase() || service.categoria?.toLowerCase().replace(/\s+/g, '-') || 'servicio';
               const serviceSlug = service.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
               navigate(`/${citySlug}/${categorySlug}/${service.id}-${serviceSlug}/booking`);
-            } else if (service.tenant_name) {
-              // Fallback a ruta antigua si no hay ciudad/categoría
-              window.location.href = `https://${service.tenant_name}.weekly.pe/booking`;
             } else {
+              // Si no hay tenant_name, usar ruta genérica
               navigate(`/service/${service.id}/book`);
             }
           }}
