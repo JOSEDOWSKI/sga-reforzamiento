@@ -59,7 +59,6 @@ export function connectSocket(tenant: string): Socket {
       });
       
       // Prevenir cualquier intento de conexión
-      const originalConnect = socket.connect.bind(socket);
       socket.connect = () => {
         // No hacer nada en landing/demo - retornar el socket sin conectar
         return socket as any;
