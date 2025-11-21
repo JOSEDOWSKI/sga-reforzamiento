@@ -717,7 +717,8 @@
 /* Contenido */
 .marketplace-content {
   flex: 1;
-  padding: 0;
+  padding: 0 var(--spacing-2xl);
+  /* 24px padding lateral como Rappi */
   width: 100%;
 }
 
@@ -835,9 +836,12 @@
 /* Categorías Principales */
 .main-categories {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  /* Ancho fijo, no estiramiento */
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-2xl);
+  justify-content: start;
+  /* Alinear a la izquierda como Rappi */
 }
 
 .main-category-btn {
