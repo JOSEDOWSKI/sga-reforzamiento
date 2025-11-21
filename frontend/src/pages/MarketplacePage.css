@@ -5,10 +5,26 @@
   background-color: var(--background-light);
   color: var(--text-primary-light);
   font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: row;
-  /* Cambiar a row para sidebar + contenido */
+  display: grid;
+  grid-template-columns: 0px 1fr;
+  /* Default: sidebar cerrado (desktop) */
+  transition: grid-template-columns var(--transition-standard);
   position: relative;
+}
+
+.marketplace-page.sidebar-open {
+  grid-template-columns: 280px 1fr;
+  /* Sidebar abierto (desktop) */
+}
+
+@media (max-width: 1023px) {
+
+  .marketplace-page,
+  .marketplace-page.sidebar-open {
+    display: flex;
+    flex-direction: column;
+    /* En móvil volvemos a flex column */
+  }
 }
 
 [data-theme='dark'] .marketplace-page {
@@ -24,21 +40,39 @@
   border-right: 1px solid var(--outline-variant-light);
   display: flex;
   flex-direction: column;
-  position: fixed;
-  left: 0;
-  top: 0;
   height: 100vh;
   z-index: 20;
-  transition: transform var(--transition-standard);
   overflow-y: auto;
   box-shadow: var(--shadow-md);
-  transform: translateX(-100%);
-  /* Por defecto oculto (fuera de pantalla) */
+
+  /* Desktop: Sticky positioning within the grid cell */
+  position: sticky;
+  top: 0;
+  left: 0;
+
+  /* Ocultar contenido cuando el ancho es 0 */
+  overflow-x: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform var(--transition-standard);
 }
 
-.marketplace-sidebar.open {
-  transform: translateX(0);
-  /* Visible cuando tiene la clase open */
+.marketplace-page.sidebar-open .marketplace-sidebar {
+  opacity: 1;
+}
+
+@media (max-width: 1023px) {
+  .marketplace-sidebar {
+    position: fixed;
+    /* En móvil sigue siendo fixed overlay */
+    transform: translateX(-100%);
+    opacity: 1;
+    /* Siempre opaco en móvil, se controla con transform */
+  }
+
+  .marketplace-sidebar.open {
+    transform: translateX(0);
+  }
 }
 
 [data-theme='dark'] .marketplace-sidebar {
@@ -298,15 +332,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 0;
-  /* Default: sin margen */
   min-width: 0;
-  transition: margin-left var(--transition-standard);
-}
-
-.marketplace-main.with-sidebar {
-  margin-left: 280px;
-  /* Solo cuando el sidebar está abierto */
+  /* Margin logic removed - handled by Grid */
 }
 
 @media (max-width: 1023px) {

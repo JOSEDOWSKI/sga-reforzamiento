@@ -249,7 +249,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
   }, []);
 
   return (
-    <div className="marketplace-page">
+    <div className={`marketplace-page ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       {/* Sidebar de navegación */}
       <aside className={`marketplace-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
@@ -371,7 +371,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
       )}
 
       {/* Contenido principal con sidebar */}
-      <div className={`marketplace-main ${sidebarOpen ? 'with-sidebar' : ''}`}>
+      <div className="marketplace-main">
         {/* Header con búsqueda */}
         <div className="marketplace-header">
           <div className="marketplace-header-top">
