@@ -485,13 +485,17 @@ function AppContent() {
   }
   
   // Si hay un subdominio y no es demo ni panel, es un tenant
+  // IMPORTANTE: Esto solo aplica para subdominios de tenant (ej: peluqueria.weekly.pe)
+  // NO debe aplicarse si estamos en weekly.pe (marketplace)
   if (
     subdomain &&
     subdomain !== 'demo' &&
     subdomain !== 'panel' &&
     subdomain !== 'api' &&
-    subdomain !== 'merchants'
+    subdomain !== 'merchants' &&
+    !isMarketplaceDomain // Asegurar que no estamos en el marketplace
   ) {
+    console.log('🔍 Detectado subdominio de tenant:', subdomain);
     // Si la ruta es /booking, mostrar calendario público del tenant (sin autenticación)
     // Este calendario usa la base de datos del tenant específico vía X-Tenant header
     if (pathname === '/booking' || pathname === '/booking/') {
@@ -505,6 +509,7 @@ function AppContent() {
     
     // Si está en la raíz del tenant y no está autenticado, redirigir a /booking del mismo tenant
     if (pathname === '/' && !user && !isLoading) {
+      console.log('⚠️ Redirigiendo tenant desde raíz a /booking');
       window.location.href = `/booking`;
       return <div>Cargando...</div>;
     }
