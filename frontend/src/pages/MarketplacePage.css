@@ -5,26 +5,13 @@
   background-color: var(--background-light);
   color: var(--text-primary-light);
   font-family: 'Inter', sans-serif;
-  display: grid;
-  grid-template-columns: 0px 1fr;
-  /* Default: sidebar cerrado (desktop) */
-  transition: grid-template-columns var(--transition-standard);
+  display: flex;
   position: relative;
 }
 
-.marketplace-page.sidebar-open {
-  grid-template-columns: 280px 1fr;
-  /* Sidebar abierto (desktop) */
-}
-
-@media (max-width: 1023px) {
-
-  .marketplace-page,
-  .marketplace-page.sidebar-open {
-    display: flex;
-    flex-direction: column;
-    /* En móvil volvemos a flex column */
-  }
+[data-theme='dark'] .marketplace-page {
+  background-color: var(--background-dark);
+  color: var(--text-primary-dark);
 }
 
 [data-theme='dark'] .marketplace-page {
@@ -41,37 +28,31 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  z-index: 20;
-  overflow-y: auto;
-  box-shadow: var(--shadow-md);
-
-  /* Desktop: Sticky positioning within the grid cell */
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
-
-  /* Ocultar contenido cuando el ancho es 0 */
-  overflow-x: hidden;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform var(--transition-standard);
+  z-index: 1000;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  transform: translateX(-100%);
+  transition: transform var(--transition-standard);
 }
 
-.marketplace-page.sidebar-open .marketplace-sidebar {
-  opacity: 1;
+.marketplace-sidebar.open {
+  transform: translateX(0);
 }
 
-@media (max-width: 1023px) {
+@media (min-width: 1024px) {
   .marketplace-sidebar {
-    position: fixed;
-    /* En móvil sigue siendo fixed overlay */
-    transform: translateX(-100%);
-    opacity: 1;
-    /* Siempre opaco en móvil, se controla con transform */
-  }
-
-  .marketplace-sidebar.open {
+    position: relative;
     transform: translateX(0);
+  }
+  
+  .marketplace-sidebar:not(.open) {
+    width: 0;
+    min-width: 0;
+    border-right: none;
+    overflow: hidden;
   }
 }
 
@@ -333,13 +314,17 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* Margin logic removed - handled by Grid */
+  width: 100%;
 }
 
-@media (max-width: 1023px) {
-  .marketplace-main.with-sidebar {
+@media (min-width: 1024px) {
+  .marketplace-main {
+    margin-left: 280px;
+    transition: margin-left var(--transition-standard);
+  }
+  
+  .marketplace-sidebar:not(.open) ~ .marketplace-main {
     margin-left: 0;
-    /* En móvil, el sidebar es overlay, no empuja contenido */
   }
 }
 
