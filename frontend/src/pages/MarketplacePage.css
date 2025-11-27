@@ -833,48 +833,68 @@
   background-color: rgba(22, 163, 74, var(--opacity-15));
 }
 
-/* Categorías Principales */
-.main-categories {
+/* Categorías Principales - Grid moderno */
+.main-categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
-  /* Ancho fijo, no estiramiento */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
-  justify-content: start;
-  /* Alinear a la izquierda como Rappi */
+  margin-bottom: var(--spacing-3xl);
 }
 
-.main-category-btn {
-  padding: var(--spacing-3xl);
+.main-category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl);
   border-radius: var(--radius-xl);
-  font-size: var(--font-size-title);
-  font-weight: var(--font-weight-bold);
-  font-family: 'Inter', sans-serif;
-  border: none;
+  background-color: var(--surface-light);
+  border: 2px solid var(--outline-variant-light);
   cursor: pointer;
   transition: var(--transition-standard);
-  color: #FFFFFF;
   text-align: center;
 }
 
-.main-category-restaurants {
-  background-color: #EF4444;
-  /* Rojo */
+[data-theme='dark'] .main-category-card {
+  background-color: var(--surface-dark);
+  border-color: var(--outline-variant-dark);
 }
 
-.main-category-restaurants:hover {
-  background-color: #DC2626;
+.main-category-card:hover {
   transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
 }
 
-.main-category-supermarkets {
-  background-color: var(--primary);
-  /* Verde */
+.main-category-card.active {
+  background-color: rgba(22, 163, 74, var(--opacity-08));
+  border-color: var(--primary);
 }
 
-.main-category-supermarkets:hover {
-  background-color: #15803d;
-  transform: translateY(-4px);
+.main-category-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary) 0%, #22c55e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  margin-bottom: var(--spacing-xs);
+}
+
+.main-category-icon .material-symbols-outlined {
+  font-size: 2rem;
+}
+
+.main-category-name {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary-light);
+}
+
+[data-theme='dark'] .main-category-name {
+  color: var(--text-primary-dark);
 }
 
 /* Iconos de Servicios */
@@ -988,83 +1008,155 @@
   background-color: rgba(22, 163, 74, var(--opacity-08));
 }
 
-/* Los más elegidos */
-.top-services {
+/* Servicios Destacados */
+.featured-services {
   margin-bottom: var(--spacing-3xl);
 }
 
-.top-services-grid {
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-see-all {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: var(--transition-standard);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+.section-see-all:hover {
+  background-color: rgba(22, 163, 74, var(--opacity-08));
+}
+
+.section-see-all .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.featured-services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--spacing-lg);
 }
 
-.top-service-card {
+.featured-service-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background-color: var(--surface-light);
+  overflow: hidden;
   cursor: pointer;
   transition: var(--transition-standard);
   box-shadow: var(--shadow-sm);
 }
 
-[data-theme='dark'] .top-service-card {
+[data-theme='dark'] .featured-service-card {
   background-color: var(--surface-dark);
 }
 
-.top-service-card:hover {
+.featured-service-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
 }
 
-.top-service-logo {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--radius-lg);
+.featured-service-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--background-light);
+  background: linear-gradient(135deg, var(--primary) 0%, #22c55e 100%);
 }
 
-[data-theme='dark'] .top-service-logo {
-  background-color: var(--background-dark);
-}
-
-.top-service-logo img {
+.featured-service-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.top-service-logo-placeholder {
+.featured-service-placeholder {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(22, 163, 74, var(--opacity-08));
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.top-service-logo-placeholder .material-symbols-outlined {
-  font-size: 2.5rem;
-  color: var(--primary);
+.featured-service-placeholder .material-symbols-outlined {
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.top-service-name {
+.featured-badge {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary-light);
-  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  color: #FFFFFF;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
-[data-theme='dark'] .top-service-name {
+.featured-badge.nearby {
+  background-color: rgba(22, 163, 74, 0.9);
+}
+
+.featured-service-info {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.featured-service-name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary-light);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+[data-theme='dark'] .featured-service-name {
   color: var(--text-primary-dark);
+}
+
+.featured-service-category {
+  font-size: var(--font-size-small);
+  color: var(--text-secondary-light);
+  margin: 0;
+}
+
+[data-theme='dark'] .featured-service-category {
+  color: var(--text-secondary-dark);
+}
+
+.featured-service-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-small);
+  color: var(--text-secondary-light);
+  margin-top: var(--spacing-xs);
+}
+
+.featured-service-rating .filled-star {
+  color: #FFB800;
+  font-variation-settings: 'FILL' 1;
+  font-size: 1rem;
 }
 
 /* Sección "Únete a Weekly" */
@@ -1156,16 +1248,16 @@
     grid-template-columns: 1fr;
   }
 
-  .main-categories {
-    grid-template-columns: 1fr;
+  .main-categories-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .service-icons {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  .top-services-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .featured-services-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .join-cards {
@@ -1240,6 +1332,31 @@
   border-radius: var(--radius-lg);
   /* 16px - Valor exacto */
   overflow: hidden;
+}
+
+.service-badge {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  color: #FFFFFF;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1;
+}
+
+.service-badge.nearby {
+  background-color: rgba(22, 163, 74, 0.9);
+}
+
+.service-badge.popular {
+  background-color: rgba(239, 68, 68, 0.9);
+  top: auto;
+  bottom: var(--spacing-sm);
+  left: var(--spacing-sm);
 }
 
 .service-image {

@@ -619,122 +619,179 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
 
         {/* Contenido principal */}
         <main className="marketplace-content">
-          {/* Banner promocional */}
+          {/* Hero Banner */}
           <section className="hero-banner">
             <div className="hero-banner-content">
               <div className="hero-banner-text">
-                <h2 className="hero-banner-title">Encuentra los mejores profesionales cerca de ti</h2>
+                <h2 className="hero-banner-title">Reserva con los mejores profesionales</h2>
                 <p className="hero-banner-subtitle">
-                  Reserva citas en salones, spas, consultorios y más servicios.
+                  Peluquerías, spas, consultorios, academias y más. Agenda tu cita en minutos.
                 </p>
-                <p className="hero-banner-terms">*Aplican TyC</p>
                 <button
                   className="hero-banner-button"
                   onClick={() => {
                     document.querySelector('.services-section')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  ¡Reserva ahora!
+                  Explorar servicios
                 </button>
               </div>
               <div className="hero-banner-illustration">
-                {/* Ilustración placeholder */}
                 <div className="hero-illustration-placeholder">
-                  <span className="material-symbols-outlined">delivery_dining</span>
+                  <span className="material-symbols-outlined">calendar_month</span>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Banner de promociones */}
-          <section className="promotions-banner">
-            <button
-              className="promotions-banner-button"
-              onClick={() => {
-                // Por ahora scrollear a servicios, luego puede ser una página de promos
-                document.querySelector('.services-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <span className="material-symbols-outlined">settings</span>
-              <span>Descubre los mejores profesionales para ti</span>
-            </button>
-          </section>
-
-          {/* Categorías principales */}
-          <section className="main-categories">
-            <button
-              className="main-category-btn main-category-restaurants"
-              onClick={() => handleCategoryChange('Restaurantes')}
-            >
-              Restaurantes
-            </button>
-            <button
-              className="main-category-btn main-category-supermarkets"
-              onClick={() => handleCategoryChange('Supermercados')}
-            >
-              Supermercados
-            </button>
-          </section>
-
-          {/* Iconos de servicios */}
-          <section className="service-icons">
-            {availableCategories.slice(0, 8).map((category, index) => {
-              const icons = ['local_pharmacy', 'flash_on', 'store', 'wine_bar', 'shopping_bag', 'flight', 'bolt', 'card_giftcard'];
-              return (
+          {/* Categorías principales con iconos reales */}
+          <section className="main-categories-grid">
+            {availableCategories.length > 0 ? (
+              availableCategories.slice(0, 6).map((category, index) => {
+                const categoryIcons: { [key: string]: string } = {
+                  'Peluquería': 'content_cut',
+                  'Salón de Belleza': 'face',
+                  'Spa': 'spa',
+                  'Clínica': 'local_hospital',
+                  'Academia': 'school',
+                  'Gimnasio': 'fitness_center',
+                  'Veterinaria': 'pets',
+                  'Cancha': 'sports_soccer'
+                };
+                const icon = categoryIcons[category] || 'store';
+                return (
+                  <button
+                    key={category}
+                    className={`main-category-card ${selectedCategory === category ? 'active' : ''}`}
+                    onClick={() => handleCategoryChange(category)}
+                  >
+                    <div className="main-category-icon">
+                      <span className="material-symbols-outlined">{icon}</span>
+                    </div>
+                    <span className="main-category-name">{category}</span>
+                  </button>
+                );
+              })
+            ) : (
+              <>
                 <button
-                  key={category}
-                  className={`service-icon-btn ${selectedCategory === category ? 'active' : ''}`}
-                  onClick={() => handleCategoryChange(category)}
+                  className={`main-category-card ${selectedCategory === 'Peluquería' ? 'active' : ''}`}
+                  onClick={() => handleCategoryChange('Peluquería')}
                 >
-                  <div className="service-icon-circle">
-                    <span className="material-symbols-outlined">{icons[index] || 'category'}</span>
+                  <div className="main-category-icon">
+                    <span className="material-symbols-outlined">content_cut</span>
                   </div>
-                  <span className="service-icon-label">{category}</span>
+                  <span className="main-category-name">Peluquería</span>
                 </button>
-              );
-            })}
+                <button
+                  className={`main-category-card ${selectedCategory === 'Spa' ? 'active' : ''}`}
+                  onClick={() => handleCategoryChange('Spa')}
+                >
+                  <div className="main-category-icon">
+                    <span className="material-symbols-outlined">spa</span>
+                  </div>
+                  <span className="main-category-name">Spa</span>
+                </button>
+                <button
+                  className={`main-category-card ${selectedCategory === 'Clínica' ? 'active' : ''}`}
+                  onClick={() => handleCategoryChange('Clínica')}
+                >
+                  <div className="main-category-icon">
+                    <span className="material-symbols-outlined">local_hospital</span>
+                  </div>
+                  <span className="main-category-name">Clínica</span>
+                </button>
+                <button
+                  className={`main-category-card ${selectedCategory === 'Academia' ? 'active' : ''}`}
+                  onClick={() => handleCategoryChange('Academia')}
+                >
+                  <div className="main-category-icon">
+                    <span className="material-symbols-outlined">school</span>
+                  </div>
+                  <span className="main-category-name">Academia</span>
+                </button>
+              </>
+            )}
           </section>
 
-          {/* Lo más buscado */}
+          {/* Lo más buscado - Servicios profesionales */}
           <section className="popular-searches">
             <h3 className="section-title">Lo más buscado</h3>
             <div className="popular-searches-chips">
-              {['Makis', 'Pizza', 'Pollo', 'Chifa', 'Pollo a la brasa', 'Postres', 'Menu', 'Alitas', 'Agua', 'Vape'].map(term => (
-                <button
-                  key={term}
-                  className="search-chip"
-                  onClick={() => {
-                    setSearchQuery(term);
-                    analytics.searchService(term, filteredServices.length);
-                  }}
-                >
-                  {term}
-                </button>
-              ))}
+              {availableCategories.length > 0 ? (
+                availableCategories.slice(0, 10).map(category => (
+                  <button
+                    key={category}
+                    className="search-chip"
+                    onClick={() => {
+                      handleCategoryChange(category);
+                      analytics.searchService(category, filteredServices.length);
+                    }}
+                  >
+                    {category}
+                  </button>
+                ))
+              ) : (
+                ['Peluquería', 'Spa', 'Clínica', 'Academia', 'Gimnasio', 'Veterinaria', 'Salón', 'Masajes', 'Estética', 'Consultorio'].map(term => (
+                  <button
+                    key={term}
+                    className="search-chip"
+                    onClick={() => {
+                      setSearchQuery(term);
+                      analytics.searchService(term, filteredServices.length);
+                    }}
+                  >
+                    {term}
+                  </button>
+                ))
+              )}
             </div>
           </section>
 
-          {/* Los más elegidos */}
+          {/* Destacados */}
           {filteredServices.length > 0 && (
-            <section className="top-services">
-              <h3 className="section-title">¡Los mejores profesionales!</h3>
-              <div className="top-services-grid">
-                {filteredServices.slice(0, 10).map((service) => (
+            <section className="featured-services">
+              <div className="section-header">
+                <h3 className="section-title">Profesionales destacados</h3>
+                <button 
+                  className="section-see-all"
+                  onClick={() => {
+                    document.querySelector('.services-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  Ver todos
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </button>
+              </div>
+              <div className="featured-services-grid">
+                {filteredServices.slice(0, 8).map((service) => (
                   <div
                     key={service.id}
-                    className="top-service-card"
+                    className="featured-service-card"
                     onClick={() => handleServiceClick(service)}
                   >
-                    <div className="top-service-logo">
+                    <div className="featured-service-image">
                       {service.imagen ? (
                         <img src={service.imagen} alt={service.nombre} />
                       ) : (
-                        <div className="top-service-logo-placeholder">
+                        <div className="featured-service-placeholder">
                           <span className="material-symbols-outlined">store</span>
                         </div>
                       )}
+                      {service.distancia !== null && service.distancia !== undefined && service.distancia < 3 && (
+                        <span className="featured-badge nearby">Cerca</span>
+                      )}
                     </div>
-                    <span className="top-service-name">{service.nombre}</span>
+                    <div className="featured-service-info">
+                      <h4 className="featured-service-name">{service.nombre}</h4>
+                      <p className="featured-service-category">{service.categoria}</p>
+                      {service.rating && (
+                        <div className="featured-service-rating">
+                          <span className="material-symbols-outlined filled-star">star</span>
+                          <span>{service.rating}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -802,6 +859,12 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
                           {isFavorite(service.id) ? 'favorite' : 'favorite_border'}
                         </span>
                       </button>
+                      {service.distancia !== null && service.distancia !== undefined && service.distancia < 2 && (
+                        <span className="service-badge nearby">Cerca</span>
+                      )}
+                      {service.rating && service.rating >= 4.5 && (
+                        <span className="service-badge popular">Popular</span>
+                      )}
                     </div>
                     <div className="service-info">
                       <h3 className="service-name">{service.nombre}</h3>
