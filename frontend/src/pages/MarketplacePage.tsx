@@ -647,7 +647,7 @@ const MarketplacePage: React.FC<MarketplacePageProps> = ({ city: propCity, categ
           {/* Categorías principales con iconos reales */}
           <section className="main-categories-grid">
             {availableCategories.length > 0 ? (
-              availableCategories.slice(0, 6).map((category, index) => {
+              availableCategories.slice(0, 6).map((category) => {
                 const categoryIcons: { [key: string]: string } = {
                   'Peluquería': 'content_cut',
                   'Salón de Belleza': 'face',
