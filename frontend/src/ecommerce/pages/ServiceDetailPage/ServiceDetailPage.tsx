@@ -7,7 +7,7 @@ import {
   obtenerEstablecimientosPorAliado,
 } from '@services/api';
 import { generarUrlReserva } from '@utils/urls';
-import { Aliado, Service, Establecimiento } from '@types/index';
+import type { Aliado, Service, Establecimiento } from '@types';
 import styles from './ServiceDetailPage.module.css';
 
 type ViewMode = 'negocio' | 'servicio' | 'lugar';
@@ -25,9 +25,6 @@ export const ServiceDetailPage: React.FC = () => {
   const [establecimientos, setEstablecimientos] = useState<Establecimiento[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('negocio');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedEstablecimiento, setSelectedEstablecimiento] = useState<Establecimiento | null>(
-    null
-  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,8 +70,7 @@ export const ServiceDetailPage: React.FC = () => {
     setViewMode('servicio');
   };
 
-  const handleSeleccionarLugar = (establecimiento: Establecimiento) => {
-    setSelectedEstablecimiento(establecimiento);
+  const handleSeleccionarLugar = (_establecimiento: Establecimiento) => {
     // Continuar con el flujo de reserva
     handleReservar();
   };

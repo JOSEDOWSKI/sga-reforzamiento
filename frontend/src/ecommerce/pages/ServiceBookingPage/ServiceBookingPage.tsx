@@ -7,7 +7,7 @@ import {
   obtenerSlotsDisponibles,
   crearReserva,
 } from '@services/api';
-import { Aliado, Colaborador, SlotDisponible, ReservaFormData } from '@types/index';
+import type { Aliado, Colaborador, SlotDisponible, ReservaFormData } from '@types';
 import { format, addDays, startOfWeek, eachDayOfInterval, isSameDay } from 'date-fns';
 // Usar locale por defecto (en) por ahora, o importar correctamente
 // import { es } from 'date-fns/locale/es';
@@ -16,7 +16,7 @@ import styles from './ServiceBookingPage.module.css';
 type Step = 1 | 2 | 3 | 4;
 
 export const ServiceBookingPage: React.FC = () => {
-  const { ciudad, categoria, aliadoId } = useParams<{
+  const { ciudad, aliadoId } = useParams<{
     ciudad: string;
     categoria: string;
     aliadoId: string;

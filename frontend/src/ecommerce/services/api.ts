@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Aliado, Service, Colaborador, Establecimiento, FiltrosBusqueda, SlotDisponible, ReservaFormData, Reserva } from '@types/index';
+import type { Aliado, Service, Colaborador, Establecimiento, FiltrosBusqueda, SlotDisponible, ReservaFormData, Reserva } from '@types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
