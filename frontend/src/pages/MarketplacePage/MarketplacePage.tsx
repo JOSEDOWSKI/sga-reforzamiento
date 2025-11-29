@@ -96,6 +96,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ isDemoMode = f
       backgroundColor: '#ffffff',
       fontFamily: 'Arial, sans-serif'
     }}>
+      {isDemoMode && <DemoBanner />}
       <Header onSearch={handleSearch} onCityChange={handleCityChange} />
 
       {/* Hero Banner */}
