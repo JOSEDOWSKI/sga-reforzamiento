@@ -2,6 +2,9 @@
 # Este Dockerfile está en la raíz para que CapRover lo encuentre
 FROM node:18-alpine as builder
 
+# Instalar dependencias del sistema necesarias
+RUN apk add --no-cache python3 make g++
+
 # Crear directorio de trabajo
 WORKDIR /app
 
@@ -16,6 +19,9 @@ ENV VITE_MARKETPLACE_DOMAIN=$VITE_MARKETPLACE_DOMAIN
 ENV VITE_MERCHANTS_DOMAIN=$VITE_MERCHANTS_DOMAIN
 ENV VITE_ENV=$VITE_ENV
 ENV NODE_ENV=production
+
+# Verificar que npm está disponible
+RUN npm --version
 
 # Copiar archivos de dependencias del frontend
 COPY frontend/package*.json ./
@@ -47,4 +53,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Comando de inicio
 CMD ["nginx", "-g", "daemon off;"]
-
