@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Aliado } from '@types/index';
+import { Aliado } from '@types';
 import { generarUrlNegocio } from '@utils/urls';
 import styles from './ServiceCard.module.css';
 
