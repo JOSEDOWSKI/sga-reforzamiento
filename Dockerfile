@@ -20,23 +20,14 @@ ENV VITE_MERCHANTS_DOMAIN=$VITE_MERCHANTS_DOMAIN
 ENV VITE_ENV=$VITE_ENV
 ENV NODE_ENV=production
 
-# Verificar que npm está disponible
-RUN which npm && npm --version && node --version
-
 # Copiar archivos de dependencias del frontend
 COPY frontend/package*.json ./
 
-# Verificar que package.json se copió correctamente
-RUN ls -la package*.json && cat package.json | head -10
-
-# Instalar dependencias
-RUN npm ci --only=production=false || npm install
+# Instalar dependencias (incluyendo devDependencies para el build)
+RUN npm install
 
 # Copiar código fuente del frontend
 COPY frontend/ ./
-
-# Verificar que los archivos se copiaron
-RUN ls -la && ls -la src/ | head -5
 
 # Construir aplicación (las variables VITE_* estarán disponibles en tiempo de build)
 RUN npm run build
