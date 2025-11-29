@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile",
+  "dockerfilePath": "frontend/Dockerfile",
   "buildArgs": {
     "VITE_API_BASE_URL": "https://api.weekly.pe",
     "VITE_MARKETPLACE_DOMAIN": "weekly.pe",
