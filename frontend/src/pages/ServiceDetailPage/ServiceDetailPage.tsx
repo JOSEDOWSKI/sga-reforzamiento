@@ -7,7 +7,7 @@ import {
   obtenerEstablecimientosPorAliado,
 } from '@services/api';
 import { generarUrlReserva } from '@utils/urls';
-import { Aliado, Service, Establecimiento } from '@types/index';
+import { Aliado, Service, Establecimiento } from '@types';
 import styles from './ServiceDetailPage.module.css';
 
 type ViewMode = 'negocio' | 'servicio' | 'lugar';
