@@ -18,7 +18,6 @@ type Step = 1 | 2 | 3 | 4;
 export const ServiceBookingPage: React.FC = () => {
   const { ciudad, aliadoId } = useParams<{
     ciudad: string;
-    categoria: string;
     aliadoId: string;
   }>();
   const navigate = useNavigate();
