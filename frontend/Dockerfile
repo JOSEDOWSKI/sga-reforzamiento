@@ -16,14 +16,14 @@ ENV VITE_MERCHANTS_DOMAIN=$VITE_MERCHANTS_DOMAIN
 ENV VITE_ENV=$VITE_ENV
 ENV NODE_ENV=production
 
-# Copiar archivos de dependencias
-COPY package*.json ./
+# Copiar archivos de dependencias (desde frontend/)
+COPY frontend/package*.json ./
 
-# Instalar dependencias (solo producción)
+# Instalar dependencias
 RUN npm ci --only=production=false
 
-# Copiar código fuente
-COPY . .
+# Copiar código fuente del frontend (desde la raíz del repo)
+COPY frontend/ ./
 
 # Construir aplicación (las variables VITE_* estarán disponibles en tiempo de build)
 RUN npm run build
@@ -32,7 +32,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copiar configuración personalizada de Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copiar archivos construidos
 COPY --from=builder /app/dist /usr/share/nginx/html
