@@ -12,19 +12,25 @@ WORKDIR /app
 ARG VITE_API_BASE_URL=https://api.weekly.pe
 ARG VITE_MARKETPLACE_DOMAIN=weekly.pe
 ARG VITE_MERCHANTS_DOMAIN=merchants.weekly.pe
+ARG VITE_DEMO_DOMAIN=demo.weekly.pe
 ARG VITE_ENV=production
 
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_MARKETPLACE_DOMAIN=$VITE_MARKETPLACE_DOMAIN
 ENV VITE_MERCHANTS_DOMAIN=$VITE_MERCHANTS_DOMAIN
+ENV VITE_DEMO_DOMAIN=$VITE_DEMO_DOMAIN
 ENV VITE_ENV=$VITE_ENV
 ENV NODE_ENV=production
+
+# Limpiar caché de npm antes de instalar
+RUN npm cache clean --force || true
 
 # Copiar archivos de dependencias del frontend
 COPY frontend/package*.json ./
 
 # Instalar dependencias (incluyendo devDependencies para el build)
-RUN npm install --include=dev
+# Usar --no-cache para evitar problemas de caché
+RUN npm ci --include=dev --no-cache || npm install --include=dev --no-cache
 
 # Verificar que TypeScript está instalado
 RUN npx tsc --version || npm list typescript
@@ -32,8 +38,15 @@ RUN npx tsc --version || npm list typescript
 # Copiar código fuente del frontend (excluyendo node_modules si existe)
 COPY frontend/ ./
 
+# Limpiar cualquier build anterior
+RUN rm -rf dist .vite || true
+
 # Construir aplicación (las variables VITE_* estarán disponibles en tiempo de build)
 RUN npm run build
+
+# Verificar que el build se completó correctamente
+RUN ls -la dist/ || (echo "❌ Build failed: dist directory not found" && exit 1)
+RUN test -f dist/index.html || (echo "❌ Build failed: index.html not found" && exit 1)
 
 # Etapa de producción con Nginx
 FROM nginx:alpine

@@ -5,6 +5,7 @@
     "VITE_API_BASE_URL": "https://api.weekly.pe",
     "VITE_MARKETPLACE_DOMAIN": "weekly.pe",
     "VITE_MERCHANTS_DOMAIN": "merchants.weekly.pe",
+    "VITE_DEMO_DOMAIN": "demo.weekly.pe",
     "VITE_ENV": "production"
   }
 }
