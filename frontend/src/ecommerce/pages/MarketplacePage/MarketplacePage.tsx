@@ -6,6 +6,7 @@ import { Filters } from '@components/Filters/Filters';
 import { obtenerAliados, obtenerCategoriasPopulares } from '@services/api';
 import { obtenerUbicacionCompleta, guardarCiudadPreferida } from '@utils/geolocation';
 import type { Aliado, FiltrosBusqueda, UbicacionUsuario } from '@types';
+import styles from './MarketplacePage.module.css';
 
 const CATEGORIAS_ICONOS: Record<string, string> = {
   peluqueria: 'content_cut',
@@ -86,81 +87,48 @@ export const MarketplacePage: React.FC = () => {
   const ciudadActual = filtros.ciudad || 'lima';
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#ffffff',
-      fontFamily: 'Arial, sans-serif'
-    }}>
+    <div className={styles.page}>
       <Header onSearch={handleSearch} onCityChange={handleCityChange} />
 
       {/* Hero Banner */}
-      <section style={{
-        background: 'linear-gradient(135deg, #34a853 0%, #2d8f47 100%)',
-        color: '#fff',
-        padding: '60px 20px',
-        textAlign: 'center',
-        marginBottom: '40px'
-      }}>
-        <div>
-          <h1 style={{ fontSize: '36px', marginBottom: '20px', color: '#fff' }}>
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>
             Reserva con los mejores profesionales
           </h1>
-          <p style={{ fontSize: '20px', marginBottom: '30px', opacity: 0.95 }}>
+          <p className={styles.heroSubtitle}>
             Peluquerías, spas, consultorios, academias y más. Agenda tu cita en minutos.
           </p>
-          <button style={{
-            backgroundColor: '#fff',
-            color: '#2d8f47',
-            padding: '15px 30px',
-            borderRadius: '50px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: 'pointer'
-          }}>
+          <button className={styles.heroButton}>
             Explorar servicios
           </button>
         </div>
       </section>
 
       {/* Lo Más Buscado */}
-      <section style={{ padding: '40px 20px', maxWidth: '1280px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '30px', color: '#111827' }}>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>
           Lo Más Buscado
         </h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-          gap: '16px'
-        }}>
+        <div className={styles.categoriesGrid}>
           {categoriasPopulares.length > 0 ? categoriasPopulares.map((categoria) => (
-            <div key={categoria} style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '24px',
-              backgroundColor: '#fff',
-              borderRadius: '12px',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              cursor: 'pointer'
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#34a853' }}>
+            <div key={categoria} className={styles.categoryCard}>
+              <span className="material-symbols-outlined">
                 {CATEGORIAS_ICONOS[categoria] || 'category'}
               </span>
-              <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151', textAlign: 'center' }}>
+              <span className={styles.categoryName}>
                 {categoria.charAt(0).toUpperCase() + categoria.slice(1)}
               </span>
             </div>
           )) : (
-            <p style={{ color: '#6b7280' }}>Cargando categorías...</p>
+            <p>Cargando categorías...</p>
           )}
         </div>
       </section>
 
       {/* Filtros y Listado */}
-      <section style={{ padding: '40px 20px', maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '30px' }}>
+      <section className={styles.section}>
+        <div className={styles.filtersContainer}>
           <Filters
             filtros={filtros}
             onFilterChange={handleFilterChange}
@@ -169,50 +137,23 @@ export const MarketplacePage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            padding: '80px 20px',
-            color: '#6b7280'
-          }}>
-            <div style={{
-              border: '3px solid #e5e7eb',
-              borderTopColor: '#34a853',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              animation: 'spin 0.8s linear infinite',
-              marginBottom: '20px'
-            }}></div>
+          <div className={styles.loading}>
+            <div className={styles.loadingSpinner}></div>
             <p>Cargando servicios...</p>
           </div>
         ) : aliados.length === 0 ? (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            padding: '80px 20px',
-            gap: '16px',
-            color: '#6b7280'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '64px', color: '#9ca3af' }}>
+          <div className={styles.empty}>
+            <span className={`material-symbols-outlined ${styles.emptyIcon}`}>
               search_off
             </span>
             <p>No se encontraron servicios</p>
           </div>
         ) : (
           <>
-            <h2 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '30px', color: '#111827' }}>
+            <h2 className={styles.sectionTitle}>
               Servicios Disponibles
             </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '24px'
-            }}>
+            <div className={styles.servicesGrid}>
               {aliados.map((aliado) => (
                 <ServiceCard key={aliado.id} aliado={aliado} ciudad={ciudadActual} />
               ))}
@@ -222,110 +163,38 @@ export const MarketplacePage: React.FC = () => {
       </section>
 
       {/* Sección Únete a Weekly */}
-      <section style={{
-        backgroundColor: '#f9fafb',
-        padding: '80px 20px',
-        maxWidth: '1280px',
-        margin: '0 auto'
-      }}>
-        <h2 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '40px', color: '#111827', textAlign: 'center' }}>
+      <section className={styles.joinSection}>
+        <h2 className={styles.joinTitle}>
           Únete a Weekly
         </h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '32px'
-        }}>
-          <div style={{
-            backgroundColor: '#fff',
-            padding: '32px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '64px', color: '#34a853' }}>
-              store
-            </span>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>Registra tu negocio</h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6', margin: 0 }}>
+        <div className={styles.joinGrid}>
+          <div className={styles.joinCard}>
+            <span className="material-symbols-outlined">store</span>
+            <h3 className={styles.joinCardTitle}>Registra tu negocio</h3>
+            <p className={styles.joinCardText}>
               Llega a más clientes y gestiona tus reservas fácilmente
             </p>
-            <a href="https://merchants.weekly.pe" style={{
-              backgroundColor: '#34a853',
-              color: '#fff',
-              padding: '8px 32px',
-              borderRadius: '50px',
-              fontSize: '16px',
-              fontWeight: '600',
-              textDecoration: 'none',
-              marginTop: '8px'
-            }}>
+            <a href="https://merchants.weekly.pe" className={styles.joinButton}>
               Registrarse
             </a>
           </div>
-          <div style={{
-            backgroundColor: '#fff',
-            padding: '32px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '64px', color: '#34a853' }}>
-              shopping_cart
-            </span>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>Registra tu comercio</h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6', margin: 0 }}>
+          <div className={styles.joinCard}>
+            <span className="material-symbols-outlined">shopping_cart</span>
+            <h3 className={styles.joinCardTitle}>Registra tu comercio</h3>
+            <p className={styles.joinCardText}>
               Vende tus productos y servicios en línea
             </p>
-            <a href="https://merchants.weekly.pe" style={{
-              backgroundColor: '#34a853',
-              color: '#fff',
-              padding: '8px 32px',
-              borderRadius: '50px',
-              fontSize: '16px',
-              fontWeight: '600',
-              textDecoration: 'none',
-              marginTop: '8px'
-            }}>
+            <a href="https://merchants.weekly.pe" className={styles.joinButton}>
               Registrarse
             </a>
           </div>
-          <div style={{
-            backgroundColor: '#fff',
-            padding: '32px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '64px', color: '#34a853' }}>
-              person
-            </span>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: 0 }}>Únete como profesional</h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6', margin: 0 }}>
+          <div className={styles.joinCard}>
+            <span className="material-symbols-outlined">person</span>
+            <h3 className={styles.joinCardTitle}>Únete como profesional</h3>
+            <p className={styles.joinCardText}>
               Ofrece tus servicios y crece tu negocio
             </p>
-            <a href="https://merchants.weekly.pe" style={{
-              backgroundColor: '#34a853',
-              color: '#fff',
-              padding: '8px 32px',
-              borderRadius: '50px',
-              fontSize: '16px',
-              fontWeight: '600',
-              textDecoration: 'none',
-              marginTop: '8px'
-            }}>
+            <a href="https://merchants.weekly.pe" className={styles.joinButton}>
               Registrarse
             </a>
           </div>

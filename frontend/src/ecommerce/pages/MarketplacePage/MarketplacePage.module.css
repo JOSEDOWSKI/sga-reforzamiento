@@ -1,13 +1,15 @@
 .page {
   min-height: 100vh;
   background-color: var(--color-white);
+  font-family: Arial, sans-serif;
 }
 
 .hero {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-white);
-  padding: var(--spacing-3xl) var(--spacing-md);
+  background: linear-gradient(135deg, #34a853 0%, #2d8f47 100%);
+  color: #fff;
+  padding: 60px 20px;
   text-align: center;
+  margin-bottom: 40px;
 }
 
 .heroContent {
@@ -16,89 +18,91 @@
 }
 
 .heroTitle {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-md);
-  line-height: 1.2;
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #fff;
 }
 
 .heroSubtitle {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--spacing-xl);
+  font-size: 20px;
+  margin-bottom: 30px;
   opacity: 0.95;
 }
 
 .heroButton {
-  background-color: var(--color-white);
-  color: var(--color-primary-dark);
-  padding: var(--spacing-md) var(--spacing-xl);
-  border-radius: var(--border-radius-full);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  background-color: #fff;
+  color: #2d8f47;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .heroButton:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .section {
-  padding: var(--spacing-2xl) var(--spacing-md);
-}
-
-.container {
+  padding: 40px 20px;
   max-width: 1280px;
   margin: 0 auto;
 }
 
 .sectionTitle {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-xl);
-  color: var(--color-gray-900);
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #111827;
 }
 
 .categoriesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .categoryCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  background-color: var(--color-white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  gap: 8px;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .categoryCard:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .categoryCard .material-symbols-outlined {
   font-size: 48px;
-  color: var(--color-primary);
+  color: #34a853;
 }
 
 .categoryName {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-700);
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
   text-align: center;
+}
+
+.filtersContainer {
+  margin-bottom: 30px;
 }
 
 .servicesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
+  gap: 24px;
 }
 
 .loading,
@@ -107,83 +111,107 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-3xl);
-  gap: var(--spacing-md);
-  color: var(--color-gray-500);
+  padding: 80px 20px;
+  color: #6b7280;
 }
 
-.loading .spinner {
-  margin-bottom: var(--spacing-md);
+.loadingSpinner {
+  border: 3px solid #e5e7eb;
+  border-top-color: #34a853;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
 }
 
-.empty .material-symbols-outlined {
+.emptyIcon {
   font-size: 64px;
-  color: var(--color-gray-400);
+  color: #9ca3af;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .joinSection {
-  background-color: var(--color-gray-50);
-  padding: var(--spacing-3xl) var(--spacing-md);
+  background-color: #f9fafb;
+  padding: 80px 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.joinTitle {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 40px;
+  color: #111827;
+  text-align: center;
 }
 
 .joinGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-xl);
+  gap: 32px;
 }
 
 .joinCard {
-  background-color: var(--color-white);
-  padding: var(--spacing-xl);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  background-color: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .joinCard .material-symbols-outlined {
   font-size: 64px;
-  color: var(--color-primary);
+  color: #34a853;
 }
 
-.joinCard h3 {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-900);
+.joinCardTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
 }
 
-.joinCard p {
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-600);
+.joinCardText {
+  font-size: 14px;
+  color: #6b7280;
   line-height: 1.6;
+  margin: 0;
 }
 
 .joinButton {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: var(--spacing-sm) var(--spacing-xl);
-  border-radius: var(--border-radius-full);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  transition: background-color var(--transition-base), transform var(--transition-base);
-  margin-top: var(--spacing-sm);
+  background-color: #34a853;
+  color: #fff;
+  padding: 8px 32px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .joinButton:hover {
-  background-color: var(--color-primary-dark);
+  background-color: #2d8f47;
   transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
   .heroTitle {
-    font-size: var(--font-size-3xl);
+    font-size: 28px;
   }
 
   .heroSubtitle {
-    font-size: var(--font-size-lg);
+    font-size: 18px;
   }
 
   .servicesGrid {
@@ -194,4 +222,3 @@
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
 }
-
