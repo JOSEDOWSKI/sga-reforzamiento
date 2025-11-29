@@ -5,8 +5,7 @@ import { ServiceCard } from '@components/ServiceCard/ServiceCard';
 import { Filters } from '@components/Filters/Filters';
 import { obtenerAliados, obtenerCategoriasPopulares } from '@services/api';
 import { obtenerUbicacionCompleta, guardarCiudadPreferida } from '@utils/geolocation';
-import { Aliado, FiltrosBusqueda, UbicacionUsuario } from '@types/index';
-import styles from './MarketplacePage.module.css';
+import { Aliado, FiltrosBusqueda, UbicacionUsuario } from '@types';
 
 const CATEGORIAS_ICONOS: Record<string, string> = {
   peluqueria: 'content_cut',
