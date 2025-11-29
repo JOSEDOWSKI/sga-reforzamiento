@@ -87,6 +87,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ isDemoMode
   if (loading) {
     return (
       <div className={styles.page}>
+        {isDemoMode && <DemoBanner />}
         <Header />
         <div className={styles.loading}>
           <div className="spinner"></div>
@@ -203,6 +204,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ isDemoMode
   if (viewMode === 'servicio' && selectedService) {
     return (
       <div className={styles.page}>
+        {isDemoMode && <DemoBanner />}
         <Header />
         <div className={styles.container}>
           <button className={styles.backButton} onClick={() => setViewMode('negocio')}>
@@ -243,6 +245,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ isDemoMode
   if (viewMode === 'lugar' && establecimientos.length > 0) {
     return (
       <div className={styles.page}>
+        {isDemoMode && <DemoBanner />}
         <Header />
         <div className={styles.container}>
           <button className={styles.backButton} onClick={() => setViewMode('negocio')}>
