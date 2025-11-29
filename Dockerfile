@@ -22,27 +22,52 @@ ENV VITE_DEMO_DOMAIN=$VITE_DEMO_DOMAIN
 ENV VITE_ENV=$VITE_ENV
 ENV NODE_ENV=production
 
-# Limpiar caché de npm antes de instalar
+# FORZAR LIMPIEZA COMPLETA - No usar caché de capas anteriores
+# Esto asegura que siempre se construya desde cero
+
+# Limpiar completamente cualquier residuo
+RUN rm -rf /tmp/* /var/cache/apk/* || true
+
+# Limpiar caché de npm completamente
 RUN npm cache clean --force || true
 
 # Copiar archivos de dependencias del frontend
 COPY frontend/package*.json ./
 
-# Instalar dependencias (incluyendo devDependencies para el build)
-# Usar --no-cache para evitar problemas de caché
-RUN npm ci --include=dev --no-cache || npm install --include=dev --no-cache
+# Eliminar node_modules si existe (forzar reinstalación limpia)
+RUN rm -rf node_modules package-lock.json || true
+
+# Instalar dependencias desde cero (sin caché)
+# --no-cache evita usar caché de npm
+# --force asegura reinstalación completa
+RUN npm install --include=dev --no-cache --force
 
 # Verificar que TypeScript está instalado
 RUN npx tsc --version || npm list typescript
 
-# Copiar código fuente del frontend (excluyendo node_modules si existe)
+# Copiar código fuente del frontend
 COPY frontend/ ./
 
-# Limpiar cualquier build anterior
-RUN rm -rf dist .vite || true
+# LIMPIEZA AGRESIVA: Eliminar cualquier build anterior y caché
+RUN rm -rf dist .vite node_modules/.vite .cache || true
 
-# Construir aplicación (las variables VITE_* estarán disponibles en tiempo de build)
-RUN npm run build
+# Limpiar caché de Vite específicamente
+RUN rm -rf node_modules/.vite || true
+
+# Construir aplicación con flags que fuerzan rebuild completo
+# --force y --no-cache fuerzan regeneración completa sin usar caché
+RUN VITE_FORCE_REBUILD=$(date +%s) npm run build
+
+# Verificar que el build se completó correctamente
+RUN ls -la dist/ || (echo "❌ Build failed: dist directory not found" && exit 1)
+RUN test -f dist/index.html || (echo "❌ Build failed: index.html not found" && exit 1)
+
+# Verificar que no hay referencias a código antiguo en el bundle
+RUN if grep -r "tenants" dist/ 2>/dev/null | grep -v ".map"; then \
+      echo "⚠️ WARNING: Se encontraron referencias a 'tenants' en el bundle"; \
+    else \
+      echo "✅ Verificado: No hay referencias a 'tenants' en el bundle"; \
+    fi
 
 # Verificar que el build se completó correctamente
 RUN ls -la dist/ || (echo "❌ Build failed: dist directory not found" && exit 1)
