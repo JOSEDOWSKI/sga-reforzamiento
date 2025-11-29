@@ -1,4 +1,4 @@
-import { UbicacionUsuario } from '@types/index';
+import { UbicacionUsuario } from '@types';
 
 /**
  * Obtiene la ubicación del usuario usando el navegador

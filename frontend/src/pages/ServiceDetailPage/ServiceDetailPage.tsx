@@ -25,7 +25,7 @@ export const ServiceDetailPage: React.FC = () => {
   const [establecimientos, setEstablecimientos] = useState<Establecimiento[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('negocio');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedEstablecimiento, setSelectedEstablecimiento] = useState<Establecimiento | null>(
+  const [, setSelectedEstablecimiento] = useState<Establecimiento | null>(
     null
   );
   const [loading, setLoading] = useState(true);
