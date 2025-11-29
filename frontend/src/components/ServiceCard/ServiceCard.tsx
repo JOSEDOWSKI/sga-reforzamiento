@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Aliado } from '@types';
+import { Aliado } from '@types/index';
 import { generarUrlNegocio } from '@utils/urls';
 import styles from './ServiceCard.module.css';
 
@@ -20,6 +20,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ aliado, ciudad }) => {
 
   const renderRating = (rating?: number) => {
     if (!rating) return null;
+    const stars = Math.round(rating);
     return (
       <div className={styles.rating}>
         <span className="material-symbols-outlined">star</span>

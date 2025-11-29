@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FiltrosBusqueda } from '@types';
+import { FiltrosBusqueda } from '@types/index';
 import styles from './Filters.module.css';
 
 interface FiltersProps {

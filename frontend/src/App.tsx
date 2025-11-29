@@ -5,12 +5,12 @@ import { useEffect } from 'react';
 import LandingPage from './pages/LandingPage';
 
 // Ecommerce nuevo (desde weekly)
-import { MarketplacePage } from './ecommerce/pages/MarketplacePage/MarketplacePage';
-import { ServiceDetailPage } from './ecommerce/pages/ServiceDetailPage/ServiceDetailPage';
-import { ServiceBookingPage } from './ecommerce/pages/ServiceBookingPage/ServiceBookingPage';
+import { MarketplacePage } from './pages/MarketplacePage/MarketplacePage';
+import { ServiceDetailPage } from './pages/ServiceDetailPage/ServiceDetailPage';
+import { ServiceBookingPage } from './pages/ServiceBookingPage/ServiceBookingPage';
 
 // Estilos del ecommerce (SOLO estos, no los del sistema antiguo)
-import './ecommerce/styles/global.css';
+import './styles/global.css';
 
 // Estilos del sistema antiguo SOLO para LandingPage (merchants.weekly.pe)
 // Se cargan condicionalmente solo cuando se necesita LandingPage
