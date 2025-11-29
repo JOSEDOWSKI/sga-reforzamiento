@@ -7,16 +7,15 @@ import './InteractiveMap.css';
 // Coordenadas de Arequipa, Perú (centro por defecto)
 const AREQUIPA_CENTER: [number, number] = [-16.4090, -71.5375];
 
-interface TenantLocation {
+interface AliadoLocation {
   id: number;
-  tenant_name: string;
-  name: string;
-  category: string;
-  address: string;
+  nombre: string;
+  categoria: string;
+  direccion: string;
   coordinates: [number, number];
-  phone: string;
+  telefono: string;
   email?: string;
-  plan: string;
+  ciudad?: string;
   estado: string;
 }
 
@@ -61,7 +60,7 @@ const categories = [
 ];
 
 // Componente para ajustar el mapa a las ubicaciones visibles
-const MapBounds: React.FC<{ locations: TenantLocation[] }> = ({ locations }) => {
+const MapBounds: React.FC<{ locations: AliadoLocation[] }> = ({ locations }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -93,14 +92,14 @@ const MapBounds: React.FC<{ locations: TenantLocation[] }> = ({ locations }) => 
 };
 
 const InteractiveMap: React.FC = () => {
-  const [businessLocations, setBusinessLocations] = useState<TenantLocation[]>([]);
+  const [businessLocations, setBusinessLocations] = useState<AliadoLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(categories.map(cat => cat.name));
   const [showAll, setShowAll] = useState(true);
 
-  // Cargar tenants desde el backend
+  // Cargar aliados desde el backend
   useEffect(() => {
-    const fetchTenants = async () => {
+    const fetchAliados = async () => {
       try {
         // Usar el dominio correcto para la API pública
         const protocol = window.location.protocol;
@@ -108,11 +107,11 @@ const InteractiveMap: React.FC = () => {
         let apiUrl = '';
         
         if (hostname.includes('weekly.pe')) {
-          apiUrl = `${protocol}//api.weekly.pe/api/public/tenants`;
+          apiUrl = `${protocol}//api.weekly.pe/api/marketplace/aliados?show_in_marketplace=true`;
         } else if (hostname.includes('getdevtools.com')) {
-          apiUrl = `${protocol}//${hostname.replace('weekly-frontend', 'weekly-backend')}/api/public/tenants`;
+          apiUrl = `${protocol}//${hostname.replace('weekly-frontend', 'weekly-backend')}/api/marketplace/aliados?show_in_marketplace=true`;
         } else {
-          apiUrl = `${protocol}//${hostname.replace(':5173', ':4000').replace(':3000', ':4000')}/api/public/tenants`;
+          apiUrl = `${protocol}//${hostname.replace(':5173', ':4000').replace(':3000', ':4000')}/api/marketplace/aliados?show_in_marketplace=true`;
         }
 
         const response = await fetch(apiUrl, {
@@ -123,18 +122,38 @@ const InteractiveMap: React.FC = () => {
         });
 
         const data = await response.json();
-        if (data.success && data.data) {
-          setBusinessLocations(data.data);
+        // Mapear aliados a formato de ubicación para el mapa
+        if (Array.isArray(data)) {
+          const locations: AliadoLocation[] = data
+            .filter((aliado: any) => aliado.estado === 'activo' && aliado.show_in_marketplace)
+            .map((aliado: any) => {
+              // Obtener coordenadas del primer establecimiento o usar coordenadas del aliado si existen
+              const lat = aliado.latitud || -16.4090;
+              const lng = aliado.longitud || -71.5375;
+              
+              return {
+                id: aliado.id,
+                nombre: aliado.nombre,
+                categoria: aliado.categoria || 'Otros',
+                direccion: aliado.direccion || '',
+                coordinates: [lat, lng] as [number, number],
+                telefono: aliado.telefono || '',
+                email: aliado.email,
+                ciudad: aliado.ciudad,
+                estado: aliado.estado,
+              };
+            });
+          setBusinessLocations(locations);
         }
       } catch (error) {
-        console.error('Error cargando tenants:', error);
+        console.error('Error cargando aliados:', error);
         // Mantener datos vacíos si falla
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTenants();
+    fetchAliados();
   }, []);
 
   // Función para alternar categoría
@@ -163,7 +182,7 @@ const InteractiveMap: React.FC = () => {
   // Filtrar negocios basado en categorías seleccionadas
   const filteredBusinesses = useMemo(() => 
     businessLocations.filter(business => 
-      selectedCategories.includes(business.category)
+      selectedCategories.includes(business.categoria)
     ),
     [businessLocations, selectedCategories]
   );
@@ -222,7 +241,7 @@ const InteractiveMap: React.FC = () => {
               <span className="legend-icon">{category.icon}</span>
               <span className="legend-text">{category.name}</span>
               <span className="legend-count">
-                ({businessLocations.filter(b => b.category === category.name).length})
+                ({businessLocations.filter(b => b.categoria === category.name).length})
               </span>
             </button>
           ))}
@@ -261,14 +280,14 @@ const InteractiveMap: React.FC = () => {
             <Marker
               key={business.id}
               position={business.coordinates}
-              icon={createCustomIcon(business.category)}
+              icon={createCustomIcon(business.categoria)}
             >
               <Popup className="custom-popup">
                 <div className="popup-content">
-                  <h4>{business.name}</h4>
-                  <p className="category">{business.category}</p>
-                  <p className="address">{business.address}</p>
-                  {business.phone && <p className="phone">{business.phone}</p>}
+                  <h4>{business.nombre}</h4>
+                  <p className="category">{business.categoria}</p>
+                  <p className="address">{business.direccion}</p>
+                  {business.telefono && <p className="phone">{business.telefono}</p>}
                   
                   <div className="popup-actions">
                     <a
@@ -280,12 +299,12 @@ const InteractiveMap: React.FC = () => {
                       📍 Ver en Google Maps
                     </a>
                     <a
-                      href={`https://${business.tenant_name}.weekly.pe/calendario-publico`}
+                      href={`/weekly.pe/${business.ciudad || 'lima'}/${business.categoria}/${business.id}-${business.nombre.toLowerCase().replace(/\s+/g, '-')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="calendar-link-button"
                     >
-                      📅 Agendar Cita
+                      📅 Ver en Marketplace
                     </a>
                   </div>
                 </div>

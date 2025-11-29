@@ -68,7 +68,7 @@ const LandingPage = () => {
         {
             name: "Ana Rodríguez",
             business: "Clínica Dental Sonrisa",
-            text: "El sistema multi-tenant nos da total independencia y seguridad. Cada clínica tiene su propio espacio sin compartir datos.",
+            text: "El sistema de aliados nos da total independencia y seguridad. Cada negocio tiene su propio espacio con aislamiento total de datos.",
             rating: 5
         }
     ];
@@ -94,7 +94,7 @@ const LandingPage = () => {
                             <span className="hero-subtitle">Agenda lo que quieras, donde quieras</span>
                         </h1>
                         <p className="hero-description">
-                            Plataforma SaaS multi-tenant para la gestión de reservas, horarios y clientes con marketplace integrado. 
+                            Plataforma SaaS para la gestión de reservas, horarios y clientes con marketplace integrado estilo Rappi. 
                             Digitaliza tu negocio en minutos con dominio personalizado y funcionalidades adaptadas a tu rubro. 
                             Perfecto para peluquerías, clínicas, academias, canchas deportivas y más.
                         </p>
@@ -443,7 +443,7 @@ const LandingPage = () => {
                     <div className="section-header">
                         <h2 className="section-title">Acerca de WEEKLY</h2>
                         <p className="section-description">
-                            Plataforma SaaS multi-tenant para la gestión de reservas, horarios y clientes con marketplace integrado.
+                            Plataforma SaaS para la gestión de reservas, horarios y clientes con marketplace integrado estilo Rappi.
                         </p>
                     </div>
                     <div className="about-content">
@@ -462,7 +462,7 @@ const LandingPage = () => {
                             </p>
                             <h3>Ventajas Competitivas</h3>
                             <ul className="about-features">
-                                <li>✅ Arquitectura multi-tenant adaptable y segura con aislamiento total de datos</li>
+                                <li>✅ Arquitectura de aliados adaptable y segura con aislamiento total de datos</li>
                                 <li>✅ Alto nivel de personalización por rubro y por negocio sin cambiar el modelo base</li>
                                 <li>✅ Subdominios y certificados SSL automáticos para cada negocio</li>
                                 <li>✅ Marketplace integrado como motor de crecimiento y visibilidad</li>
