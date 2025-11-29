@@ -1,0 +1,17 @@
+{
+  "name": "Weekly - Sistema de Agendamiento y Reservas",
+  "short_name": "Weekly",
+  "description": "Plataforma de reservas y agendamiento para negocios de servicios",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#34a853",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+
