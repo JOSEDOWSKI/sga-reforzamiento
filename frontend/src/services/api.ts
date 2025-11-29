@@ -1,5 +1,13 @@
 import axios from 'axios';
 import { Aliado, Service, Colaborador, Establecimiento, FiltrosBusqueda, SlotDisponible, ReservaFormData, Reserva } from '@types';
+import {
+  isDemoMode,
+  DEMO_ALIADOS,
+  DEMO_SERVICIOS,
+  DEMO_COLABORADORES,
+  DEMO_ESTABLECIMIENTOS,
+  generarSlotsDemo,
+} from './demoData';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -26,66 +34,27 @@ export const obtenerAliados = async (
   filtros: FiltrosBusqueda,
   ubicacionUsuario?: { latitud: number; longitud: number }
 ): Promise<Aliado[]> => {
-  // Datos mock para desarrollo sin backend
-  const mockAliados: Aliado[] = [
-    {
-      id: 1,
-      nombre: 'Salón Bella Vista',
-      descripcion: 'Salón de belleza profesional con los mejores estilistas',
-      email: 'contacto@salonbellavista.com',
-      telefono: '+51 999 888 777',
-      direccion: 'Av. Principal 123',
-      ciudad: 'lima',
-      pais: 'peru',
-      categoria: 'peluqueria',
-      estado: 'activo',
-      show_in_marketplace: true,
-      timezone: 'America/Lima',
-      rating: 4.5,
-      num_reviews: 23,
-      distancia_km: 2.5,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      nombre: 'Spa Relax',
-      descripcion: 'Centro de relajación y bienestar',
-      email: 'info@sparelax.com',
-      telefono: '+51 999 888 666',
-      direccion: 'Jr. Los Olivos 456',
-      ciudad: 'lima',
-      pais: 'peru',
-      categoria: 'spa',
-      estado: 'activo',
-      show_in_marketplace: true,
-      timezone: 'America/Lima',
-      rating: 4.8,
-      num_reviews: 45,
-      distancia_km: 5.2,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: 3,
-      nombre: 'Clínica Dental Sonrisa',
-      descripcion: 'Atención dental de calidad',
-      email: 'contacto@clinicasonrisa.com',
-      telefono: '+51 999 888 555',
-      direccion: 'Av. San Martín 789',
-      ciudad: 'lima',
-      pais: 'peru',
-      categoria: 'clinica',
-      estado: 'activo',
-      show_in_marketplace: true,
-      timezone: 'America/Lima',
-      rating: 4.7,
-      num_reviews: 67,
-      distancia_km: 3.8,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ];
+  // Si estamos en modo demo, usar datos demo directamente
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Usando datos demo para aliados');
+    let filtered = [...DEMO_ALIADOS];
+    
+    if (filtros.ciudad) {
+      filtered = filtered.filter((a) => a.ciudad === filtros.ciudad);
+    }
+    if (filtros.categoria) {
+      filtered = filtered.filter((a) => a.categoria === filtros.categoria);
+    }
+    if (filtros.busquedaTexto) {
+      const search = filtros.busquedaTexto.toLowerCase();
+      filtered = filtered.filter(
+        (a) =>
+          a.nombre.toLowerCase().includes(search) ||
+          a.descripcion?.toLowerCase().includes(search)
+      );
+    }
+    return filtered;
+  }
 
   try {
     const params = new URLSearchParams();
@@ -104,9 +73,9 @@ export const obtenerAliados = async (
     const response = await api.get<Aliado[]>(`/marketplace/aliados?${params.toString()}`);
     return response.data;
   } catch (error) {
-    console.warn('Error conectando con API, usando datos mock:', error);
-    // Filtrar datos mock según filtros
-    let filtered = mockAliados;
+    console.warn('Error conectando con API, usando datos demo:', error);
+    // En caso de error, usar datos demo
+    let filtered = [...DEMO_ALIADOS];
     if (filtros.ciudad) {
       filtered = filtered.filter((a) => a.ciudad === filtros.ciudad);
     }
@@ -129,16 +98,40 @@ export const obtenerAliados = async (
  * Obtiene un aliado por ID
  */
 export const obtenerAliadoPorId = async (id: number): Promise<Aliado> => {
-  const response = await api.get<Aliado>(`/marketplace/aliados/${id}`);
-  return response.data;
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Usando datos demo para aliado', id);
+    const aliado = DEMO_ALIADOS.find((a) => a.id === id);
+    if (aliado) return aliado;
+    throw new Error('Aliado no encontrado');
+  }
+
+  try {
+    const response = await api.get<Aliado>(`/marketplace/aliados/${id}`);
+    return response.data;
+  } catch (error) {
+    console.warn('Error conectando con API, usando datos demo:', error);
+    const aliado = DEMO_ALIADOS.find((a) => a.id === id);
+    if (aliado) return aliado;
+    throw new Error('Aliado no encontrado');
+  }
 };
 
 /**
  * Obtiene servicios de un aliado
  */
 export const obtenerServiciosPorAliado = async (aliadoId: number): Promise<Service[]> => {
-  const response = await api.get<Service[]>(`/marketplace/aliados/${aliadoId}/servicios`);
-  return response.data;
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Usando datos demo para servicios', aliadoId);
+    return DEMO_SERVICIOS[aliadoId] || [];
+  }
+
+  try {
+    const response = await api.get<Service[]>(`/marketplace/aliados/${aliadoId}/servicios`);
+    return response.data;
+  } catch (error) {
+    console.warn('Error conectando con API, usando datos demo:', error);
+    return DEMO_SERVICIOS[aliadoId] || [];
+  }
 };
 
 /**
@@ -147,10 +140,20 @@ export const obtenerServiciosPorAliado = async (aliadoId: number): Promise<Servi
 export const obtenerEstablecimientosPorAliado = async (
   aliadoId: number
 ): Promise<Establecimiento[]> => {
-  const response = await api.get<Establecimiento[]>(
-    `/marketplace/aliados/${aliadoId}/establecimientos`
-  );
-  return response.data;
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Usando datos demo para establecimientos', aliadoId);
+    return DEMO_ESTABLECIMIENTOS[aliadoId] || [];
+  }
+
+  try {
+    const response = await api.get<Establecimiento[]>(
+      `/marketplace/aliados/${aliadoId}/establecimientos`
+    );
+    return response.data;
+  } catch (error) {
+    console.warn('Error conectando con API, usando datos demo:', error);
+    return DEMO_ESTABLECIMIENTOS[aliadoId] || [];
+  }
 };
 
 /**
@@ -159,10 +162,20 @@ export const obtenerEstablecimientosPorAliado = async (
 export const obtenerColaboradoresPorAliado = async (
   aliadoId: number
 ): Promise<Colaborador[]> => {
-  const response = await api.get<Colaborador[]>(
-    `/marketplace/aliados/${aliadoId}/colaboradores`
-  );
-  return response.data;
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Usando datos demo para colaboradores', aliadoId);
+    return DEMO_COLABORADORES[aliadoId] || [];
+  }
+
+  try {
+    const response = await api.get<Colaborador[]>(
+      `/marketplace/aliados/${aliadoId}/colaboradores`
+    );
+    return response.data;
+  } catch (error) {
+    console.warn('Error conectando con API, usando datos demo:', error);
+    return DEMO_COLABORADORES[aliadoId] || [];
+  }
 };
 
 /**
@@ -174,16 +187,34 @@ export const obtenerSlotsDisponibles = async (
   fechaInicio: string,
   fechaFin: string
 ): Promise<SlotDisponible[]> => {
-  const params = new URLSearchParams({
-    colaborador_id: colaboradorId.toString(),
-    fecha_inicio: fechaInicio,
-    fecha_fin: fechaFin,
-  });
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Generando slots demo', { aliadoId, colaboradorId, fechaInicio, fechaFin });
+    const colaborador = DEMO_COLABORADORES[aliadoId]?.find((c) => c.id === colaboradorId);
+    if (colaborador) {
+      return generarSlotsDemo(colaboradorId, colaborador.nombre, fechaInicio, fechaFin);
+    }
+    return [];
+  }
 
-  const response = await api.get<SlotDisponible[]>(
-    `/marketplace/aliados/${aliadoId}/slots-disponibles?${params.toString()}`
-  );
-  return response.data;
+  try {
+    const params = new URLSearchParams({
+      colaborador_id: colaboradorId.toString(),
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+    });
+
+    const response = await api.get<SlotDisponible[]>(
+      `/marketplace/aliados/${aliadoId}/slots-disponibles?${params.toString()}`
+    );
+    return response.data;
+  } catch (error) {
+    console.warn('Error conectando con API, generando slots demo:', error);
+    const colaborador = DEMO_COLABORADORES[aliadoId]?.find((c) => c.id === colaboradorId);
+    if (colaborador) {
+      return generarSlotsDemo(colaboradorId, colaborador.nombre, fechaInicio, fechaFin);
+    }
+    return [];
+  }
 };
 
 /**
@@ -198,15 +229,20 @@ export const crearReserva = async (datosReserva: ReservaFormData): Promise<Reser
  * Obtiene categorías populares
  */
 export const obtenerCategoriasPopulares = async (ciudad?: string): Promise<string[]> => {
-  const mockCategorias = ['peluqueria', 'spa', 'clinica', 'academia', 'cancha', 'gimnasio'];
+  const categoriasDemo = ['peluqueria', 'spa', 'clinica', 'academia', 'cancha', 'gimnasio'];
   
+  if (isDemoMode()) {
+    console.log('🎮 Modo Demo: Usando categorías demo');
+    return categoriasDemo;
+  }
+
   try {
     const params = ciudad ? `?ciudad=${ciudad}` : '';
     const response = await api.get<string[]>(`/marketplace/categorias-populares${params}`);
     return response.data;
   } catch (error) {
-    console.warn('Error conectando con API, usando datos mock:', error);
-    return mockCategorias;
+    console.warn('Error conectando con API, usando categorías demo:', error);
+    return categoriasDemo;
   }
 };
 
