@@ -23,14 +23,14 @@
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/ecommerce/*"],
-      "@components/*": ["src/ecommerce/components/*"],
-      "@pages/*": ["src/ecommerce/pages/*"],
-      "@services/*": ["src/ecommerce/services/*"],
-      "@utils/*": ["src/ecommerce/utils/*"],
-      "@types/*": ["src/ecommerce/types/*"],
-      "@types": ["src/ecommerce/types/index"],
-      "@styles/*": ["src/ecommerce/styles/*"]
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"],
+      "@types": ["src/types/index"],
+      "@styles/*": ["src/styles/*"]
     }
   },
   "include": ["src"],
