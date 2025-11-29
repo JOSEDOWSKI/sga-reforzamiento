@@ -6,6 +6,7 @@ import { Filters } from '@components/Filters/Filters';
 import { obtenerAliados, obtenerCategoriasPopulares } from '@services/api';
 import { obtenerUbicacionCompleta, guardarCiudadPreferida } from '@utils/geolocation';
 import { Aliado, FiltrosBusqueda, UbicacionUsuario } from '@types';
+import { DemoBanner } from '@components/DemoBanner/DemoBanner';
 
 const CATEGORIAS_ICONOS: Record<string, string> = {
   peluqueria: 'content_cut',
@@ -17,7 +18,11 @@ const CATEGORIAS_ICONOS: Record<string, string> = {
   restaurante: 'restaurant',
 };
 
-export const MarketplacePage: React.FC = () => {
+interface MarketplacePageProps {
+  isDemoMode?: boolean;
+}
+
+export const MarketplacePage: React.FC<MarketplacePageProps> = ({ isDemoMode = false }) => {
   const { ciudad, categoria } = useParams<{ ciudad?: string; categoria?: string }>();
   const [searchParams] = useSearchParams();
   const busquedaTexto = searchParams.get('busqueda') || undefined;

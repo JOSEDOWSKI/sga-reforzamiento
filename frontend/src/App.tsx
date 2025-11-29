@@ -42,8 +42,15 @@ function AppContent() {
     ...(import.meta.env.VITE_WEEKLY_MERCHANTS_DOMAIN ? [import.meta.env.VITE_WEEKLY_MERCHANTS_DOMAIN] : []),
   ];
 
+  // Dominios de demo (ecommerce en modo demo)
+  const demoDomains = [
+    'demo.weekly.pe',
+    ...(import.meta.env.VITE_DEMO_DOMAIN ? [import.meta.env.VITE_DEMO_DOMAIN] : []),
+  ];
+
   const isMarketplaceDomain = marketplaceDomains.includes(normalizedHost);
   const isMerchantsDomain = merchantsDomains.includes(normalizedHost);
+  const isDemoDomain = demoDomains.includes(normalizedHost) || subdomain === 'demo';
 
   // Logs de debug
   useEffect(() => {
@@ -54,8 +61,9 @@ function AppContent() {
       pathname,
       isMarketplaceDomain,
       isMerchantsDomain,
+      isDemoDomain,
     });
-  }, [hostname, normalizedHost, subdomain, pathname, isMarketplaceDomain, isMerchantsDomain]);
+  }, [hostname, normalizedHost, subdomain, pathname, isMarketplaceDomain, isMerchantsDomain, isDemoDomain]);
 
   // PRIORIDAD 1: Dominios informativos de merchants (MÁXIMA PRIORIDAD)
   if (isMerchantsDomain || subdomain === 'merchants') {
@@ -64,7 +72,33 @@ function AppContent() {
     return <LandingPage />;
   }
 
-  // PRIORIDAD 2: Dominios del marketplace/ecommerce (weekly.pe por defecto)
+  // PRIORIDAD 2: Dominios de demo (ecommerce en modo demo)
+  if (isDemoDomain) {
+    console.log('✅ PRIORIDAD 2: Detectado demo.weekly.pe - Mostrando Ecommerce en Modo Demo');
+    
+    const routeParts = pathname.split('/').filter(Boolean);
+    
+    if (routeParts.length >= 4 && routeParts[routeParts.length - 1] === 'booking') {
+      return <ServiceBookingPage isDemoMode={true} />;
+    }
+    
+    if (routeParts.length >= 3) {
+      return <ServiceDetailPage isDemoMode={true} />;
+    }
+    
+    if (routeParts.length === 2 || routeParts.length === 1) {
+      return <MarketplacePage isDemoMode={true} />;
+    }
+    
+    if (pathname === '/' || pathname === '') {
+      window.location.href = '/lima';
+      return <div>Cargando...</div>;
+    }
+    
+    return <MarketplacePage isDemoMode={true} />;
+  }
+
+  // PRIORIDAD 3: Dominios del marketplace/ecommerce (weekly.pe por defecto)
   if (isMarketplaceDomain) {
     console.log('✅ PRIORIDAD 2: Detectado weekly.pe - Mostrando Ecommerce');
 

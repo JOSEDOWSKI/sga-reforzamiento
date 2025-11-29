@@ -8,11 +8,16 @@ import {
 } from '@services/api';
 import { generarUrlReserva } from '@utils/urls';
 import { Aliado, Service, Establecimiento } from '@types';
+import { DemoBanner } from '@components/DemoBanner/DemoBanner';
 import styles from './ServiceDetailPage.module.css';
 
 type ViewMode = 'negocio' | 'servicio' | 'lugar';
 
-export const ServiceDetailPage: React.FC = () => {
+interface ServiceDetailPageProps {
+  isDemoMode?: boolean;
+}
+
+export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ isDemoMode = false }) => {
   const { ciudad, categoria, aliadoId } = useParams<{
     ciudad: string;
     categoria: string;
@@ -94,6 +99,7 @@ export const ServiceDetailPage: React.FC = () => {
   if (!aliado) {
     return (
       <div className={styles.page}>
+        {isDemoMode && <DemoBanner />}
         <Header />
         <div className={styles.empty}>
           <span className="material-symbols-outlined">error</span>
@@ -107,6 +113,7 @@ export const ServiceDetailPage: React.FC = () => {
   if (viewMode === 'negocio') {
     return (
       <div className={styles.page}>
+        {isDemoMode && <DemoBanner />}
         <Header />
         <div className={styles.container}>
           {/* Galería */}

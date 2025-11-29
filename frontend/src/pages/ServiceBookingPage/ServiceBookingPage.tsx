@@ -8,6 +8,7 @@ import {
   crearReserva,
 } from '@services/api';
 import { Aliado, Colaborador, SlotDisponible, ReservaFormData } from '@types';
+import { DemoBanner } from '@components/DemoBanner/DemoBanner';
 import { format, addDays, startOfWeek, eachDayOfInterval, isSameDay } from 'date-fns';
 // Usar locale por defecto (en) por ahora, o importar correctamente
 // import { es } from 'date-fns/locale/es';
@@ -15,7 +16,11 @@ import styles from './ServiceBookingPage.module.css';
 
 type Step = 1 | 2 | 3 | 4;
 
-export const ServiceBookingPage: React.FC = () => {
+interface ServiceBookingPageProps {
+  isDemoMode?: boolean;
+}
+
+export const ServiceBookingPage: React.FC<ServiceBookingPageProps> = ({ isDemoMode = false }) => {
   const { ciudad, aliadoId } = useParams<{
     ciudad: string;
     categoria: string;
@@ -132,8 +137,15 @@ export const ServiceBookingPage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      await crearReserva(formData);
-      setCurrentStep(4);
+      if (isDemoMode) {
+        // En modo demo, simular la reserva sin llamar al backend
+        console.log('🎮 Modo Demo: Simulando reserva', formData);
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simular delay
+        setCurrentStep(4);
+      } else {
+        await crearReserva(formData);
+        setCurrentStep(4);
+      }
     } catch (error) {
       console.error('Error creando reserva:', error);
       alert('Error al crear la reserva. Por favor intenta nuevamente.');
@@ -154,6 +166,7 @@ export const ServiceBookingPage: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.page}>
+        {isDemoMode && <DemoBanner />}
         <Header />
         <div className={styles.loading}>
           <div className="spinner"></div>
@@ -165,6 +178,7 @@ export const ServiceBookingPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
+      {isDemoMode && <DemoBanner />}
       <Header />
       <div className={styles.container}>
         <div className={styles.progressBar}>
@@ -348,7 +362,7 @@ export const ServiceBookingPage: React.FC = () => {
                   onClick={handleSubmit}
                   disabled={submitting}
                 >
-                  {submitting ? 'Procesando...' : 'Continuar al pago'}
+                  {submitting ? 'Procesando...' : isDemoMode ? 'Confirmar reserva (Demo)' : 'Continuar al pago'}
                 </button>
               </div>
             </form>
@@ -361,7 +375,7 @@ export const ServiceBookingPage: React.FC = () => {
             <div className={styles.confirmation}>
               <span className="material-symbols-outlined">check_circle</span>
               <h2>¡Reserva confirmada!</h2>
-              <p>Tu reserva ha sido creada exitosamente.</p>
+              <p>{isDemoMode ? 'Tu reserva demo ha sido creada exitosamente. Esta es una simulación.' : 'Tu reserva ha sido creada exitosamente.'}</p>
               {aliado && (
                 <div className={styles.reservationDetails}>
                   <p>
