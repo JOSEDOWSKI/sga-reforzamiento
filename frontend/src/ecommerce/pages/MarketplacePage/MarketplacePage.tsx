@@ -5,7 +5,7 @@ import { ServiceCard } from '@components/ServiceCard/ServiceCard';
 import { Filters } from '@components/Filters/Filters';
 import { obtenerAliados, obtenerCategoriasPopulares } from '@services/api';
 import { obtenerUbicacionCompleta, guardarCiudadPreferida } from '@utils/geolocation';
-import { Aliado, FiltrosBusqueda, UbicacionUsuario } from '@types/index';
+import type { Aliado, FiltrosBusqueda, UbicacionUsuario } from '@types';
 import styles from './MarketplacePage.module.css';
 
 const CATEGORIAS_ICONOS: Record<string, string> = {
