@@ -1,6 +1,6 @@
 # Dockerfile para WEEKLY Ecommerce Frontend
 # Este Dockerfile está en la raíz para que CapRover lo encuentre
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 # Instalar dependencias del sistema necesarias para compilar módulos nativos
 RUN apk add --no-cache python3 make g++
@@ -24,9 +24,12 @@ ENV NODE_ENV=production
 COPY frontend/package*.json ./
 
 # Instalar dependencias (incluyendo devDependencies para el build)
-RUN npm install
+RUN npm install --include=dev
 
-# Copiar código fuente del frontend
+# Verificar que TypeScript está instalado
+RUN npx tsc --version || npm list typescript
+
+# Copiar código fuente del frontend (excluyendo node_modules si existe)
 COPY frontend/ ./
 
 # Construir aplicación (las variables VITE_* estarán disponibles en tiempo de build)
