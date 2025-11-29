@@ -1,9 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src/ecommerce'),
+      '@components': path.resolve(__dirname, './src/ecommerce/components'),
+      '@pages': path.resolve(__dirname, './src/ecommerce/pages'),
+      '@services': path.resolve(__dirname, './src/ecommerce/services'),
+      '@utils': path.resolve(__dirname, './src/ecommerce/utils'),
+      '@types': path.resolve(__dirname, './src/ecommerce/types'),
+      '@styles': path.resolve(__dirname, './src/ecommerce/styles'),
+    },
+  },
   css: {
     // Suprimir warnings de CSS de librerías de terceros
     devSourcemap: true,

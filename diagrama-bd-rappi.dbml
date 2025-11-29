@@ -1,0 +1,329 @@
+// Modelo RAPPI - BD Compartida por País
+// Importa este archivo en https://www.drawdb.app/editor
+// Estructura: Todos los aliados comparten la misma BD, filtrados por aliado_id
+
+Project weekly_peru {
+  database_type: 'PostgreSQL'
+  Note: 'Base de datos compartida tipo Rappi - Todos los aliados en una BD, filtrados por aliado_id'
+}
+
+Table aliados {
+  id int [pk, increment, note: 'Identificador único del aliado/negocio']
+  nombre varchar(255) [not null, note: 'Nombre del negocio (ej: "Peluquería Bella Vista")']
+  descripcion text [note: 'Descripción del negocio']
+  email varchar(255) [not null, unique, note: 'Email de contacto del negocio']
+  telefono varchar(20) [note: 'Teléfono de contacto']
+  direccion text [note: 'Dirección física del negocio']
+  ciudad varchar(255) [note: 'Ciudad del negocio (para búsqueda geográfica)']
+  pais varchar(50) [not null, default: 'peru', note: 'peru, colombia, mexico, etc. - Determina en qué BD está']
+  logo_url varchar(500) [note: 'URL del logo del negocio']
+  timezone varchar(50) [default: 'America/Lima', note: 'Zona horaria del negocio']
+  categoria varchar(100) [note: 'peluqueria, cancha, clinica, etc. - Para búsqueda en marketplace']
+  estado varchar(20) [default: 'activo', note: 'activo: operativo, suspendido: temporalmente inactivo, cancelado: dado de baja']
+  show_in_marketplace boolean [default: false, note: 'Si aparece en el marketplace público']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  ultimo_acceso timestamp [note: 'Última vez que alguien accedió al panel de este aliado']
+
+  indexes {
+    (email) [unique, note: 'Para búsqueda rápida']
+    (pais) [note: 'Para filtrar por país']
+    (ciudad) [note: 'Para búsqueda geográfica']
+    (categoria) [note: 'Para filtrar por tipo de negocio']
+    (estado) [note: 'Para filtrar aliados activos']
+    (show_in_marketplace) [note: 'Para mostrar solo aliados visibles en marketplace']
+  }
+}
+
+Table establecimientos {
+  id int [pk, increment]
+  aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Establecimiento pertenece a un aliado']
+  nombre varchar(255) [not null, note: 'Nombre único por aliado (ej: "Sucursal Centro")']
+  direccion text [note: 'Dirección física']
+  telefono varchar(20)
+  email varchar(255)
+  latitud numeric(10, 8) [note: 'Coordenada Latitud del Establecimiento']
+  longitud numeric(11, 8) [note: 'Coordenada Longitud del Establecimiento']
+  activo boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (aliado_id) [note: 'Índice crítico para filtrado']
+    (nombre) [note: 'Para búsqueda rápida']
+    (aliado_id, nombre) [note: 'Único por aliado']
+  }
+}
+
+Table colaboradores {
+  id int [pk, increment]
+  aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Colaborador pertenece a un aliado']
+  nombre varchar(255) [not null]
+  email varchar(255) [not null, note: 'Email único por aliado (no global)']
+  telefono varchar(20)
+  password_hash varchar(255) [not null, note: 'Contraseña encriptada (bcrypt)']
+  rol varchar(50) [default: 'colaborador', note: 'admin: acceso total, vendedor: gestionar reservas, colaborador: solo ver sus reservas']
+  tarifa_por_hora decimal(10,2) [note: 'Tarifa del colaborador']
+  establecimiento_id int [ref: > establecimientos.id, note: 'Opcional: en qué establecimiento trabaja']
+  activo boolean [default: true, note: 'Si el colaborador está activo']
+  ultimo_acceso timestamp [note: 'Última vez que hizo login']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (aliado_id) [note: 'Índice crítico para filtrado']
+    (email) [note: 'Para búsqueda rápida']
+    (rol) [note: 'Para filtrar por rol']
+    (establecimiento_id) [note: 'Para filtrar por establecimiento']
+    (aliado_id, email) [unique, note: 'CRÍTICO: Unicidad de Email dentro del Aliado']
+  }
+}
+
+Table usuarios_globales {
+  id int [pk, increment, note: 'Identificador único del usuario global']
+  email varchar(255) [unique, not null, note: 'Email único global en toda la plataforma']
+  password_hash varchar(255) [note: 'Contraseña encriptada (bcrypt) - Opcional si solo reserva sin cuenta']
+  telefono varchar(20) [not null, note: 'Teléfono del cliente']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (email) [unique, note: 'Email único global']
+    (telefono) [note: 'Para búsqueda rápida']
+  }
+}
+
+Table perfiles_cliente_aliado {
+  id int [pk, increment, note: 'Identificador único del perfil']
+  aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Perfil pertenece a un aliado']
+  usuario_global_id int [ref: > usuarios_globales.id, not null, note: 'FK a usuarios_globales - Cliente global que tiene perfil en este aliado']
+  notes text [note: 'Notas adicionales sobre el cliente en este aliado']
+  activo boolean [default: true, note: 'Si el perfil está activo']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (aliado_id) [note: 'Índice crítico para filtrado']
+    (usuario_global_id) [note: 'Para buscar perfiles de un usuario global']
+    (aliado_id, usuario_global_id) [unique, note: 'Un usuario global solo puede tener un perfil por aliado']
+  }
+}
+
+Table categorias {
+    id int [pk, increment]
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Categoría pertenece a un aliado. Todos los establecimientos de un aliado ofrecen los mismos servicios']
+    nombre varchar(255) [not null, note: 'Nombre de la categoría (ej: "Corte", "Color", "Tratamiento")']
+    descripcion text [note: 'Descripción de la categoría']
+    activo boolean [default: true, note: 'Si la categoría está activa']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+    }
+  }
+
+Table services {
+    id int [pk, increment]
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Servicio pertenece a un aliado']
+    name varchar(255) [not null, note: 'Nombre del servicio (ej: "Corte de cabello", "Consulta médica")']
+    description text [note: 'Descripción detallada del servicio']
+    duration_minutes int [not null, default: 30, note: 'Duración en minutos (30, 45, 60, 90, etc.)']
+    price decimal(10,2) [note: 'Precio del servicio']
+    category_id int [ref: > categorias.id, note: 'A qué categoría pertenece (opcional)']
+    active boolean [default: true, note: 'Si el servicio está activo y disponible']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+      (category_id) [note: 'Para filtrar servicios por categoría']
+      (active) [note: 'Para mostrar solo servicios activos']
+    }
+  }
+
+Table horarios_atencion {
+    id int [pk, increment]
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Horario pertenece a un aliado']
+    colaborador_id int [ref: > colaboradores.id, not null, note: 'CRÍTICO: Horario del colaborador. Las reservas jalan el horario del colaborador']
+    dia_semana int [not null, note: '0=domingo, 1=lunes, 2=martes, ..., 6=sábado']
+    hora_apertura time [not null, note: 'Hora de apertura (ej: "09:00")']
+    hora_cierre time [not null, note: 'Hora de cierre (ej: "18:00")']
+    break_start time [note: 'Inicio de break (ej: almuerzo "13:00")']
+    break_end time [note: 'Fin de break (ej: "14:00")']
+    intervalo_minutos int [default: 30, note: 'Intervalo entre citas (30, 60, 90 minutos)']
+    activo boolean [default: true]
+    is_closed boolean [default: false, note: 'Si está cerrado ese día']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+      (colaborador_id) [note: 'Índice crítico para obtener horarios del colaborador']
+      (colaborador_id, dia_semana) [unique, note: 'Un colaborador solo puede tener un horario por día']
+    }
+  }
+
+Table reservas {
+  id int [pk, increment]
+  aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Filtro principal para aislamiento. TODAS las queries DEBEN filtrar por este campo']
+  fecha_hora_inicio timestamp [not null, note: 'Cuándo inicia la reserva']
+  fecha_hora_fin timestamp [not null, note: 'Cuándo termina la reserva']
+  colaborador_id int [ref: > colaboradores.id, not null, note: 'Qué colaborador atiende. La reserva jala el horario del colaborador']
+  establecimiento_id int [ref: > establecimientos.id, not null, note: 'En qué establecimiento']
+  perfil_cliente_id int [ref: > perfiles_cliente_aliado.id, not null, note: 'Qué perfil de cliente hizo la reserva']
+  service_id int [ref: > services.id, note: 'Qué servicio (opcional)']
+  notas text [note: 'Notas adicionales sobre la reserva']
+  precio decimal(10,2) [note: 'Precio de la reserva']
+  estado varchar(20) [default: 'confirmada', note: 'confirmada, cancelada, completada, no_asistio']
+  recurrence_rule text [note: 'Regla de recurrencia en formato estándar iCalendar (RRULE). NULL si es una reserva única. Ejemplo: RRULE:FREQ=WEEKLY;UNTIL=20261128T235959Z;BYDAY=MO']
+  recurrence_id int [ref: > reservas.id, note: 'ID del evento Maestro. NULL si es el Maestro o reserva única. Si tiene valor, esta reserva es una excepción/modificación de la serie recurrente']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (aliado_id) [note: 'ÍNDICE CRÍTICO - Todas las queries deben usar este filtro']
+    (fecha_hora_inicio) [note: 'Para búsquedas por fecha']
+    (colaborador_id) [note: 'Para ver reservas de un colaborador']
+    (establecimiento_id) [note: 'Para ver reservas de un establecimiento']
+    (perfil_cliente_id) [note: 'Para ver reservas de un perfil de cliente']
+    (estado) [note: 'Para filtrar por estado']
+    (aliado_id, fecha_hora_inicio) [note: 'Índice compuesto para performance en búsquedas comunes']
+    (recurrence_id) [note: 'Para buscar rápidamente las excepciones de una serie recurrente']
+  }
+}
+
+Table notifications {
+    id int [pk, increment]
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Notificación pertenece a un aliado']
+    perfil_cliente_id int [ref: > perfiles_cliente_aliado.id, note: 'A qué perfil de cliente se envió (opcional)']
+    reservation_id int [ref: > reservas.id, note: 'De qué reserva (opcional)']
+    type varchar(50) [not null, note: 'email, sms, whatsapp, push - Tipo de notificación']
+    status varchar(20) [default: 'pending', note: 'pending: pendiente, sent: enviada, failed: falló']
+    payload jsonb [note: 'Contenido enviado en formato JSON (subject, body, etc.)']
+    error_message text [note: 'Si falló, mensaje de error']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+      (perfil_cliente_id) [note: 'Para ver notificaciones de un perfil de cliente']
+      (reservation_id) [note: 'Para ver notificaciones de una reserva']
+      (type) [note: 'Para filtrar por tipo de notificación']
+      (status) [note: 'Para ver notificaciones pendientes o fallidas']
+    }
+  }
+
+Table special_days {
+    id int [pk, increment]
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Día especial pertenece a un aliado']
+    date date [not null, note: 'Fecha del día especial (feriado, día cerrado, etc.)']
+    is_closed boolean [default: false, note: 'Si está cerrado ese día']
+    open_time time [note: 'Horario de apertura especial (si no está cerrado)']
+    close_time time [note: 'Horario de cierre especial (si no está cerrado)']
+    notes text [note: 'Notas sobre el día especial (ej: "Cerrado por Navidad")']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id, date) [unique, note: 'Un aliado solo puede tener un registro por fecha']
+      (aliado_id) [note: 'Índice crítico para filtrado']
+    }
+  }
+
+Table business_hours {
+    id int [pk, increment]
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Horario general pertenece a un aliado']
+    day_of_week int [not null, note: '0=domingo, 1=lunes, 2=martes, ..., 6=sábado']
+    open_time time [not null, note: 'Hora de apertura general (ej: "09:00")']
+    close_time time [not null, note: 'Hora de cierre general (ej: "18:00")']
+    is_closed boolean [default: false, note: 'Si está cerrado ese día de la semana']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id, day_of_week) [unique, note: 'Un aliado solo puede tener un horario por día de la semana']
+      (aliado_id) [note: 'Índice crítico para filtrado']
+    }
+  }
+
+Table horarios_atencion_rangos {
+    id int [pk, increment]
+    horario_atencion_id int [ref: > horarios_atencion.id, not null, note: 'A qué horario de atención pertenece']
+    hora_inicio time [not null, note: 'Hora de inicio del rango (ej: "09:00")']
+    hora_fin time [not null, note: 'Hora de fin del rango (ej: "13:00")']
+    orden int [default: 1, note: 'Orden del rango (1=primer rango, 2=segundo rango, etc.) - Para múltiples rangos en un día']
+    activo boolean [default: true, note: 'Si el rango está activo']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (horario_atencion_id, orden) [unique, note: 'Un horario solo puede tener un rango por orden']
+      (horario_atencion_id) [note: 'Para obtener todos los rangos de un horario']
+    }
+  }
+
+Table notificaciones_alertas {
+    id int [pk, increment, note: 'Identificador único de la notificación/alerta']
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Alerta pertenece a un aliado']
+    perfil_cliente_id int [ref: > perfiles_cliente_aliado.id, not null, note: 'A quién va dirigida la alerta (el cliente que la verá)']
+    reserva_id int [ref: > reservas.id, note: 'A qué reserva se refiere (opcional, puede ser una alerta general)']
+    tipo_alerta varchar(50) [not null, note: 'confirmacion, cancelacion, recordatorio, cambio_horario, etc.']
+    mensaje text [not null, note: 'Mensaje de la alerta (ej: "Tu reserva ha sido confirmada")']
+    leido boolean [default: false, note: 'Indica si el cliente ya vio la alerta (campana de notificación)']
+    fecha_creacion timestamp [default: `CURRENT_TIMESTAMP`, note: 'Cuándo se generó la alerta']
+    fecha_leido timestamp [note: 'Cuándo el cliente marcó la alerta como leída']
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+      (perfil_cliente_id) [note: 'Para obtener todas las alertas de un cliente']
+      (reserva_id) [note: 'Para obtener alertas relacionadas a una reserva']
+      (leido) [note: 'Para filtrar alertas no leídas (mostrar contador en campana)']
+      (perfil_cliente_id, leido) [note: 'Índice compuesto para obtener alertas no leídas de un cliente']
+    }
+  }
+
+Table threads {
+    id int [pk, increment, note: 'Identificador único de la conversación/hilo']
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Thread pertenece a un aliado']
+    perfil_cliente_id int [ref: > perfiles_cliente_aliado.id, not null, note: 'Cliente que participa en la conversación']
+    reserva_id int [ref: > reservas.id, note: 'Reserva relacionada (opcional, puede ser conversación general)']
+    asunto varchar(255) [note: 'Asunto de la conversación (ej: "Consulta sobre mi reserva del 15/11")']
+    activo boolean [default: true, note: 'Si la conversación está activa']
+    ultimo_mensaje_at timestamp [note: 'Fecha del último mensaje (para ordenar conversaciones)']
+    created_at timestamp [default: `CURRENT_TIMESTAMP`]
+    updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+      (perfil_cliente_id) [note: 'Para obtener todas las conversaciones de un cliente']
+      (reserva_id) [note: 'Para obtener conversaciones relacionadas a una reserva']
+      (activo) [note: 'Para filtrar conversaciones activas']
+      (ultimo_mensaje_at) [note: 'Para ordenar conversaciones por última actividad']
+    }
+  }
+
+Table mensajes {
+    id int [pk, increment, note: 'Identificador único del mensaje']
+    aliado_id int [ref: > aliados.id, not null, note: 'CRÍTICO: Mensaje pertenece a un aliado']
+    thread_id int [ref: > threads.id, not null, note: 'A qué conversación/hilo pertenece el mensaje']
+    id_remitente int [not null, note: 'ID del remitente. Si es cliente: perfil_cliente_id. Si es establecimiento: colaborador_id']
+    tipo_remitente varchar(20) [not null, note: 'cliente o establecimiento - Indica si el remitente es cliente o colaborador']
+    id_destinatario int [not null, note: 'ID del destinatario. Si es cliente: perfil_cliente_id. Si es establecimiento: colaborador_id']
+    tipo_destinatario varchar(20) [not null, note: 'cliente o establecimiento - Indica si el destinatario es cliente o colaborador']
+    contenido text [not null, note: 'El cuerpo del mensaje de texto']
+    leido boolean [default: false, note: 'Indica si el destinatario ya leyó el mensaje']
+    fecha_envio timestamp [default: `CURRENT_TIMESTAMP`, note: 'Fecha y hora en que se envió el mensaje']
+    fecha_leido timestamp [note: 'Cuándo el destinatario leyó el mensaje']
+
+    indexes {
+      (aliado_id) [note: 'Índice crítico para filtrado']
+      (thread_id) [note: 'Para obtener todos los mensajes de una conversación']
+      (id_remitente, tipo_remitente) [note: 'Para buscar mensajes enviados por un usuario']
+      (id_destinatario, tipo_destinatario) [note: 'Para buscar mensajes recibidos por un usuario']
+      (leido) [note: 'Para filtrar mensajes no leídos']
+      (fecha_envio) [note: 'Para ordenar mensajes por fecha']
+      (thread_id, fecha_envio) [note: 'Índice compuesto para ordenar mensajes dentro de una conversación']
+    }
+  }
+

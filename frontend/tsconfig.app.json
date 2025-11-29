@@ -18,7 +18,20 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/ecommerce/*"],
+      "@components/*": ["src/ecommerce/components/*"],
+      "@pages/*": ["src/ecommerce/pages/*"],
+      "@services/*": ["src/ecommerce/services/*"],
+      "@utils/*": ["src/ecommerce/utils/*"],
+      "@types/*": ["src/ecommerce/types/*"],
+      "@types": ["src/ecommerce/types/index"],
+      "@styles/*": ["src/ecommerce/styles/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
